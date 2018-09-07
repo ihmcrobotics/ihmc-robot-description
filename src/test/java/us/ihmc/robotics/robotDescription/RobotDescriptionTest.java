@@ -12,7 +12,6 @@ import org.ejml.ops.MatrixFeatures;
 import org.junit.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
-import us.ihmc.continuousIntegration.ContinuousIntegrationAnnotations.ContinuousIntegrationTest;
 import us.ihmc.euclid.Axis;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.tools.EuclidCoreTestTools;
@@ -23,7 +22,6 @@ import us.ihmc.graphicsDescription.Graphics3DObject;
 public class RobotDescriptionTest
 {
 
-   @ContinuousIntegrationTest(estimatedDuration = 0.0)
    @Test(timeout = 30000)
    public void testRobotDescriptionOne()
    {
