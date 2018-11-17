@@ -9,21 +9,16 @@ import java.util.Random;
 
 import org.junit.Test;
 
-import us.ihmc.continuousIntegration.ContinuousIntegrationAnnotations.ContinuousIntegrationPlan;
-import us.ihmc.continuousIntegration.ContinuousIntegrationAnnotations.ContinuousIntegrationTest;
-import us.ihmc.continuousIntegration.IntegrationCategory;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.tools.EuclidCoreRandomTools;
 import us.ihmc.euclid.tuple3D.Vector3D;
 
-@ContinuousIntegrationPlan(categories = {IntegrationCategory.FAST})
 public class InertiaToolsTest
 {
    private static final int ITERATIONS = 1000;
    private static final double DELTA = 1e-3;
 
-	@ContinuousIntegrationTest(estimatedDuration = 0.0)
 	@Test(timeout = 30000)
    public void testGetInertiaEllipsoidRadii()
    {
@@ -47,7 +42,6 @@ public class InertiaToolsTest
       }
    }
 
-	@ContinuousIntegrationTest(estimatedDuration = 0.0)
 	@Test(timeout = 30000)
    public void testRotations()
    {

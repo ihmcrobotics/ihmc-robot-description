@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-import us.ihmc.continuousIntegration.ContinuousIntegrationAnnotations.ContinuousIntegrationTest;
 import us.ihmc.euclid.Axis;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
@@ -54,7 +53,6 @@ public class RobotDescriptionUsingSpringFlamingoTest
    private static final double FOOT_BEHIND = FOOT_X - FOOT_FORWARD;
    private static final double HIP_OFFSET_Y = 0.12;
 
-   @ContinuousIntegrationTest(estimatedDuration = 0.0)
    @Test(timeout = 30000)
    public void testUsingSpringFlamingoRobotDescription()
    {

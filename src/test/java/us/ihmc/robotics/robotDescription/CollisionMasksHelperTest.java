@@ -8,12 +8,10 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
-import us.ihmc.continuousIntegration.ContinuousIntegrationAnnotations.ContinuousIntegrationTest;
 
 public class CollisionMasksHelperTest
 {
 
-   @ContinuousIntegrationTest(estimatedDuration = 0.0)
    @Test(timeout = 30000)
    public void testCollisionMasksHelper()
    {
@@ -122,7 +120,6 @@ public class CollisionMasksHelperTest
       assertEquals(0b1100010, objectSix.getCollisionMask());
    }
 
-   @ContinuousIntegrationTest(estimatedDuration = 0.0)
    @Test(timeout = 30000)
    public void testMaxNumberOfGroupsInCollisionMasksHelper()
    {
