@@ -1,15 +1,12 @@
 package us.ihmc.robotics.robotDescription;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static us.ihmc.robotics.Assert.*;
 
 import java.util.ArrayList;
 
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.MatrixFeatures;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
 import us.ihmc.euclid.Axis;
@@ -22,7 +19,7 @@ import us.ihmc.graphicsDescription.Graphics3DObject;
 public class RobotDescriptionTest
 {
 
-   @Test(timeout = 30000)
+   @Test// timeout = 30000
    public void testRobotDescriptionOne()
    {
       RobotDescription robotDescription = new RobotDescription("Test");

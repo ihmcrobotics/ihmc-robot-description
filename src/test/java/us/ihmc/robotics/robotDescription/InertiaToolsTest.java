@@ -1,13 +1,12 @@
 package us.ihmc.robotics.robotDescription;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static us.ihmc.robotics.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
@@ -19,7 +18,7 @@ public class InertiaToolsTest
    private static final int ITERATIONS = 1000;
    private static final double DELTA = 1e-3;
 
-	@Test(timeout = 30000)
+	@Test// timeout = 30000
    public void testGetInertiaEllipsoidRadii()
    {
       Random random = new Random();
@@ -42,7 +41,7 @@ public class InertiaToolsTest
       }
    }
 
-	@Test(timeout = 30000)
+	@Test// timeout = 30000
    public void testRotations()
    {
       double epsilon = 1e-7;
