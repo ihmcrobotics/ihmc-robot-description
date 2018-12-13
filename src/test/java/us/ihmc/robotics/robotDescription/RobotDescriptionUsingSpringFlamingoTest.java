@@ -2,7 +2,7 @@ package us.ihmc.robotics.robotDescription;
 
 import java.util.ArrayList;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import us.ihmc.euclid.Axis;
 import us.ihmc.euclid.transform.RigidBodyTransform;
@@ -53,7 +53,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
    private static final double FOOT_BEHIND = FOOT_X - FOOT_FORWARD;
    private static final double HIP_OFFSET_Y = 0.12;
 
-   @Test(timeout = 30000)
+   @Test// timeout = 30000
    public void testUsingSpringFlamingoRobotDescription()
    {
       FloatingPlanarJointDescription plane;
