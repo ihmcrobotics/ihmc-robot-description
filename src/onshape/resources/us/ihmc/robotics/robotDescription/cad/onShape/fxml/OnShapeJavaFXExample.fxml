@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720" prefWidth="1280"
+            xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="us.ihmc.robotics.robotDescription.cad.onShape.javafx.controllers.OnShapeJavaFXExampleController">
+    <left>
+        <AnchorPane maxWidth="310.0" prefHeight="720" prefWidth="310.0">
+            <children>
+                <Label layoutX="15.0" layoutY="14.0" text="OnShape API Access Key:"/>
+                <PasswordField fx:id="accessKeyField" layoutX="11.0" layoutY="31.0" prefHeight="27.0" prefWidth="285.0"/>
+                <Label layoutX="15.0" layoutY="66.0" text="OnShape API Secret Key:"/>
+                <PasswordField fx:id="secretKeyField" layoutX="13.0" layoutY="83.0" prefHeight="27.0" prefWidth="285.0"/>
+                <Separator layoutX="1.0" layoutY="110.0" prefHeight="14.0" prefWidth="312.0"/>
+                <Label layoutX="12.0" layoutY="124.0" text="OnShape URL:"/>
+                <TextField fx:id="urlField" layoutX="12.0" layoutY="141.0" prefHeight="27.0" prefWidth="285.0"/>
+                <Button fx:id="visualizeButton" layoutX="12.0" layoutY="178.0" mnemonicParsing="false" text="Visualize" onAction="#onVisualizeAction"/>
+                <Separator layoutX="311.0" orientation="VERTICAL" prefHeight="720.0" prefWidth="0.0"/>
+            </children>
+        </AnchorPane>
+    </left>
+
+</BorderPane>
