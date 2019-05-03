@@ -14,11 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
+import java.util.*;
 
 /**
  * @author Doug Stephen <a href="mailto:dstephen@ihmc.us">(dstephen@ihmc.us)</a>
@@ -42,15 +38,18 @@ public class OnShapeModelDownloadExample
                                                                                               .includeMateFeatures(true);
       AssembliesGetAssemblyDefinitionResponse call = assemblyDefinitionBuilder.call(nadiaDocument);
 
-      //      AssembliesCreateTranslationResponse colladaTranslation = null;
-      //      AssembliesGetAssemblyDefinitionResponseRootAssemblyInstances pelvisInstance = null;
-
       List<AssembliesCreateTranslationResponse> colladaTranslations = new ArrayList<>();
-      List<AssembliesGetAssemblyDefinitionResponseRootAssemblyInstances> instancesToDownload = new ArrayList<>();
 
       String searchString = "Pelvis";
 
       Set<String> documentIDs = new HashSet<>();
+      for (AssembliesGetAssemblyDefinitionResponseSubAssemblies subAssembly : call.getSubAssemblies())
+      {
+         for (AssembliesGetAssemblyDefinitionResponseSubAssembliesInstances instance : subAssembly.getInstances())
+         {
+            System.out.println("Instance: " + instance.name);
+         }
+      }
 
       for (AssembliesGetAssemblyDefinitionResponseRootAssemblyInstances instance : call.getRootAssembly().instances)
       {
@@ -60,7 +59,6 @@ public class OnShapeModelDownloadExample
             if (!documentIDs.contains(documentId))
             {
                System.out.println("Instance: " + instance.name);
-               instancesToDownload.add(instance);
                AssembliesCreateTranslationResponse translation = onshapeClient.assemblies().createTranslation().formatName("COLLADA")
                                                                               .call(documentId, WV.Version, instance.documentVersion, instance.elementId);
 
@@ -80,28 +78,29 @@ public class OnShapeModelDownloadExample
 //         System.out.println("Instance Definition:" + instanceDefinitionResponse);
 //      }
 
-            Stream<ImmutablePair<String, Blob>> blobStream = colladaTranslations.parallelStream().map(OnShapeModelDownloadExample::getBlobForTranslation);
+      colladaTranslations.parallelStream().map(OnShapeModelDownloadExample::getBlobForTranslation).filter(Objects::nonNull)
+                         .forEach(OnShapeModelDownloadExample::saveBlobToColladaFile);
+   }
 
-            blobStream.forEach(data -> {
+   private static void saveBlobToColladaFile(ImmutablePair<String, Blob> data)
+   {
+      Path savePath = Paths.get(System.getProperty("user.home"), "tmp", data.left);
 
-               Path savePath = Paths.get(System.getProperty("user.home"), "tmp", data.left);
+      if (!savePath.getParent().toFile().exists())
+      {
+         savePath.getParent().toFile().mkdirs();
+      }
 
-               if (!savePath.getParent().toFile().exists())
-               {
-                  savePath.getParent().toFile().mkdirs();
-               }
-
-               FileOutputStream outputStream = null;
-               try
-               {
-                  outputStream = new FileOutputStream(savePath.toFile(), false);
-                  outputStream.write(data.right.getData());
-               }
-               catch (IOException e)
-               {
-                  e.printStackTrace();
-               }
-            });
+      FileOutputStream outputStream = null;
+      try
+      {
+         outputStream = new FileOutputStream(savePath.toFile(), false);
+         outputStream.write(data.right.getData());
+      }
+      catch (IOException e)
+      {
+         e.printStackTrace();
+      }
    }
 
    private static ImmutablePair<String, Blob> getBlobForTranslation(AssembliesCreateTranslationResponse colladaTranslation)
@@ -161,8 +160,7 @@ public class OnShapeModelDownloadExample
 
             if (dataDownload != null)
             {
-               ImmutablePair<String, Blob> ret = new ImmutablePair<>("nadia_" + colladaTranslation.getId() + ".dae", dataDownload.getData());
-               return ret;
+               return new ImmutablePair<>("nadia_" + colladaTranslation.getId() + ".dae", dataDownload.getData());
             }
          }
       }
