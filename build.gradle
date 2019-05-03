@@ -24,6 +24,8 @@ mainDependencies {
 onshapeDependencies {
    compile ihmc.sourceSetProject("main")
 
+   compile group: "us.ihmc", name: "ihmc-javafx-toolkit", version: "0.12.8"
+
    implementation 'com.github.onshape-public:java-client:v1.93.23050.f7e220beef3f'
 }
 
