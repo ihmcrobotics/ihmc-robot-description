@@ -1,6 +1,7 @@
 plugins {
    id("us.ihmc.ihmc-build") version "0.15.7"
    id("us.ihmc.ihmc-ci") version "4.23"
+   id("us.ihmc.ihmc-cd") version "0.1"
 }
 
 ihmc {
@@ -21,5 +22,5 @@ mainDependencies {
 }
 
 testDependencies {
-   compile group: "us.ihmc", name: "ihmc-commons-testing", version: "0.25.4"
+   compile group: "us.ihmc", name: "ihmc-commons-testing", version: "0.26.3"
 }
