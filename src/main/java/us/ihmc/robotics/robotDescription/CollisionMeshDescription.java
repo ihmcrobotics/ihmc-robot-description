@@ -7,10 +7,10 @@ import us.ihmc.euclid.Axis;
 import us.ihmc.euclid.geometry.LineSegment3D;
 import us.ihmc.euclid.geometry.Pose3D;
 import us.ihmc.euclid.orientation.interfaces.Orientation3DReadOnly;
+import us.ihmc.euclid.shape.convexPolytope.interfaces.ConvexPolytope3DReadOnly;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
-import us.ihmc.geometry.polytope.ConvexPolytope;
 
 public class CollisionMeshDescription implements CollisionMaskHolder
 {
@@ -89,7 +89,7 @@ public class CollisionMeshDescription implements CollisionMaskHolder
       pose.appendTranslation(0.0, 0.0, -height / 2.0);
    }
 
-   public void addConvexPolytope(ConvexPolytope polytope)
+   public void addConvexPolytope(ConvexPolytope3DReadOnly polytope)
    {
       ConvexPolytopeDescriptionReadOnly polytopeReadOnly = new ConvexPolytopeDescriptionReadOnly(polytope, getRigidBodyTransformCopy());
       convexShapeDescriptions.add(polytopeReadOnly);

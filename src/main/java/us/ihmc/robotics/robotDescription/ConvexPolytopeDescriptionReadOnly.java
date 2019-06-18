@@ -1,22 +1,23 @@
 package us.ihmc.robotics.robotDescription;
 
+import us.ihmc.euclid.shape.convexPolytope.ConvexPolytope3D;
+import us.ihmc.euclid.shape.convexPolytope.interfaces.ConvexPolytope3DReadOnly;
 import us.ihmc.euclid.transform.RigidBodyTransform;
-import us.ihmc.geometry.polytope.ConvexPolytope;
 
 public class ConvexPolytopeDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
 {
    //TODO: Trying to create a read only version by copying a full version. Should be a more efficient way to do this...
-   private final ConvexPolytope convexPolytope;
+   private final ConvexPolytope3D convexPolytope;
 
-   public ConvexPolytopeDescriptionReadOnly(ConvexPolytope polytope, RigidBodyTransform rigidBodyTransform)
+   public ConvexPolytopeDescriptionReadOnly(ConvexPolytope3DReadOnly polytope, RigidBodyTransform rigidBodyTransform)
    {
-      this.convexPolytope = new ConvexPolytope(polytope);
+      this.convexPolytope = new ConvexPolytope3D(polytope);
       this.convexPolytope.applyTransform(rigidBodyTransform);
    }
 
-   public ConvexPolytope getConvexPolytope()
+   public ConvexPolytope3D getConvexPolytope()
    {
-      return new ConvexPolytope(convexPolytope);
+      return new ConvexPolytope3D(convexPolytope);
    }
 
 }
