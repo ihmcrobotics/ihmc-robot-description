@@ -244,7 +244,7 @@ public class JointDescription implements RobotDescriptionNode
          SensorDescription sensor = sensors.get(i);
          RigidBodyTransform transformToJoint = sensor.getTransformToJoint();
          Vector3D translation = new Vector3D();
-         transformToJoint.getTranslation(translation);
+         translation.set(transformToJoint.getTranslation());
          translation.scale(factor);
          transformToJoint.getTranslation().set(translation);
          sensor.setTransformToJoint(transformToJoint);
