@@ -1,6 +1,6 @@
 package us.ihmc.robotics.robotDescription;
 
-import us.ihmc.euclid.Axis;
+import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.geometry.LineSegment3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 
@@ -11,7 +11,7 @@ public class CapsuleDescriptionReadOnly implements ConvexShapeDescriptionReadOnl
 
    public CapsuleDescriptionReadOnly(double radius, double height, RigidBodyTransform transformToCenter)
    {
-      this(radius, height, Axis.Z, transformToCenter);
+      this(radius, height, Axis3D.Z, transformToCenter);
    }
 
    public CapsuleDescriptionReadOnly(double radius, LineSegment3D capToCapLineSegment, RigidBodyTransform transformToCenter)
@@ -21,7 +21,7 @@ public class CapsuleDescriptionReadOnly implements ConvexShapeDescriptionReadOnl
       capToCapLineSegment.applyTransform(transformToCenter);
    }
 
-   public CapsuleDescriptionReadOnly(double radius, double height, Axis longAxis, RigidBodyTransform transformToCenter)
+   public CapsuleDescriptionReadOnly(double radius, double height, Axis3D longAxis, RigidBodyTransform transformToCenter)
    {
       if (height < 2.0 * radius)
          throw new RuntimeException("Capsule height must be at least 2.0 * radius!");
