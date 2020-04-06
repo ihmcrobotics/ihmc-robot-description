@@ -54,7 +54,7 @@ public class SensorDescription
    {
       Vector3D ret = new Vector3D();
 
-      transformToJoint.getTranslation(ret);
+      ret.set(transformToJoint.getTranslation());
 
       return ret;
    }

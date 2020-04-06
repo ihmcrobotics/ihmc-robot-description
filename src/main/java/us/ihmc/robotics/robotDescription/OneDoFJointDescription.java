@@ -2,7 +2,7 @@ package us.ihmc.robotics.robotDescription;
 
 import java.util.List;
 
-import us.ihmc.euclid.Axis;
+import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 
 public class OneDoFJointDescription extends JointDescription
@@ -22,7 +22,7 @@ public class OneDoFJointDescription extends JointDescription
 
    private final Vector3D jointAxis = new Vector3D();
 
-   public OneDoFJointDescription(String name, Vector3D offsetFromParentJoint, Axis jointAxis)
+   public OneDoFJointDescription(String name, Vector3D offsetFromParentJoint, Axis3D jointAxis)
    {
       super(name, offsetFromParentJoint);
 

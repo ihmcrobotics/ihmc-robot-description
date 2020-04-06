@@ -9,7 +9,7 @@ import org.ejml.ops.MatrixFeatures;
 import org.junit.jupiter.api.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
-import us.ihmc.euclid.Axis;
+import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.tools.EuclidCoreTestTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
@@ -64,7 +64,7 @@ public class RobotDescriptionTest
       assertEquals(1, rootJoints.size());
       assertTrue(rootJointOne == rootJoints.get(0));
 
-      PinJointDescription rootJointTwo = new PinJointDescription("rootJointTwo", new Vector3D(-0.1, -0.2, -0.3), Axis.Y);
+      PinJointDescription rootJointTwo = new PinJointDescription("rootJointTwo", new Vector3D(-0.1, -0.2, -0.3), Axis3D.Y);
       Vector3D jointAxisCheck = new Vector3D();
       rootJointTwo.getJointAxis(jointAxisCheck);
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(0.0, 1.0, 0.0), jointAxisCheck, 1e-7);
@@ -84,7 +84,7 @@ public class RobotDescriptionTest
       assertTrue(rootJointOne == robotDescription.getChildrenJoints().get(0));
       assertTrue(rootJointTwo == robotDescription.getChildrenJoints().get(1));
 
-      PinJointDescription childJointOne = new PinJointDescription("childJointOne", new Vector3D(1.2, 1.3, 7.7), Axis.Z);
+      PinJointDescription childJointOne = new PinJointDescription("childJointOne", new Vector3D(1.2, 1.3, 7.7), Axis3D.Z);
 
       Vector3D jointOffsetCheck = new Vector3D();
       childJointOne.getOffsetFromParentJoint(jointOffsetCheck);
@@ -187,7 +187,7 @@ public class RobotDescriptionTest
       assertTrue(childJointOne == childrenJoints.get(0));
       assertTrue(childJointTwo == childrenJoints.get(1));
 
-      PinJointDescription childJointThree = new PinJointDescription("childJointThree", new Vector3D(9.9, 0.0, -0.5), Axis.X);
+      PinJointDescription childJointThree = new PinJointDescription("childJointThree", new Vector3D(9.9, 0.0, -0.5), Axis3D.X);
       childJointThree.getOffsetFromParentJoint(jointOffsetCheck);
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(9.9, 0.0, -0.5), jointOffsetCheck, 1e-7);
       childJointThree.getJointAxis(jointAxisCheck);
