@@ -3,7 +3,7 @@ package us.ihmc.robotics.robotDescription;
 import java.util.ArrayList;
 import java.util.List;
 
-import us.ihmc.euclid.Axis;
+import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.geometry.LineSegment3D;
 import us.ihmc.euclid.geometry.Pose3D;
 import us.ihmc.euclid.orientation.interfaces.Orientation3DReadOnly;
@@ -49,7 +49,7 @@ public class CollisionMeshDescription implements CollisionMaskHolder
       convexShapeDescriptions.add(capsule);
    }
 
-   public void addCapsule(double radius, double height, Axis longAxis)
+   public void addCapsule(double radius, double height, Axis3D longAxis)
    {
       CapsuleDescriptionReadOnly capsule = new CapsuleDescriptionReadOnly(radius, height, longAxis, getRigidBodyTransformCopy());
       convexShapeDescriptions.add(capsule);
@@ -171,7 +171,7 @@ public class CollisionMeshDescription implements CollisionMaskHolder
       pose.appendRotation(rotation);
    }
 
-   public void rotate(double rotationAngle, Axis axis)
+   public void rotate(double rotationAngle, Axis3D axis)
    {
       switch (axis)
       {
