@@ -15,9 +15,9 @@ ihmc {
 }
 
 mainDependencies {
-   api("us.ihmc:euclid:0.13.1")
+   api("us.ihmc:euclid:0.14.0")
    api("org.ejml:core:0.30")
-   api("us.ihmc:ihmc-graphics-description:0.15.0")
+   api("us.ihmc:ihmc-graphics-description:0.16.0")
 }
 
 testDependencies {
