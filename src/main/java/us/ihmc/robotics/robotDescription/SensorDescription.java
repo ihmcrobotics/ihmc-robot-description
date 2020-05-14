@@ -1,20 +1,23 @@
 package us.ihmc.robotics.robotDescription;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
-import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.transform.interfaces.RigidBodyTransformBasics;
+import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 
 public class SensorDescription
 {
    private String name;
    private final RigidBodyTransform transformToJoint = new RigidBodyTransform();
 
-   public SensorDescription(String name, Vector3D offsetFromJoint)
+   public SensorDescription(String name, Tuple3DReadOnly offsetFromJoint)
    {
       this.name = name;
       transformToJoint.setTranslationAndIdentityRotation(offsetFromJoint);
    }
 
-   public SensorDescription(String name, RigidBodyTransform transformToJoint)
+   public SensorDescription(String name, RigidBodyTransformReadOnly transformToJoint)
    {
       this.name = name;
       this.transformToJoint.set(transformToJoint);
@@ -30,17 +33,17 @@ public class SensorDescription
       this.name = name;
    }
 
-   public void setOffsetFromJoint(Vector3D offsetFromJoint)
+   public void setOffsetFromJoint(Tuple3DReadOnly offsetFromJoint)
    {
       transformToJoint.setTranslationAndIdentityRotation(offsetFromJoint);
    }
 
-   public void getTransformToJoint(RigidBodyTransform transformToJointToPack)
+   public void getTransformToJoint(RigidBodyTransformBasics transformToJointToPack)
    {
       transformToJointToPack.set(transformToJoint);
    }
 
-   public void setTransformToJoint(RigidBodyTransform transformToJoint)
+   public void setTransformToJoint(RigidBodyTransformReadOnly transformToJoint)
    {
       this.transformToJoint.set(transformToJoint);
    }
@@ -50,13 +53,8 @@ public class SensorDescription
       return transformToJoint;
    }
 
-   public Vector3D getOffsetFromJoint()
+   public Vector3DBasics getOffsetFromJoint()
    {
-      Vector3D ret = new Vector3D();
-
-      ret.set(transformToJoint.getTranslation());
-
-      return ret;
+      return transformToJoint.getTranslation();
    }
-
 }

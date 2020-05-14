@@ -10,5 +10,4 @@ public interface RobotDescriptionNode
    public abstract ArrayList<JointDescription> getChildrenJoints();
 
    public void scale(double factor, double massScalePower, List<String> ignoreInertiaScaleJointList);
-
 }

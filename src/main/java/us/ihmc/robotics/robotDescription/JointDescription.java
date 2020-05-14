@@ -5,6 +5,8 @@ import java.util.List;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 
 public class JointDescription implements RobotDescriptionNode
 {
@@ -30,7 +32,7 @@ public class JointDescription implements RobotDescriptionNode
 
    private boolean isDynamic = true;
 
-   public JointDescription(String name, Vector3D offsetFromParentJoint)
+   public JointDescription(String name, Tuple3DReadOnly offsetFromParentJoint)
    {
       this.name = name;
       this.offsetFromParentJoint.set(offsetFromParentJoint);
@@ -47,7 +49,7 @@ public class JointDescription implements RobotDescriptionNode
       this.parentJoint = parentJoint;
    }
 
-   public void setOffsetFromParentJoint(Vector3D offset)
+   public void setOffsetFromParentJoint(Tuple3DReadOnly offset)
    {
       offsetFromParentJoint.set(offset);
    }
@@ -57,7 +59,7 @@ public class JointDescription implements RobotDescriptionNode
       return parentJoint;
    }
 
-   public void getOffsetFromParentJoint(Vector3D offsetToPack)
+   public void getOffsetFromParentJoint(Tuple3DBasics offsetToPack)
    {
       offsetToPack.set(offsetFromParentJoint);
    }

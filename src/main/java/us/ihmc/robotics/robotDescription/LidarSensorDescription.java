@@ -1,6 +1,6 @@
 package us.ihmc.robotics.robotDescription;
 
-import us.ihmc.euclid.transform.RigidBodyTransform;
+import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
 
 public class LidarSensorDescription extends SensorDescription
 {
@@ -16,7 +16,7 @@ public class LidarSensorDescription extends SensorDescription
    private int pointsPerSweep;
    private int scanHeight;
 
-   public LidarSensorDescription(String name, RigidBodyTransform transformToJoint)
+   public LidarSensorDescription(String name, RigidBodyTransformReadOnly transformToJoint)
    {
       super(name, transformToJoint);
    }
