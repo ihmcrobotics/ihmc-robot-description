@@ -11,8 +11,8 @@ public class ConvexPolytopeDescriptionReadOnly implements ConvexShapeDescription
 
    public ConvexPolytopeDescriptionReadOnly(ConvexPolytope3DReadOnly polytope, RigidBodyTransform rigidBodyTransform)
    {
-      this.convexPolytope = new ConvexPolytope3D(polytope);
-      this.convexPolytope.applyTransform(rigidBodyTransform);
+      convexPolytope = new ConvexPolytope3D(polytope);
+      convexPolytope.applyTransform(rigidBodyTransform);
    }
 
    public ConvexPolytope3D getConvexPolytope()

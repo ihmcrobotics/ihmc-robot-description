@@ -1,6 +1,7 @@
 package us.ihmc.robotics.robotDescription;
 
-import static us.ihmc.robotics.Assert.*;
+import static us.ihmc.robotics.Assert.assertEquals;
+import static us.ihmc.robotics.Assert.fail;
 
 import java.util.ArrayList;
 
@@ -11,7 +12,7 @@ import us.ihmc.commons.MutationTestFacilitator;
 public class CollisionMasksHelperTest
 {
 
-   @Test// timeout = 30000
+   @Test // timeout = 30000
    public void testCollisionMasksHelper()
    {
       CollisionMeshDescription objectOne = new CollisionMeshDescription();
@@ -113,13 +114,13 @@ public class CollisionMasksHelperTest
       assertEquals(0b1000, objectFour.getCollisionMask());
       assertEquals(0b010, objectFive.getCollisionMask());
       assertEquals(0b010, objectSix.getCollisionMask());
-      
+
       helper.addToCollisionMasks("GroupFour", 0b1100000);
       assertEquals(0b1100010, objectFive.getCollisionMask());
       assertEquals(0b1100010, objectSix.getCollisionMask());
    }
 
-   @Test// timeout = 30000
+   @Test // timeout = 30000
    public void testMaxNumberOfGroupsInCollisionMasksHelper()
    {
       CollisionMasksHelper helper = new CollisionMasksHelper();

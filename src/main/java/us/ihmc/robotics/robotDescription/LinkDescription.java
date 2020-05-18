@@ -54,7 +54,7 @@ public class LinkDescription
 
    public void addCollisionMesh(CollisionMeshDescription collisionMesh)
    {
-      this.collisionMeshes.add(collisionMesh);
+      collisionMeshes.add(collisionMesh);
    }
 
    public double getMass()
@@ -86,7 +86,7 @@ public class LinkDescription
 
    public void setCenterOfMassOffset(double xOffset, double yOffset, double zOffset)
    {
-      this.centerOfMassOffset.set(xOffset, yOffset, zOffset);
+      centerOfMassOffset.set(xOffset, yOffset, zOffset);
    }
 
    public void setMomentOfInertia(DenseMatrix64F momentOfInertia)
@@ -143,10 +143,10 @@ public class LinkDescription
 
    public void setMomentOfInertia(double Ixx, double Iyy, double Izz)
    {
-      this.momentOfInertia.zero();
-      this.momentOfInertia.set(0, 0, Ixx);
-      this.momentOfInertia.set(1, 1, Iyy);
-      this.momentOfInertia.set(2, 2, Izz);
+      momentOfInertia.zero();
+      momentOfInertia.set(0, 0, Ixx);
+      momentOfInertia.set(1, 1, Iyy);
+      momentOfInertia.set(2, 2, Izz);
 
    }
 
@@ -186,7 +186,7 @@ public class LinkDescription
 
       Vector3D inertiaEllipsoidRadii = InertiaTools.getInertiaEllipsoidRadii(principalMomentsOfInertia, mass);
 
-      ArrayList<Vector3D> inertiaEllipsoidAxes = new ArrayList<Vector3D>();
+      ArrayList<Vector3D> inertiaEllipsoidAxes = new ArrayList<>();
 
       Vector3D e1 = new Vector3D();
       principalAxesRotation.getColumn(0, e1);
@@ -226,7 +226,7 @@ public class LinkDescription
          linkGraphics.addCube(vertexSize, vertexSize, vertexSize, appearance);
       }
 
-      ArrayList<Point3D> inertiaOctahedronVertices = new ArrayList<Point3D>();
+      ArrayList<Point3D> inertiaOctahedronVertices = new ArrayList<>();
 
       Point3D p1 = new Point3D(e1);
       inertiaOctahedronVertices.add(p1);
@@ -241,36 +241,36 @@ public class LinkDescription
       Point3D p6 = new Point3D(e6);
       inertiaOctahedronVertices.add(p6);
 
-      ArrayList<Point3D> face1 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face1 = new ArrayList<>();
       face1.add(p1);
       face1.add(p5);
       face1.add(p4);
-      ArrayList<Point3D> face2 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face2 = new ArrayList<>();
       face2.add(p4);
       face2.add(p5);
       face2.add(p3);
-      ArrayList<Point3D> face3 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face3 = new ArrayList<>();
       face3.add(p3);
       face3.add(p5);
       face3.add(p2);
-      ArrayList<Point3D> face4 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face4 = new ArrayList<>();
       face4.add(p2);
       face4.add(p5);
       face4.add(p1);
 
-      ArrayList<Point3D> face5 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face5 = new ArrayList<>();
       face5.add(p4);
       face5.add(p6);
       face5.add(p1);
-      ArrayList<Point3D> face6 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face6 = new ArrayList<>();
       face6.add(p3);
       face6.add(p6);
       face6.add(p4);
-      ArrayList<Point3D> face7 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face7 = new ArrayList<>();
       face7.add(p2);
       face7.add(p6);
       face7.add(p3);
-      ArrayList<Point3D> face8 = new ArrayList<Point3D>();
+      ArrayList<Point3D> face8 = new ArrayList<>();
       face8.add(p1);
       face8.add(p6);
       face8.add(p2);
@@ -298,8 +298,8 @@ public class LinkDescription
     * Adds an ellipsoid representing the mass and inertia of the link at its center of mass with the
     * specified appearance.
     *
-    * @param appearance Appearance to be used with the ellipsoid. See {@link YoAppearance
-    *           YoAppearance} for implementations.
+    * @param appearance Appearance to be used with the ellipsoid. See {@link YoAppearance YoAppearance}
+    *                   for implementations.
     */
    public void addEllipsoidFromMassProperties(AppearanceDefinition appearance)
    {
@@ -322,15 +322,11 @@ public class LinkDescription
 
    /**
     * Adds an box representing the mass and inertia of the link at its center of mass with the
-    * specified appearance.
-    *
-    * Specifically, mimics the code from Gazebo to debug SDF loader
-    *
-    * See
+    * specified appearance. Specifically, mimics the code from Gazebo to debug SDF loader See
     * https://bitbucket.org/osrf/gazebo/src/0709b57a8a3a8abce3c67e992e5c6a5c24c8d84a/gazebo/rendering/COMVisual.cc?at=default
     *
-    * @param appearance Appearance to be used with the ellipsoid. See {@link YoAppearance
-    *           YoAppearance} for implementations.
+    * @param appearance Appearance to be used with the ellipsoid. See {@link YoAppearance YoAppearance}
+    *                   for implementations.
     */
    public void addBoxFromMassProperties(AppearanceDefinition appearance)
    {

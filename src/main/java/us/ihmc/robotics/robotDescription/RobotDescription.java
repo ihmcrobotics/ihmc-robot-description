@@ -17,12 +17,12 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
 
    public RobotDescription(String name)
    {
-      this.setName(name);
+      setName(name);
    }
 
    public void addRootJoint(JointDescription rootJoint)
    {
-      this.rootJoints.add(rootJoint);
+      rootJoints.add(rootJoint);
    }
 
    @Override
@@ -143,7 +143,8 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
       CollisionMeshDescription collisionMesh = new CollisionMeshDescription();
       collisionMesh.identity();
       collisionMesh.transform(collisionMeshDefinitionData.getTransformToParentJoint());
-      collisionMesh.addCubeReferencedAtCenter(collisionMeshDefinitionData.getLength(), collisionMeshDefinitionData.getWidth(),
+      collisionMesh.addCubeReferencedAtCenter(collisionMeshDefinitionData.getLength(),
+                                              collisionMeshDefinitionData.getWidth(),
                                               collisionMeshDefinitionData.getHeight());
       collisionMesh.setCollisionGroup(collisionMeshDefinitionData.getCollisionGroup());
       collisionMesh.setCollisionMask(collisionMeshDefinitionData.getCollisionMask());
@@ -163,7 +164,9 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
          linkGraphics.identity();
          linkGraphics.transform(collisionMeshDefinitionData.getTransformToParentJoint());
          linkGraphics.translate(0, 0, -0.5 * collisionMeshDefinitionData.getHeight());
-         linkGraphics.addCube(collisionMeshDefinitionData.getLength(), collisionMeshDefinitionData.getWidth(), collisionMeshDefinitionData.getHeight(),
+         linkGraphics.addCube(collisionMeshDefinitionData.getLength(),
+                              collisionMeshDefinitionData.getWidth(),
+                              collisionMeshDefinitionData.getHeight(),
                               collisionMeshDefinitionData.getYoAppearance());
       }
    }
@@ -223,7 +226,8 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
 
          linkGraphics.identity();
          linkGraphics.transform(collisionMeshDefinitionData.getTransformToParentJoint());
-         linkGraphics.addCylinder(collisionMeshDefinitionData.getHeight(), collisionMeshDefinitionData.getRadius(),
+         linkGraphics.addCylinder(collisionMeshDefinitionData.getHeight(),
+                                  collisionMeshDefinitionData.getRadius(),
                                   collisionMeshDefinitionData.getYoAppearance());
       }
    }

@@ -47,19 +47,19 @@ public class RobotDescriptionUsingSpringFlamingoTest
    private static final double FOOT_ZMAX = -0.01;
    private static final double FOOT_Y = 0.04;
    private static final double FOOT_X = 0.23;
-   private static final double FOOT_H = (0.04);
+   private static final double FOOT_H = 0.04;
    private static final double FOOT_OFFSET_PERCENT = 0.25;
-   private static final double FOOT_FORWARD = (FOOT_X * FOOT_OFFSET_PERCENT);
+   private static final double FOOT_FORWARD = FOOT_X * FOOT_OFFSET_PERCENT;
    private static final double FOOT_BEHIND = FOOT_X - FOOT_FORWARD;
    private static final double HIP_OFFSET_Y = 0.12;
 
-   @Test// timeout = 30000
+   @Test // timeout = 30000
    public void testUsingSpringFlamingoRobotDescription()
    {
       FloatingPlanarJointDescription plane;
       PinJointDescription rightHip, rightKnee, rightAnkle, leftHip, leftKnee, leftAnkle;
 
-      ArrayList<GroundContactPointDescription> gcPoints = new ArrayList<GroundContactPointDescription>(4);
+      ArrayList<GroundContactPointDescription> gcPoints = new ArrayList<>(4);
 
       RobotDescription robotDescription = new RobotDescription("SpringFlamingo");
 
@@ -129,7 +129,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       LinkDescription l_lower_leg = lower_leg("l_lower_leg");
       leftKnee.setLink(l_lower_leg);
       leftHip.addJoint(leftKnee);
-      ((PinJointDescription) leftKnee).setLimitStops(-Math.PI, 0.0, 1000.0, 40.0);
+      leftKnee.setLimitStops(-Math.PI, 0.0, 1000.0, 40.0);
 
       JointWrenchSensorDescription leftKneeWrenchSensor = new JointWrenchSensorDescription("leftKneeWrenchSensor", new Vector3D());
       leftKnee.addJointWrenchSensor(leftKneeWrenchSensor);

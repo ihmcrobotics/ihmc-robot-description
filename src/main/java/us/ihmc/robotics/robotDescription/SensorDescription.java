@@ -39,7 +39,7 @@ public class SensorDescription
    {
       transformToJointToPack.set(transformToJoint);
    }
-   
+
    public void setTransformToJoint(RigidBodyTransform transformToJoint)
    {
       this.transformToJoint.set(transformToJoint);

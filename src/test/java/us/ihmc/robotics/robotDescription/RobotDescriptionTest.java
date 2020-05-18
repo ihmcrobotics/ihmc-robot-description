@@ -1,6 +1,9 @@
 package us.ihmc.robotics.robotDescription;
 
-import static us.ihmc.robotics.Assert.*;
+import static us.ihmc.robotics.Assert.assertEquals;
+import static us.ihmc.robotics.Assert.assertFalse;
+import static us.ihmc.robotics.Assert.assertNull;
+import static us.ihmc.robotics.Assert.assertTrue;
 
 import java.util.ArrayList;
 
@@ -19,7 +22,7 @@ import us.ihmc.graphicsDescription.Graphics3DObject;
 public class RobotDescriptionTest
 {
 
-   @Test// timeout = 30000
+   @Test // timeout = 30000
    public void testRobotDescriptionOne()
    {
       RobotDescription robotDescription = new RobotDescription("Test");
@@ -92,12 +95,14 @@ public class RobotDescriptionTest
 
       LinkDescription childLinkOne = new LinkDescription("childLinkOne");
       childLinkOne.setMass(3.3);
-      DenseMatrix64F childMomentOfInertiaOne = new DenseMatrix64F(new double[][] { { 1.0, 0.012, 0.013 }, { 0.021, 2.0, 0.023 }, { 0.031, 0.032, 3.0 } });
+      DenseMatrix64F childMomentOfInertiaOne = new DenseMatrix64F(new double[][] {{1.0, 0.012, 0.013}, {0.021, 2.0, 0.023}, {0.031, 0.032, 3.0}});
       childLinkOne.setMomentOfInertia(childMomentOfInertiaOne);
       DenseMatrix64F childMomentOfInertiaOneCheck = new DenseMatrix64F(3, 3);
       childLinkOne.getMomentOfInertia(childMomentOfInertiaOneCheck);
 
-      assertTrue(MatrixFeatures.isEquals(new DenseMatrix64F(new double[][] { { 1.0, 0.012, 0.013 }, { 0.021, 2.0, 0.023 }, { 0.031, 0.032, 3.0 } }), childMomentOfInertiaOneCheck, 1e-7));
+      assertTrue(MatrixFeatures.isEquals(new DenseMatrix64F(new double[][] {{1.0, 0.012, 0.013}, {0.021, 2.0, 0.023}, {0.031, 0.032, 3.0}}),
+                                         childMomentOfInertiaOneCheck,
+                                         1e-7));
 
       rootJointOne.addJoint(childJointOne);
 

@@ -26,10 +26,10 @@ public class CameraSensorDescription extends SensorDescription
    {
       super(name, transformToJoint);
 
-      this.setFieldOfView(fieldOfView);
+      setFieldOfView(fieldOfView);
 
-      this.setClipNear(clipNear);
-      this.setClipFar(clipFar);
+      setClipNear(clipNear);
+      setClipFar(clipFar);
    }
 
    public double getFieldOfView()

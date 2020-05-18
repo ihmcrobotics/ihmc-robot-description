@@ -49,7 +49,7 @@ public class JointDescription implements RobotDescriptionNode
 
    public void setOffsetFromParentJoint(Vector3D offset)
    {
-      this.offsetFromParentJoint.set(offset);
+      offsetFromParentJoint.set(offset);
    }
 
    public JointDescription getParentJoint()
@@ -78,12 +78,13 @@ public class JointDescription implements RobotDescriptionNode
 
       if (childJointDescription.getParentJoint() != null)
       {
-         throw new RuntimeException("JointDescription " + childJointDescription.getName() + "already has a parent joint: " + childJointDescription.getParentJoint().getName());
+         throw new RuntimeException("JointDescription " + childJointDescription.getName() + "already has a parent joint: "
+               + childJointDescription.getParentJoint().getName());
       }
 
       childJointDescription.setParentJoint(this);
    }
-   
+
    public boolean removeJoint(JointDescription childJointDescription)
    {
       return childrenJointDescriptions.remove(childJointDescription);
@@ -97,7 +98,7 @@ public class JointDescription implements RobotDescriptionNode
 
    public void addGroundContactPoint(GroundContactPointDescription groundContactPointDescription)
    {
-      this.groundContactPoints.add(groundContactPointDescription);
+      groundContactPoints.add(groundContactPointDescription);
    }
 
    public ArrayList<GroundContactPointDescription> getGroundContactPoints()
@@ -107,7 +108,7 @@ public class JointDescription implements RobotDescriptionNode
 
    public void addExternalForcePoint(ExternalForcePointDescription externalForcePointDescription)
    {
-      this.externalForcePoints.add(externalForcePointDescription);
+      externalForcePoints.add(externalForcePointDescription);
    }
 
    public ArrayList<ExternalForcePointDescription> getExternalForcePoints()
@@ -117,7 +118,7 @@ public class JointDescription implements RobotDescriptionNode
 
    public void addKinematicPoint(KinematicPointDescription kinematicPointDescription)
    {
-      this.kinematicPoints.add(kinematicPointDescription);
+      kinematicPoints.add(kinematicPointDescription);
    }
 
    public ArrayList<KinematicPointDescription> getKinematicPoints()
@@ -184,7 +185,7 @@ public class JointDescription implements RobotDescriptionNode
    {
       return isDynamic;
    }
-   
+
    public void getSensors(List<SensorDescription> sensors)
    {
       sensors.addAll(wrenchSensors);
@@ -193,40 +194,39 @@ public class JointDescription implements RobotDescriptionNode
       sensors.addAll(lidarSensors);
       sensors.addAll(forceSensors);
    }
-   
+
    public void getAllKinematicPoints(List<KinematicPointDescription> allKinematicPoints)
    {
-      allKinematicPoints.addAll(this.kinematicPoints);
-      allKinematicPoints.addAll(this.externalForcePoints);
-      allKinematicPoints.addAll(this.groundContactPoints);
+      allKinematicPoints.addAll(kinematicPoints);
+      allKinematicPoints.addAll(externalForcePoints);
+      allKinematicPoints.addAll(groundContactPoints);
    }
-   
-   
-   public static void scaleChildrenJoint(ArrayList<JointDescription> childrenJoints, double factor, double massScalePower, List<String>  ignoreInertiaScaleJointList)
+
+   public static void scaleChildrenJoint(ArrayList<JointDescription> childrenJoints, double factor, double massScalePower,
+                                         List<String> ignoreInertiaScaleJointList)
    {
       Vector3D offsetFromParentJoint = new Vector3D();
-      for(int i = 0; i < childrenJoints.size(); i++)
+      for (int i = 0; i < childrenJoints.size(); i++)
       {
          JointDescription description = childrenJoints.get(i);
 
          description.getOffsetFromParentJoint(offsetFromParentJoint);
          offsetFromParentJoint.scale(factor);
          description.setOffsetFromParentJoint(offsetFromParentJoint);
-         
+
          description.scale(factor, massScalePower, ignoreInertiaScaleJointList);
       }
 
    }
-   
 
    @Override
    public void scale(double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
       scaleSensorsOffsets(factor);
       scaleAllKinematicsPointOffsets(factor);
-      
+
       boolean scaleInertia = true;
-      if(ignoreInertiaScaleJointList.contains(getName()))
+      if (ignoreInertiaScaleJointList.contains(getName()))
       {
          scaleInertia = false;
       }
@@ -238,8 +238,8 @@ public class JointDescription implements RobotDescriptionNode
    {
       ArrayList<SensorDescription> sensors = new ArrayList<>();
       getSensors(sensors);
-      
-      for(int i = 0; i < sensors.size(); i++)
+
+      for (int i = 0; i < sensors.size(); i++)
       {
          SensorDescription sensor = sensors.get(i);
          RigidBodyTransform transformToJoint = sensor.getTransformToJoint();
@@ -248,22 +248,22 @@ public class JointDescription implements RobotDescriptionNode
          translation.scale(factor);
          transformToJoint.getTranslation().set(translation);
          sensor.setTransformToJoint(transformToJoint);
-         
+
       }
    }
-   
+
    private void scaleAllKinematicsPointOffsets(double factor)
    {
       ArrayList<KinematicPointDescription> allKinematicPoints = new ArrayList<>();
       getAllKinematicPoints(allKinematicPoints);
-      for(int i = 0; i < allKinematicPoints.size(); i++)
+      for (int i = 0; i < allKinematicPoints.size(); i++)
       {
          KinematicPointDescription kinematicPoint = allKinematicPoints.get(i);
-         
+
          Vector3D offset = kinematicPoint.getOffsetFromJoint();
          offset.scale(factor);
          kinematicPoint.setOffsetFromJoint(offset);
       }
-            
+
    }
 }

@@ -29,21 +29,21 @@ public class CapsuleDescriptionReadOnly implements ConvexShapeDescriptionReadOnl
 
       switch (longAxis)
       {
-      case X:
-      {
-         this.capToCapLineSegment.set(-height / 2.0 + radius, 0.0, 0.0, 0.0, 0.0, height / 2.0 - radius);
-         break;
-      }
-      case Y:
-      {
-         this.capToCapLineSegment.set(0.0, -height / 2.0 + radius, 0.0, 0.0, height / 2.0 - radius, 0.0);
-         break;
-      }
-      case Z:
-      {
-         this.capToCapLineSegment.set(0.0, 0.0, -height / 2.0 + radius, 0.0, 0.0, height / 2.0 - radius);
-         break;
-      }
+         case X:
+         {
+            capToCapLineSegment.set(-height / 2.0 + radius, 0.0, 0.0, 0.0, 0.0, height / 2.0 - radius);
+            break;
+         }
+         case Y:
+         {
+            capToCapLineSegment.set(0.0, -height / 2.0 + radius, 0.0, 0.0, height / 2.0 - radius, 0.0);
+            break;
+         }
+         case Z:
+         {
+            capToCapLineSegment.set(0.0, 0.0, -height / 2.0 + radius, 0.0, 0.0, height / 2.0 - radius);
+            break;
+         }
       }
 
       capToCapLineSegment.applyTransform(transformToCenter);

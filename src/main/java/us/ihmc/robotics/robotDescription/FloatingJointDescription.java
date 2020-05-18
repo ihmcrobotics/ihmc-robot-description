@@ -23,4 +23,3 @@ public class FloatingJointDescription extends JointDescription
    }
 
 }
-

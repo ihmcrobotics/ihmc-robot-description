@@ -9,7 +9,7 @@ public class KinematicPointDescription
 
    public KinematicPointDescription(String name, Vector3D offsetFromJoint)
    {
-      this.setName(name);
+      setName(name);
       this.offsetFromJoint.set(offsetFromJoint);
    }
 

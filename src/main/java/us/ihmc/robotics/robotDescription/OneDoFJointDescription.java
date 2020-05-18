@@ -28,21 +28,21 @@ public class OneDoFJointDescription extends JointDescription
 
       switch (jointAxis)
       {
-      case X:
-      {
-         this.jointAxis.set(1.0, 0.0, 0.0);
-         break;
-      }
-      case Y:
-      {
-         this.jointAxis.set(0.0, 1.0, 0.0);
-         break;
-      }
-      case Z:
-      {
-         this.jointAxis.set(0.0, 0.0, 1.0);
-         break;
-      }
+         case X:
+         {
+            this.jointAxis.set(1.0, 0.0, 0.0);
+            break;
+         }
+         case Y:
+         {
+            this.jointAxis.set(0.0, 1.0, 0.0);
+            break;
+         }
+         case Z:
+         {
+            this.jointAxis.set(0.0, 0.0, 1.0);
+            break;
+         }
       }
    }
 
@@ -90,7 +90,7 @@ public class OneDoFJointDescription extends JointDescription
 
    public void setLimitStops(double qMin, double qMax, double kLimit, double bLimit)
    {
-      this.containsLimitStops = true;
+      containsLimitStops = true;
       this.qMin = qMin;
       this.qMax = qMax;
       this.kLimit = kLimit;
@@ -109,7 +109,7 @@ public class OneDoFJointDescription extends JointDescription
 
    public double[] getLimitStopParameters()
    {
-      return new double[] { qMin, qMax, kLimit, bLimit };
+      return new double[] {qMin, qMax, kLimit, bLimit};
    }
 
    public double getLowerLimit()
@@ -131,19 +131,19 @@ public class OneDoFJointDescription extends JointDescription
    {
       return effortLimit;
    }
-   
+
    @Override
    public void scale(double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
       double massScale = Math.pow(factor, massScalePower);
       double dampingScale = Math.pow(factor, massScalePower + 2); // Joint acceleration is related to inertia.
-      this.damping = massScale * this.damping;
-      
-      this.kLimit = massScale * this.kLimit;
-      this.bLimit = massScale * this.bLimit;
-      
-      this.velocityDamping = massScale * this.velocityDamping;
-      
+      damping = massScale * damping;
+
+      kLimit = massScale * kLimit;
+      bLimit = massScale * bLimit;
+
+      velocityDamping = massScale * velocityDamping;
+
       super.scale(factor, massScalePower, ignoreInertiaScaleJointList);
    }
 }
