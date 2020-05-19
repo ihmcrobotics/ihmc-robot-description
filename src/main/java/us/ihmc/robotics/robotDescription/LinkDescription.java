@@ -28,7 +28,7 @@ public class LinkDescription
    private final RotationMatrix principalAxesRotation = new RotationMatrix();
 
    private LinkGraphicsDescription linkGraphics;
-   private List<CollisionMeshDescription> collisionMeshes = new ArrayList<>();
+   private final List<CollisionMeshDescription> collisionMeshes = new ArrayList<>();
 
    public LinkDescription(String name)
    {

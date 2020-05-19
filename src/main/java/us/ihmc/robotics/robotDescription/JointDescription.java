@@ -10,11 +10,11 @@ import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 
 public class JointDescription implements RobotDescriptionNode
 {
-   private String name;
+   private final String name;
    private final List<JointDescription> childrenJointDescriptions = new ArrayList<>();
 
    private JointDescription parentJoint;
-   private Vector3D offsetFromParentJoint = new Vector3D();
+   private final Vector3D offsetFromParentJoint = new Vector3D();
 
    private LinkDescription link;
 
@@ -237,7 +237,7 @@ public class JointDescription implements RobotDescriptionNode
 
    private void scaleSensorsOffsets(double factor)
    {
-      ArrayList<SensorDescription> sensors = new ArrayList<>();
+      List<SensorDescription> sensors = new ArrayList<>();
       getSensors(sensors);
 
       for (int i = 0; i < sensors.size(); i++)
@@ -249,13 +249,12 @@ public class JointDescription implements RobotDescriptionNode
          translation.scale(factor);
          transformToJoint.getTranslation().set(translation);
          sensor.setTransformToJoint(transformToJoint);
-
       }
    }
 
    private void scaleAllKinematicsPointOffsets(double factor)
    {
-      ArrayList<KinematicPointDescription> allKinematicPoints = new ArrayList<>();
+      List<KinematicPointDescription> allKinematicPoints = new ArrayList<>();
       getAllKinematicPoints(allKinematicPoints);
       for (int i = 0; i < allKinematicPoints.size(); i++)
       {
