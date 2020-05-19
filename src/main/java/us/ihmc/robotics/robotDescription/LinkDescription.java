@@ -1,6 +1,7 @@
 package us.ihmc.robotics.robotDescription;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
@@ -27,7 +28,7 @@ public class LinkDescription
    private final RotationMatrix principalAxesRotation = new RotationMatrix();
 
    private LinkGraphicsDescription linkGraphics;
-   private ArrayList<CollisionMeshDescription> collisionMeshes = new ArrayList<>();
+   private List<CollisionMeshDescription> collisionMeshes = new ArrayList<>();
 
    public LinkDescription(String name)
    {
@@ -49,7 +50,7 @@ public class LinkDescription
       this.linkGraphics = linkGraphics;
    }
 
-   public ArrayList<CollisionMeshDescription> getCollisionMeshes()
+   public List<CollisionMeshDescription> getCollisionMeshes()
    {
       return collisionMeshes;
    }

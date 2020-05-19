@@ -11,7 +11,7 @@ import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 public class JointDescription implements RobotDescriptionNode
 {
    private String name;
-   private final ArrayList<JointDescription> childrenJointDescriptions = new ArrayList<>();
+   private final List<JointDescription> childrenJointDescriptions = new ArrayList<>();
 
    private JointDescription parentJoint;
    private Vector3D offsetFromParentJoint = new Vector3D();
@@ -19,16 +19,16 @@ public class JointDescription implements RobotDescriptionNode
    private LinkDescription link;
 
    // Lists of kinematic points on the robot. When adding types of kinematic points, make sure to update the getAllKinematicPoints(List<KinematicPointDescription>) function
-   private final ArrayList<KinematicPointDescription> kinematicPoints = new ArrayList<>();
-   private final ArrayList<ExternalForcePointDescription> externalForcePoints = new ArrayList<>();
-   private final ArrayList<GroundContactPointDescription> groundContactPoints = new ArrayList<>();
+   private final List<KinematicPointDescription> kinematicPoints = new ArrayList<>();
+   private final List<ExternalForcePointDescription> externalForcePoints = new ArrayList<>();
+   private final List<GroundContactPointDescription> groundContactPoints = new ArrayList<>();
 
    // Lists of sensors. When adding sensors, make sure to update the getSensors(List<SensorDescription>) function.
-   private final ArrayList<JointWrenchSensorDescription> wrenchSensors = new ArrayList<>();
-   private final ArrayList<CameraSensorDescription> cameraSensors = new ArrayList<>();
-   private final ArrayList<IMUSensorDescription> imuSensors = new ArrayList<>();
-   private final ArrayList<LidarSensorDescription> lidarSensors = new ArrayList<>();
-   private final ArrayList<ForceSensorDescription> forceSensors = new ArrayList<>();
+   private final List<JointWrenchSensorDescription> wrenchSensors = new ArrayList<>();
+   private final List<CameraSensorDescription> cameraSensors = new ArrayList<>();
+   private final List<IMUSensorDescription> imuSensors = new ArrayList<>();
+   private final List<LidarSensorDescription> lidarSensors = new ArrayList<>();
+   private final List<ForceSensorDescription> forceSensors = new ArrayList<>();
 
    private boolean isDynamic = true;
 
@@ -93,7 +93,7 @@ public class JointDescription implements RobotDescriptionNode
    }
 
    @Override
-   public ArrayList<JointDescription> getChildrenJoints()
+   public List<JointDescription> getChildrenJoints()
    {
       return childrenJointDescriptions;
    }
@@ -103,7 +103,7 @@ public class JointDescription implements RobotDescriptionNode
       groundContactPoints.add(groundContactPointDescription);
    }
 
-   public ArrayList<GroundContactPointDescription> getGroundContactPoints()
+   public List<GroundContactPointDescription> getGroundContactPoints()
    {
       return groundContactPoints;
    }
@@ -113,7 +113,7 @@ public class JointDescription implements RobotDescriptionNode
       externalForcePoints.add(externalForcePointDescription);
    }
 
-   public ArrayList<ExternalForcePointDescription> getExternalForcePoints()
+   public List<ExternalForcePointDescription> getExternalForcePoints()
    {
       return externalForcePoints;
    }
@@ -123,7 +123,7 @@ public class JointDescription implements RobotDescriptionNode
       kinematicPoints.add(kinematicPointDescription);
    }
 
-   public ArrayList<KinematicPointDescription> getKinematicPoints()
+   public List<KinematicPointDescription> getKinematicPoints()
    {
       return kinematicPoints;
    }
@@ -133,7 +133,7 @@ public class JointDescription implements RobotDescriptionNode
       wrenchSensors.add(jointWrenchSensorDescription);
    }
 
-   public ArrayList<JointWrenchSensorDescription> getWrenchSensors()
+   public List<JointWrenchSensorDescription> getWrenchSensors()
    {
       return wrenchSensors;
    }
@@ -143,7 +143,7 @@ public class JointDescription implements RobotDescriptionNode
       cameraSensors.add(cameraSensorDescription);
    }
 
-   public ArrayList<CameraSensorDescription> getCameraSensors()
+   public List<CameraSensorDescription> getCameraSensors()
    {
       return cameraSensors;
    }
@@ -153,7 +153,7 @@ public class JointDescription implements RobotDescriptionNode
       imuSensors.add(imuSensorDescription);
    }
 
-   public ArrayList<IMUSensorDescription> getIMUSensors()
+   public List<IMUSensorDescription> getIMUSensors()
    {
       return imuSensors;
    }
@@ -163,7 +163,7 @@ public class JointDescription implements RobotDescriptionNode
       lidarSensors.add(lidarSensor);
    }
 
-   public ArrayList<LidarSensorDescription> getLidarSensors()
+   public List<LidarSensorDescription> getLidarSensors()
    {
       return lidarSensors;
    }
@@ -173,7 +173,7 @@ public class JointDescription implements RobotDescriptionNode
       forceSensors.add(forceSensor);
    }
 
-   public ArrayList<ForceSensorDescription> getForceSensors()
+   public List<ForceSensorDescription> getForceSensors()
    {
       return forceSensors;
    }
@@ -204,8 +204,7 @@ public class JointDescription implements RobotDescriptionNode
       allKinematicPoints.addAll(groundContactPoints);
    }
 
-   public static void scaleChildrenJoint(ArrayList<JointDescription> childrenJoints, double factor, double massScalePower,
-                                         List<String> ignoreInertiaScaleJointList)
+   public static void scaleChildrenJoint(List<JointDescription> childrenJoints, double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
       Vector3D offsetFromParentJoint = new Vector3D();
       for (int i = 0; i < childrenJoints.size(); i++)
@@ -266,6 +265,5 @@ public class JointDescription implements RobotDescriptionNode
          offset.scale(factor);
          kinematicPoint.setOffsetFromJoint(offset);
       }
-
    }
 }
