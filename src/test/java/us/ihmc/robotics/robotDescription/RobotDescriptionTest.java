@@ -6,6 +6,7 @@ import static us.ihmc.robotics.Assert.assertNull;
 import static us.ihmc.robotics.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.MatrixFeatures;
@@ -62,7 +63,7 @@ public class RobotDescriptionTest
       assertTrue(rootJointOne.getLink() == rootLinkOne);
 
       robotDescription.addRootJoint(rootJointOne);
-      ArrayList<JointDescription> rootJoints = robotDescription.getRootJoints();
+      List<JointDescription> rootJoints = robotDescription.getRootJoints();
 
       assertEquals(1, rootJoints.size());
       assertTrue(rootJointOne == rootJoints.get(0));
@@ -110,7 +111,7 @@ public class RobotDescriptionTest
       CameraSensorDescription cameraOneDescription = new CameraSensorDescription("cameraOne", cameraOneTransformToJoint);
       childJointOne.addCameraSensor(cameraOneDescription);
 
-      ArrayList<CameraSensorDescription> cameraSensors = childJointOne.getCameraSensors();
+      List<CameraSensorDescription> cameraSensors = childJointOne.getCameraSensors();
       assertEquals(1, cameraSensors.size());
       assertTrue(cameraOneDescription == cameraSensors.get(0));
 
@@ -186,7 +187,7 @@ public class RobotDescriptionTest
       childJointTwo.setLink(childLinkTwo);
 
       rootJointOne.addJoint(childJointTwo);
-      ArrayList<JointDescription> childrenJoints = rootJointOne.getChildrenJoints();
+      List<JointDescription> childrenJoints = rootJointOne.getChildrenJoints();
       assertEquals(2, childrenJoints.size());
 
       assertTrue(childJointOne == childrenJoints.get(0));
@@ -238,7 +239,7 @@ public class RobotDescriptionTest
       Graphics3DObject linkGraphicsCheck = robotDescription.getGraphicsObject("childJointThree");
       assertTrue(linkGraphicsCheck == childGraphicsThree);
 
-      ArrayList<CollisionMeshDescription> collisionMeshCheck = robotDescription.getCollisionObjects("childJointThree");
+      List<CollisionMeshDescription> collisionMeshCheck = robotDescription.getCollisionObjects("childJointThree");
       assertTrue(collisionMeshCheck.get(0) == childMeshThree);
 
    }

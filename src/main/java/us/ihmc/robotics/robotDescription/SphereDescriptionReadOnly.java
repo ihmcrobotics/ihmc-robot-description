@@ -1,13 +1,15 @@
 package us.ihmc.robotics.robotDescription;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
+import us.ihmc.euclid.transform.interfaces.RigidBodyTransformBasics;
+import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
 
 public class SphereDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
 {
    private final double radius;
    private final RigidBodyTransform rigidBodyTransform;
 
-   public SphereDescriptionReadOnly(double radius, RigidBodyTransform rigidBodyTransform)
+   public SphereDescriptionReadOnly(double radius, RigidBodyTransformReadOnly rigidBodyTransform)
    {
       this.radius = radius;
       this.rigidBodyTransform = new RigidBodyTransform(rigidBodyTransform);
@@ -18,7 +20,7 @@ public class SphereDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
       return radius;
    }
 
-   public void getRigidBodyTransform(RigidBodyTransform transformToPack)
+   public void getRigidBodyTransform(RigidBodyTransformBasics transformToPack)
    {
       transformToPack.set(rigidBodyTransform);
    }

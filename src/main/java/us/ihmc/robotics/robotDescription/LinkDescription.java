@@ -1,6 +1,7 @@
 package us.ihmc.robotics.robotDescription;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ejml.data.DenseMatrix64F;
 import org.ejml.ops.CommonOps;
@@ -10,6 +11,8 @@ import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DReadOnly;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.graphicsDescription.appearance.AppearanceDefinition;
 import us.ihmc.graphicsDescription.appearance.YoAppearance;
 
@@ -25,7 +28,7 @@ public class LinkDescription
    private final RotationMatrix principalAxesRotation = new RotationMatrix();
 
    private LinkGraphicsDescription linkGraphics;
-   private ArrayList<CollisionMeshDescription> collisionMeshes = new ArrayList<>();
+   private final List<CollisionMeshDescription> collisionMeshes = new ArrayList<>();
 
    public LinkDescription(String name)
    {
@@ -47,7 +50,7 @@ public class LinkDescription
       this.linkGraphics = linkGraphics;
    }
 
-   public ArrayList<CollisionMeshDescription> getCollisionMeshes()
+   public List<CollisionMeshDescription> getCollisionMeshes()
    {
       return collisionMeshes;
    }
@@ -69,7 +72,7 @@ public class LinkDescription
       this.mass = mass;
    }
 
-   public void getCenterOfMassOffset(Vector3D centerOfMassOffsetToPack)
+   public void getCenterOfMassOffset(Tuple3DBasics centerOfMassOffsetToPack)
    {
       centerOfMassOffsetToPack.set(centerOfMassOffset);
    }
@@ -79,7 +82,7 @@ public class LinkDescription
       return centerOfMassOffset;
    }
 
-   public void setCenterOfMassOffset(Vector3D centerOfMassOffset)
+   public void setCenterOfMassOffset(Tuple3DReadOnly centerOfMassOffset)
    {
       this.centerOfMassOffset.set(centerOfMassOffset);
    }
@@ -291,7 +294,6 @@ public class LinkDescription
       //    linkGraphics.rotate(principalAxesRotation);
       //    linkGraphics.addEllipsoid(inertiaEllipsoidRadii.x, inertiaEllipsoidRadii.y, inertiaEllipsoidRadii.z, appearance);
       //    linkGraphics.identity();
-
    }
 
    /**
@@ -386,7 +388,5 @@ public class LinkDescription
             collisionMeshes.get(i).scale(factor);
          }
       }
-
    }
-
 }

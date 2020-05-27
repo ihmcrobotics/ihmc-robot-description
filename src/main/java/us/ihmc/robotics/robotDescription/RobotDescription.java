@@ -13,7 +13,7 @@ import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.SphereColli
 public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHolder
 {
    private String name;
-   private final ArrayList<JointDescription> rootJoints = new ArrayList<>();
+   private final List<JointDescription> rootJoints = new ArrayList<>();
 
    public RobotDescription(String name)
    {
@@ -36,13 +36,13 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
       this.name = name;
    }
 
-   public ArrayList<JointDescription> getRootJoints()
+   public List<JointDescription> getRootJoints()
    {
       return rootJoints;
    }
 
    @Override
-   public ArrayList<JointDescription> getChildrenJoints()
+   public List<JointDescription> getChildrenJoints()
    {
       return getRootJoints();
    }
@@ -64,7 +64,7 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
       if (jointDescription.getName().equals(name))
          return jointDescription;
 
-      ArrayList<JointDescription> childJointDescriptions = jointDescription.getChildrenJoints();
+      List<JointDescription> childJointDescriptions = jointDescription.getChildrenJoints();
       for (JointDescription childJointDescription : childJointDescriptions)
       {
          JointDescription jointDescriptionRecursively = getJointDescriptionRecursively(name, childJointDescription);
@@ -75,7 +75,7 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
    }
 
    @Override
-   public ArrayList<CollisionMeshDescription> getCollisionObjects(String name)
+   public List<CollisionMeshDescription> getCollisionObjects(String name)
    {
       JointDescription jointDescription = getJointDescription(name);
       if (jointDescription == null)
