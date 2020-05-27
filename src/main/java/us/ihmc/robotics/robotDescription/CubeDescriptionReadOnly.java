@@ -12,7 +12,7 @@ public class CubeDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
       this.lengthX = lengthX;
       this.widthY = widthY;
       this.heightZ = heightZ;
-      this.rigidBodyTransformToCenter = new RigidBodyTransform(rigidBodyTransform);
+      rigidBodyTransformToCenter = new RigidBodyTransform(rigidBodyTransform);
    }
 
    public double getLengthX()

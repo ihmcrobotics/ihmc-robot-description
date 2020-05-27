@@ -13,9 +13,11 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 public class InertiaTools
 {
    /**
-    * Returns the radii of an ellipsoid given the inertia parameters, assuming a uniform mass distribution.
+    * Returns the radii of an ellipsoid given the inertia parameters, assuming a uniform mass
+    * distribution.
+    * 
     * @param principalMomentsOfInertia principal moments of inertia {Ixx, Iyy, Izz}
-    * @param mass mass of the link
+    * @param mass                      mass of the link
     * @return the three radii of the inertia ellipsoid
     */
    public static Vector3D getInertiaEllipsoidRadii(Vector3D principalMomentsOfInertia, double mass)
@@ -24,7 +26,7 @@ public class InertiaTools
       double Iyy = principalMomentsOfInertia.getY();
       double Izz = principalMomentsOfInertia.getZ();
 
-//    http://en.wikipedia.org/wiki/Ellipsoid#Mass_properties
+      //    http://en.wikipedia.org/wiki/Ellipsoid#Mass_properties
       Vector3D ret = new Vector3D();
       ret.setX(Math.sqrt(5.0 / 2.0 * (Iyy + Izz - Ixx) / mass));
       ret.setY(Math.sqrt(5.0 / 2.0 * (Izz + Ixx - Iyy) / mass));
@@ -49,11 +51,11 @@ public class InertiaTools
 
       return result;
 
-//
-//    inertialFrameRotation.transpose();
-//    inertia.mul(inertialFrameRotation);
-//    inertialFrameRotation.transpose();
-//    inertialFrameRotation.mul(inertia);
+      //
+      //    inertialFrameRotation.transpose();
+      //    inertia.mul(inertialFrameRotation);
+      //    inertialFrameRotation.transpose();
+      //    inertialFrameRotation.mul(inertia);
 
    }
 
@@ -64,7 +66,8 @@ public class InertiaTools
       computePrincipalMomentsOfInertia(inertiaForSVD, principalAxesRotationToPack, principalMomentsOfInertiaToPack);
    }
 
-   public static void computePrincipalMomentsOfInertia(DenseMatrix64F inertiaForSVD, RotationMatrix principalAxesRotationToPack, Vector3D principalMomentsOfInertiaToPack)
+   public static void computePrincipalMomentsOfInertia(DenseMatrix64F inertiaForSVD, RotationMatrix principalAxesRotationToPack,
+                                                       Vector3D principalMomentsOfInertiaToPack)
    {
       // Decompose Inertia Matrix:  I = U * W * V
       SingularValueDecomposition<DenseMatrix64F> svd = new SvdImplicitQrDecompose_D64(true, false, true, false);

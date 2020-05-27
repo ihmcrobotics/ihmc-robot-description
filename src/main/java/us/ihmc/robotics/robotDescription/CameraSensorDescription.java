@@ -1,7 +1,7 @@
 package us.ihmc.robotics.robotDescription;
 
-import us.ihmc.euclid.transform.RigidBodyTransform;
-import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 
 public class CameraSensorDescription extends SensorDescription
 {
@@ -12,24 +12,24 @@ public class CameraSensorDescription extends SensorDescription
    private int imageWidth;
    private int imageHeight;
 
-   public CameraSensorDescription(String name, Vector3D offsetFromJoint)
+   public CameraSensorDescription(String name, Tuple3DReadOnly offsetFromJoint)
    {
       super(name, offsetFromJoint);
    }
 
-   public CameraSensorDescription(String name, RigidBodyTransform transformToJoint)
+   public CameraSensorDescription(String name, RigidBodyTransformReadOnly transformToJoint)
    {
       super(name, transformToJoint);
    }
 
-   public CameraSensorDescription(String name, RigidBodyTransform transformToJoint, double fieldOfView, double clipNear, double clipFar)
+   public CameraSensorDescription(String name, RigidBodyTransformReadOnly transformToJoint, double fieldOfView, double clipNear, double clipFar)
    {
       super(name, transformToJoint);
 
-      this.setFieldOfView(fieldOfView);
+      setFieldOfView(fieldOfView);
 
-      this.setClipNear(clipNear);
-      this.setClipFar(clipFar);
+      setClipNear(clipNear);
+      setClipFar(clipFar);
    }
 
    public double getFieldOfView()
@@ -81,5 +81,4 @@ public class CameraSensorDescription extends SensorDescription
    {
       this.imageHeight = imageHeight;
    }
-
 }

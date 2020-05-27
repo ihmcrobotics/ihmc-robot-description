@@ -9,7 +9,7 @@ public class GroundContactPointDescription extends ExternalForcePointDescription
    public GroundContactPointDescription(String name, Vector3D offsetFromJoint)
    {
       super(name, offsetFromJoint);
-      this.groupIdentifier = 0;
+      groupIdentifier = 0;
    }
 
    public GroundContactPointDescription(String name, Vector3D offsetFromJoint, int groupIdentifier)

@@ -11,7 +11,7 @@ public class CylinderDescriptionReadOnly implements ConvexShapeDescriptionReadOn
    {
       this.radius = radius;
       this.height = height;
-      this.rigidBodyTransformToCenter = new RigidBodyTransform(rigidBodyTransform);
+      rigidBodyTransformToCenter = new RigidBodyTransform(rigidBodyTransform);
    }
 
    public double getRadius()

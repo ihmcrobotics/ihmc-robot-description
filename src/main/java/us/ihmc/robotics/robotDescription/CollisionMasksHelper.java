@@ -16,9 +16,9 @@ public class CollisionMasksHelper
          throw new RuntimeException("Number of groups at maximum of 32!");
       }
 
-      this.groups.put(name, group);
+      groups.put(name, group);
       int groupBit = nextGroupBitMask;
-      this.groupBits.put(group, groupBit);
+      groupBits.put(group, groupBit);
 
       addToCollisionGroups(group, groupBit);
       nextGroupBitMask = nextGroupBitMask << 1;

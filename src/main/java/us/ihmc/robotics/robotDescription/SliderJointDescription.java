@@ -1,18 +1,12 @@
 package us.ihmc.robotics.robotDescription;
 
-import us.ihmc.euclid.Axis3D;
-import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 
 public class SliderJointDescription extends OneDoFJointDescription
 {
-
-   public SliderJointDescription(String name, Vector3D offsetFromParentJoint, Axis3D jointAxis)
+   public SliderJointDescription(String name, Tuple3DReadOnly offsetFromParentJoint, Vector3DReadOnly jointAxis)
    {
       super(name, offsetFromParentJoint, jointAxis);
-   }
-
-   public SliderJointDescription(String name, Vector3D offset, Vector3D jointAxis)
-   {
-      super(name, offset, jointAxis);
    }
 }

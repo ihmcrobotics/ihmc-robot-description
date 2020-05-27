@@ -9,7 +9,7 @@ public class FloatingPlanarJointDescription extends JointDescription
    public FloatingPlanarJointDescription(String name, Plane plane)
    {
       super(name, new Vector3D());
-      this.setType(plane);
+      setType(plane);
    }
 
    public Plane getPlane()

@@ -2,8 +2,10 @@ package us.ihmc.robotics.robotDescription;
 
 import java.util.List;
 
-import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
+import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 
 public class OneDoFJointDescription extends JointDescription
 {
@@ -22,31 +24,7 @@ public class OneDoFJointDescription extends JointDescription
 
    private final Vector3D jointAxis = new Vector3D();
 
-   public OneDoFJointDescription(String name, Vector3D offsetFromParentJoint, Axis3D jointAxis)
-   {
-      super(name, offsetFromParentJoint);
-
-      switch (jointAxis)
-      {
-      case X:
-      {
-         this.jointAxis.set(1.0, 0.0, 0.0);
-         break;
-      }
-      case Y:
-      {
-         this.jointAxis.set(0.0, 1.0, 0.0);
-         break;
-      }
-      case Z:
-      {
-         this.jointAxis.set(0.0, 0.0, 1.0);
-         break;
-      }
-      }
-   }
-
-   public OneDoFJointDescription(String name, Vector3D offset, Vector3D jointAxis)
+   public OneDoFJointDescription(String name, Tuple3DReadOnly offset, Vector3DReadOnly jointAxis)
    {
       super(name, offset);
       this.jointAxis.set(jointAxis);
@@ -90,14 +68,19 @@ public class OneDoFJointDescription extends JointDescription
 
    public void setLimitStops(double qMin, double qMax, double kLimit, double bLimit)
    {
-      this.containsLimitStops = true;
+      containsLimitStops = true;
       this.qMin = qMin;
       this.qMax = qMax;
       this.kLimit = kLimit;
       this.bLimit = bLimit;
    }
 
-   public void getJointAxis(Vector3D jointAxisToPack)
+   public Vector3DReadOnly getJointAxis()
+   {
+      return jointAxis;
+   }
+
+   public void getJointAxis(Vector3DBasics jointAxisToPack)
    {
       jointAxisToPack.set(jointAxis);
    }
@@ -109,7 +92,7 @@ public class OneDoFJointDescription extends JointDescription
 
    public double[] getLimitStopParameters()
    {
-      return new double[] { qMin, qMax, kLimit, bLimit };
+      return new double[] {qMin, qMax, kLimit, bLimit};
    }
 
    public double getLowerLimit()
@@ -131,19 +114,18 @@ public class OneDoFJointDescription extends JointDescription
    {
       return effortLimit;
    }
-   
+
    @Override
    public void scale(double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
       double massScale = Math.pow(factor, massScalePower);
-      double dampingScale = Math.pow(factor, massScalePower + 2); // Joint acceleration is related to inertia.
-      this.damping = massScale * this.damping;
-      
-      this.kLimit = massScale * this.kLimit;
-      this.bLimit = massScale * this.bLimit;
-      
-      this.velocityDamping = massScale * this.velocityDamping;
-      
+      damping = massScale * damping;
+
+      kLimit = massScale * kLimit;
+      bLimit = massScale * bLimit;
+
+      velocityDamping = massScale * velocityDamping;
+
       super.scale(factor, massScalePower, ignoreInertiaScaleJointList);
    }
 }

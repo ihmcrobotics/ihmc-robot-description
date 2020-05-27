@@ -151,7 +151,7 @@ public class CollisionMeshDescription implements CollisionMaskHolder
 
    public void transform(RigidBodyTransform transform)
    {
-      this.pose.set(transform);
+      pose.set(transform);
    }
 
    public void identity()
@@ -175,15 +175,15 @@ public class CollisionMeshDescription implements CollisionMaskHolder
    {
       switch (axis)
       {
-      case X:
-         pose.appendRollRotation(rotationAngle);
-         break;
-      case Y:
-         pose.appendPitchRotation(rotationAngle);
-         break;
-      case Z:
-         pose.appendYawRotation(rotationAngle);
-         break;
+         case X:
+            pose.appendRollRotation(rotationAngle);
+            break;
+         case Y:
+            pose.appendPitchRotation(rotationAngle);
+            break;
+         case Z:
+            pose.appendYawRotation(rotationAngle);
+            break;
       }
    }
 

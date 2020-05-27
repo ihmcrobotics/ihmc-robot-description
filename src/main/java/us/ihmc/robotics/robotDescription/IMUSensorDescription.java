@@ -21,26 +21,26 @@ public class IMUSensorDescription extends SensorDescription
 
    public void setAccelerationNoiseParameters(double noiseMean, double noiseStandardDeviation)
    {
-      this.setAccelerationNoiseMean(noiseMean);
-      this.setAccelerationNoiseStandardDeviation(noiseStandardDeviation);
+      setAccelerationNoiseMean(noiseMean);
+      setAccelerationNoiseStandardDeviation(noiseStandardDeviation);
    }
 
    public void setAccelerationBiasParameters(double biasMean, double biasStandardDeviation)
    {
-      this.setAccelerationBiasMean(biasMean);
-      this.setAccelerationBiasStandardDeviation(biasStandardDeviation);
+      setAccelerationBiasMean(biasMean);
+      setAccelerationBiasStandardDeviation(biasStandardDeviation);
    }
 
    public void setAngularVelocityNoiseParameters(double noiseMean, double noiseStandardDeviation)
    {
-      this.setAngularVelocityNoiseMean(noiseMean);
-      this.setAngularVelocityNoiseStandardDeviation(noiseStandardDeviation);
+      setAngularVelocityNoiseMean(noiseMean);
+      setAngularVelocityNoiseStandardDeviation(noiseStandardDeviation);
    }
 
    public void setAngularVelocityBiasParameters(double biasMean, double biasStandardDeviation)
    {
-      this.setAngularVelocityNoiseMean(biasMean);
-      this.setAngularVelocityNoiseStandardDeviation(biasStandardDeviation);
+      setAngularVelocityNoiseMean(biasMean);
+      setAngularVelocityNoiseStandardDeviation(biasStandardDeviation);
    }
 
    public double getAccelerationNoiseMean()
