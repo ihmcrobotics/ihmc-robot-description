@@ -6,6 +6,7 @@ import java.util.List;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DBasics;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DReadOnly;
+import us.ihmc.euclid.tools.EuclidCoreTools;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
@@ -32,69 +33,27 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    private LinkDescription link;
    private final Vector3D offsetFromLinkParentJoint = new Vector3D();
 
-   private final Matrix3D constraintForceSubSpace = new Matrix3D();
-   private final Matrix3D constraintMomentSubSpace = new Matrix3D();
+   private final Matrix3D constraintForceSubSpace = identity();
+   private final Matrix3D constraintMomentSubSpace = identity();
 
    private final Vector3D proportionalGains = new Vector3D();
    private final Vector3D derivativeGains = new Vector3D();
 
-   /**
-    * Creates a new constraint for enforcing a loop closure that has 1 degree of freedom, i.e. the
-    * rotation around the given axis.
-    * <p>
-    * The constraint will be applied to maintain a relative configuration between the link of the
-    * parent joint of this constraint, and the constraint's link.
-    * </p>
-    * 
-    * @param name                      the name of the constraint, {@code YoVariable}s will be created
-    *                                  using this name.
-    * @param offsetFromParentJoint     the position of the constraint with respect to the parent joint.
-    * @param offsetFromLinkParentJoint the position of the constraint with respect to the parent joint
-    *                                  of the associated link. Note that the link's parent joint is
-    *                                  expected to be different from this constraint's parent joint.
-    * @param robot                     the robot is used for getting access to its
-    * @param axis                      the axis defining the rotation axis to remain unconstrained.
-    * @return the description of the constraint.
-    */
-   public static LoopClosureConstraintDescription createPinConstraintDescription(String name, Tuple3DReadOnly offsetFromParentJoint,
-                                                                                 Tuple3DReadOnly offsetFromLinkParentJoint, Vector3DReadOnly axis)
+   public static Matrix3D identity()
    {
-      Matrix3D constraintForceSubSpace = new Matrix3D();
-      constraintForceSubSpace.setIdentity();
-      Matrix3D constraintMomentSubSpace = matrix3DOrthogonalToVector3D(axis);
-
-      return new LoopClosureConstraintDescription(name, offsetFromParentJoint, offsetFromLinkParentJoint, constraintForceSubSpace, constraintMomentSubSpace);
+      Matrix3D identity = new Matrix3D();
+      identity.setIdentity();
+      return identity;
    }
 
-   /**
-    * Creates a new constraint for enforcing a loop closure that has 1 degree of freedom, i.e. the
-    * translation along the given axis.
-    * <p>
-    * The constraint will be applied to maintain a relative configuration between the link of the
-    * parent joint of this constraint, and the constraint's link.
-    * </p>
-    * 
-    * @param name                      the name of the constraint, {@code YoVariable}s will be created
-    *                                  using this name.
-    * @param offsetFromParentJoint     the position of the constraint with respect to the parent joint.
-    * @param offsetFromLinkParentJoint the position of the constraint with respect to the parent joint
-    *                                  of the associated link. Note that the link's parent joint is
-    *                                  expected to be different from this constraint's parent joint.
-    * @param robot                     the robot is used for getting access to its
-    * @param axis                      the axis defining the translation axis to remain unconstrained.
-    * @return the description of the constraint.
-    */
-   public static LoopClosureConstraintDescription createSliderConstraintDescription(String name, Tuple3DReadOnly offsetFromParentJoint,
-                                                                                    Tuple3DReadOnly offsetFromLinkParentJoint, Vector3DReadOnly axis)
+   public static Matrix3D matrix3DOrthogonalToVector3D(Vector3DReadOnly vector3D)
    {
-      Matrix3D constraintForceSubSpace = matrix3DOrthogonalToVector3D(axis);
-      Matrix3D constraintMomentSubSpace = new Matrix3D();
-      constraintMomentSubSpace.setIdentity();
-
-      return new LoopClosureConstraintDescription(name, offsetFromParentJoint, offsetFromLinkParentJoint, constraintForceSubSpace, constraintMomentSubSpace);
+      Matrix3D orthogonalMatrix = new Matrix3D();
+      matrix3DOrthogonalToVector3D(vector3D, orthogonalMatrix);
+      return orthogonalMatrix;
    }
 
-   private static Matrix3D matrix3DOrthogonalToVector3D(Vector3DReadOnly vector3D)
+   public static void matrix3DOrthogonalToVector3D(Vector3DReadOnly vector3D, Matrix3DBasics orthogonalMatrixToPack)
    {
       Vector3D orthogonalA = new Vector3D();
       Vector3D orthogonalB = new Vector3D();
@@ -110,11 +69,30 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
       orthogonalA.cross(vector3D, orthogonalB);
       orthogonalA.normalize();
 
-      Matrix3D orthogonalMatrix = new Matrix3D();
-      orthogonalMatrix.setToZero();
-      orthogonalMatrix.setColumn(0, orthogonalA);
-      orthogonalMatrix.setColumn(1, orthogonalB);
-      return orthogonalMatrix;
+      orthogonalMatrixToPack.setColumn(0, orthogonalA);
+      orthogonalMatrixToPack.setColumn(1, orthogonalB);
+      orthogonalMatrixToPack.setColumn(2, EuclidCoreTools.zeroVector3D);
+   }
+
+   /**
+    * Creates a constraint for enforcing a loop closure with zero degree of freedom.
+    * <p>
+    * The constraint will be applied to maintain a relative configuration between the link of the
+    * parent joint of this constraint, and the constraint's link.
+    * </p>
+    * 
+    * @param name                      the name of the constraint, {@code YoVariable}s will be created
+    *                                  using this name.
+    * @param offsetFromParentJoint     the position of the constraint with respect to the parent joint.
+    * @param offsetFromLinkParentJoint the position of the constraint with respect to the parent joint
+    *                                  of the associated link. Note that the link's parent joint is
+    *                                  expected to be different from this constraint's parent joint.
+    */
+   public LoopClosureConstraintDescription(String name, Tuple3DReadOnly offsetFromParentJoint, Tuple3DReadOnly offsetFromLinkParentJoint)
+   {
+      this.name = name;
+      this.offsetFromParentJoint.set(offsetFromParentJoint);
+      this.offsetFromLinkParentJoint.set(offsetFromLinkParentJoint);
    }
 
    /**
@@ -173,9 +151,7 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    public LoopClosureConstraintDescription(String name, Tuple3DReadOnly offsetFromParentJoint, Tuple3DReadOnly offsetFromLinkParentJoint,
                                            Matrix3DReadOnly constraintForceSubSpace, Matrix3DReadOnly constraintMomentSubSpace)
    {
-      this.name = name;
-      this.offsetFromParentJoint.set(offsetFromParentJoint);
-      this.offsetFromLinkParentJoint.set(offsetFromLinkParentJoint);
+      this(name, offsetFromParentJoint, offsetFromLinkParentJoint);
       this.constraintForceSubSpace.set(constraintForceSubSpace);
       this.constraintMomentSubSpace.set(constraintMomentSubSpace);
    }
