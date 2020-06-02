@@ -3,10 +3,11 @@ package us.ihmc.robotics.robotDescription;
 import java.util.Collections;
 import java.util.List;
 
+import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.matrix.Matrix3D;
+import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DBasics;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DReadOnly;
-import us.ihmc.euclid.tools.EuclidCoreTools;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
@@ -55,23 +56,11 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
 
    public static void matrix3DOrthogonalToVector3D(Vector3DReadOnly vector3D, Matrix3DBasics orthogonalMatrixToPack)
    {
-      Vector3D orthogonalA = new Vector3D();
-      Vector3D orthogonalB = new Vector3D();
-
-      // Purposefully picking a large tolerance to ensure sanity of the cross-product.
-      if (Math.abs(vector3D.getY()) > 0.1 || Math.abs(vector3D.getZ()) > 0.1)
-         orthogonalA.set(1.0, 0.0, 0.0);
-      else
-         orthogonalA.set(0.0, 1.0, 0.0);
-
-      orthogonalB.cross(orthogonalA, vector3D);
-      orthogonalB.normalize();
-      orthogonalA.cross(vector3D, orthogonalB);
-      orthogonalA.normalize();
-
-      orthogonalMatrixToPack.setColumn(0, orthogonalA);
-      orthogonalMatrixToPack.setColumn(1, orthogonalB);
-      orthogonalMatrixToPack.setColumn(2, EuclidCoreTools.zeroVector3D);
+      RotationMatrix R = new RotationMatrix();
+      EuclidGeometryTools.orientation3DFromZUpToVector3D(vector3D, R);
+      orthogonalMatrixToPack.setIdentity();
+      orthogonalMatrixToPack.setM22(0.0);
+      R.transform(orthogonalMatrixToPack);
    }
 
    /**
