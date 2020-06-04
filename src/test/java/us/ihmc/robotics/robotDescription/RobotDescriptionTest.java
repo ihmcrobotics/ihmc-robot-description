@@ -5,11 +5,10 @@ import static us.ihmc.robotics.Assert.assertFalse;
 import static us.ihmc.robotics.Assert.assertNull;
 import static us.ihmc.robotics.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.ejml.data.DenseMatrix64F;
-import org.ejml.ops.MatrixFeatures;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.dense.row.MatrixFeatures_DDRM;
 import org.junit.jupiter.api.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
@@ -53,7 +52,7 @@ public class RobotDescriptionTest
       assertEquals(0.2, momentOfInertiaCopy.getM11(), 1e-7);
       assertEquals(0.3, momentOfInertiaCopy.getM22(), 1e-7);
 
-      DenseMatrix64F momentOfInertiaCheck = rootLinkOne.getMomentOfInertia();
+      DMatrixRMaj momentOfInertiaCheck = rootLinkOne.getMomentOfInertia();
       assertEquals(0.1, momentOfInertiaCheck.get(0, 0), 1e-7);
       assertEquals(0.2, momentOfInertiaCheck.get(1, 1), 1e-7);
       assertEquals(0.3, momentOfInertiaCheck.get(2, 2), 1e-7);
@@ -96,14 +95,14 @@ public class RobotDescriptionTest
 
       LinkDescription childLinkOne = new LinkDescription("childLinkOne");
       childLinkOne.setMass(3.3);
-      DenseMatrix64F childMomentOfInertiaOne = new DenseMatrix64F(new double[][] {{1.0, 0.012, 0.013}, {0.021, 2.0, 0.023}, {0.031, 0.032, 3.0}});
+      DMatrixRMaj childMomentOfInertiaOne = new DMatrixRMaj(new double[][] {{1.0, 0.012, 0.013}, {0.021, 2.0, 0.023}, {0.031, 0.032, 3.0}});
       childLinkOne.setMomentOfInertia(childMomentOfInertiaOne);
-      DenseMatrix64F childMomentOfInertiaOneCheck = new DenseMatrix64F(3, 3);
+      DMatrixRMaj childMomentOfInertiaOneCheck = new DMatrixRMaj(3, 3);
       childLinkOne.getMomentOfInertia(childMomentOfInertiaOneCheck);
 
-      assertTrue(MatrixFeatures.isEquals(new DenseMatrix64F(new double[][] {{1.0, 0.012, 0.013}, {0.021, 2.0, 0.023}, {0.031, 0.032, 3.0}}),
-                                         childMomentOfInertiaOneCheck,
-                                         1e-7));
+      assertTrue(MatrixFeatures_DDRM.isEquals(new DMatrixRMaj(new double[][] {{1.0, 0.012, 0.013}, {0.021, 2.0, 0.023}, {0.031, 0.032, 3.0}}),
+                                              childMomentOfInertiaOneCheck,
+                                              1e-7));
 
       rootJointOne.addJoint(childJointOne);
 

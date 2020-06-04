@@ -3,8 +3,9 @@ package us.ihmc.robotics.robotDescription;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ejml.data.DenseMatrix64F;
-import org.ejml.ops.CommonOps;
+import org.ejml.data.DMatrix;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.dense.row.CommonOps_DDRM;
 
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
@@ -22,7 +23,7 @@ public class LinkDescription
 
    private double mass;
    private final Vector3D centerOfMassOffset = new Vector3D();
-   private final DenseMatrix64F momentOfInertia = new DenseMatrix64F(3, 3);
+   private final DMatrixRMaj momentOfInertia = new DMatrixRMaj(3, 3);
 
    private final Vector3D principalMomentsOfInertia = new Vector3D();
    private final RotationMatrix principalAxesRotation = new RotationMatrix();
@@ -92,7 +93,7 @@ public class LinkDescription
       centerOfMassOffset.set(xOffset, yOffset, zOffset);
    }
 
-   public void setMomentOfInertia(DenseMatrix64F momentOfInertia)
+   public void setMomentOfInertia(DMatrix momentOfInertia)
    {
       this.momentOfInertia.set(momentOfInertia);
    }
@@ -134,12 +135,12 @@ public class LinkDescription
       setMomentOfInertia(Ixx, Iyy, Izz);
    }
 
-   public void getMomentOfInertia(DenseMatrix64F momentOfInertiaToPack)
+   public void getMomentOfInertia(DMatrix momentOfInertiaToPack)
    {
       momentOfInertiaToPack.set(momentOfInertia);
    }
 
-   public DenseMatrix64F getMomentOfInertia()
+   public DMatrixRMaj getMomentOfInertia()
    {
       return momentOfInertia;
    }
@@ -372,7 +373,7 @@ public class LinkDescription
          mass = Math.pow(factor, massScalePower) * mass;
          // The components of the inertia matrix are defined with int(r^2 dm). So they scale factor ^ (2 + massScalePower)
          double inertiaScale = Math.pow(factor, massScalePower + 2);
-         CommonOps.scale(inertiaScale, momentOfInertia);
+         CommonOps_DDRM.scale(inertiaScale, momentOfInertia);
          computePrincipalMomentsOfInertia();
       }
 
