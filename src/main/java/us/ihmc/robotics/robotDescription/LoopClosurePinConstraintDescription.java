@@ -5,6 +5,20 @@ import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 
+/**
+ * A loop closure pin constraint can be seen as a passive 1-DoF revolute joint that serves only for
+ * closing a kinematic loop.
+ * <p>
+ * Such constraint is needed to complete mechanisms such as four bar linkages. The constraint should
+ * be used instead of a joint to close the kinematic loop and should preferably be positioned
+ * instead of one of the two joints farthest downstream. Note that the constraint cannot be
+ * actuated.
+ * </p>
+ * <p>
+ * Like a joint, a constraint is attached as child of another joint in the kinematic tree and it's
+ * configuration is defined in the local coordinates of the parent joint.
+ * </p>
+ */
 public class LoopClosurePinConstraintDescription extends LoopClosureConstraintDescription
 {
    private final Vector3D axis = new Vector3D();

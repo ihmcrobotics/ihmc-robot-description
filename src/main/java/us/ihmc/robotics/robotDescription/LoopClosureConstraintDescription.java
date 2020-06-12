@@ -17,7 +17,10 @@ import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
  * A loop closure constraint can be seen as a passive joint that serves only for closing a kinematic
  * loop.
  * <p>
- * Such constraint is needed to complete mechanisms such as four bar linkages.
+ * Such constraint is needed to complete mechanisms such as four bar linkages. The constraint should
+ * be used instead of a joint to close the kinematic loop and should preferably be positioned
+ * instead of one of the two joints farthest downstream. Note that the constraint cannot be
+ * actuated.
  * </p>
  * <p>
  * Like a joint, a constraint is attached as child of another joint in the kinematic tree and it's
@@ -37,8 +40,8 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    private final Matrix3D constraintForceSubSpace = identity();
    private final Matrix3D constraintMomentSubSpace = identity();
 
-   private final Vector3D proportionalGains = new Vector3D();
-   private final Vector3D derivativeGains = new Vector3D();
+   private final Vector3D proportionalGains = new Vector3D(Double.NaN, Double.NaN, Double.NaN);
+   private final Vector3D derivativeGains = new Vector3D(Double.NaN, Double.NaN, Double.NaN);
 
    public static Matrix3D identity()
    {
