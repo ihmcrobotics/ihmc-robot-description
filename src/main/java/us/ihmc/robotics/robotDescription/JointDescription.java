@@ -12,6 +12,7 @@ public class JointDescription implements RobotDescriptionNode
 {
    private final String name;
    private final List<JointDescription> childrenJointDescriptions = new ArrayList<>();
+   private final List<LoopClosureConstraintDescription> childrenConstraintDescriptions = new ArrayList<>();
 
    private JointDescription parentJoint;
    private final Vector3D offsetFromParentJoint = new Vector3D();
@@ -92,10 +93,28 @@ public class JointDescription implements RobotDescriptionNode
       return childrenJointDescriptions.remove(childJointDescription);
    }
 
+   public void addConstraint(LoopClosureConstraintDescription childConstraintDescription)
+   {
+      childrenConstraintDescriptions.add(childConstraintDescription);
+
+      if (childConstraintDescription.getParentJoint() != null)
+      {
+         throw new RuntimeException("LoopClosureConstraintDescription " + childConstraintDescription.getName() + "already has a parent joint: "
+               + childConstraintDescription.getParentJoint().getName());
+      }
+
+      childConstraintDescription.setParentJoint(this);
+   }
+
    @Override
    public List<JointDescription> getChildrenJoints()
    {
       return childrenJointDescriptions;
+   }
+
+   public List<LoopClosureConstraintDescription> getChildrenConstraintDescriptions()
+   {
+      return childrenConstraintDescriptions;
    }
 
    public void addGroundContactPoint(GroundContactPointDescription groundContactPointDescription)
