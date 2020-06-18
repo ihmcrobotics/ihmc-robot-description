@@ -1,9 +1,9 @@
 package us.ihmc.robotics.robotDescription;
 
-import org.ejml.alg.dense.decomposition.svd.SvdImplicitQrDecompose_D64;
-import org.ejml.data.DenseMatrix64F;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.dense.row.CommonOps_DDRM;
+import org.ejml.dense.row.decomposition.svd.SvdImplicitQrDecompose_DDRM;
 import org.ejml.interfaces.decomposition.SingularValueDecomposition;
-import org.ejml.ops.CommonOps;
 
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
@@ -61,27 +61,27 @@ public class InertiaTools
 
    public static void computePrincipalMomentsOfInertia(Matrix3D Inertia, RotationMatrix principalAxesRotationToPack, Vector3D principalMomentsOfInertiaToPack)
    {
-      DenseMatrix64F inertiaForSVD = new DenseMatrix64F(3, 3);
+      DMatrixRMaj inertiaForSVD = new DMatrixRMaj(3, 3);
       Inertia.get(inertiaForSVD);
       computePrincipalMomentsOfInertia(inertiaForSVD, principalAxesRotationToPack, principalMomentsOfInertiaToPack);
    }
 
-   public static void computePrincipalMomentsOfInertia(DenseMatrix64F inertiaForSVD, RotationMatrix principalAxesRotationToPack,
+   public static void computePrincipalMomentsOfInertia(DMatrixRMaj inertiaForSVD, RotationMatrix principalAxesRotationToPack,
                                                        Vector3D principalMomentsOfInertiaToPack)
    {
       // Decompose Inertia Matrix:  I = U * W * V
-      SingularValueDecomposition<DenseMatrix64F> svd = new SvdImplicitQrDecompose_D64(true, false, true, false);
+      SingularValueDecomposition<DMatrixRMaj> svd = new SvdImplicitQrDecompose_DDRM(true, false, true, false);
       svd.decompose(inertiaForSVD);
 
-      DenseMatrix64F W = svd.getW(null);
-      //    DenseMatrix64F U = svd.getU(null);
-      DenseMatrix64F V = svd.getV(null, false);
+      DMatrixRMaj W = svd.getW(null);
+      //    DMatrixRMaj U = svd.getU(null);
+      DMatrixRMaj V = svd.getV(null, false);
 
       // If determinant is -1.0, then multiply V by -1. Since I = U*sigma*U_Transpose, then I = (-U) * sigma * (-U_Transpose)
-      double determinant = CommonOps.det(V);
+      double determinant = CommonOps_DDRM.det(V);
       if (determinant < 0.0)
       {
-         CommonOps.scale(-1.0, V);
+         CommonOps_DDRM.scale(-1.0, V);
          determinant = -determinant;
       }
 
