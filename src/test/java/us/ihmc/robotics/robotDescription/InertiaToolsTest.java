@@ -13,6 +13,7 @@ import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.tools.EuclidCoreRandomTools;
 import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.robotics.robotDescription.links.InertiaTools;
 
 public class InertiaToolsTest
 {

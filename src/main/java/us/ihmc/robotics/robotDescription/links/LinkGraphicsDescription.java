@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.links;
 
 import us.ihmc.graphicsDescription.Graphics3DObject;
 

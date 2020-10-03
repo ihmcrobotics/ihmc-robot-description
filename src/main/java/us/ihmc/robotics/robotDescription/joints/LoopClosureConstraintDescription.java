@@ -12,8 +12,8 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
-import us.ihmc.robotics.robotDescription.LinkDescription;
 import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
+import us.ihmc.robotics.robotDescription.links.LinkDescription;
 
 /**
  * A loop closure constraint can be seen as a passive joint that serves only for closing a kinematic

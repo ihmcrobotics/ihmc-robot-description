@@ -10,6 +10,8 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.graphicsDescription.appearance.AppearanceDefinition;
 import us.ihmc.graphicsDescription.appearance.YoAppearance;
 import us.ihmc.robotics.robotDescription.joints.PinJointDescription;
+import us.ihmc.robotics.robotDescription.links.LinkDescription;
+import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
 
 public class RobotDescriptionUsingSpringFlamingoTest
 {

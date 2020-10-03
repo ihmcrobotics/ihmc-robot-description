@@ -13,6 +13,8 @@ import us.ihmc.robotics.robotDescription.collision.CylinderCollisionMeshDefiniti
 import us.ihmc.robotics.robotDescription.collision.SphereCollisionMeshDefinitionData;
 import us.ihmc.robotics.robotDescription.joints.JointDescription;
 import us.ihmc.robotics.robotDescription.joints.LoopClosureConstraintDescription;
+import us.ihmc.robotics.robotDescription.links.LinkDescription;
+import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
 
 public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHolder
 {

@@ -33,6 +33,8 @@ import us.ihmc.robotics.robotDescription.joints.JointDescription;
 import us.ihmc.robotics.robotDescription.joints.OneDoFJointDescription;
 import us.ihmc.robotics.robotDescription.joints.PinJointDescription;
 import us.ihmc.robotics.robotDescription.joints.SliderJointDescription;
+import us.ihmc.robotics.robotDescription.links.LinkDescription;
+import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
 
 public class RobotDescriptionTest
 {

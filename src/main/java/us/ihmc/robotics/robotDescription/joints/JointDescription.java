@@ -16,9 +16,9 @@ import us.ihmc.robotics.robotDescription.IMUSensorDescription;
 import us.ihmc.robotics.robotDescription.JointWrenchSensorDescription;
 import us.ihmc.robotics.robotDescription.KinematicPointDescription;
 import us.ihmc.robotics.robotDescription.LidarSensorDescription;
-import us.ihmc.robotics.robotDescription.LinkDescription;
 import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
 import us.ihmc.robotics.robotDescription.SensorDescription;
+import us.ihmc.robotics.robotDescription.links.LinkDescription;
 
 public class JointDescription implements RobotDescriptionNode
 {

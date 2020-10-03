@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.links;
 
 import org.ejml.data.DMatrixRMaj;
 import org.ejml.dense.row.CommonOps_DDRM;

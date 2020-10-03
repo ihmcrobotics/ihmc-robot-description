@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.links;
 
 import java.util.ArrayList;
 import java.util.List;
