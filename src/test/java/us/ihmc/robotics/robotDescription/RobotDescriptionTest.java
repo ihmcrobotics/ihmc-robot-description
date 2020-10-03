@@ -29,6 +29,7 @@ import us.ihmc.graphicsDescription.Graphics3DObject;
 import us.ihmc.graphicsDescription.appearance.YoAppearance;
 import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
 import us.ihmc.robotics.robotDescription.joints.FloatingJointDescription;
+import us.ihmc.robotics.robotDescription.joints.FloatingPlanarJointDescription;
 import us.ihmc.robotics.robotDescription.joints.JointDescription;
 import us.ihmc.robotics.robotDescription.joints.OneDoFJointDescription;
 import us.ihmc.robotics.robotDescription.joints.PinJointDescription;

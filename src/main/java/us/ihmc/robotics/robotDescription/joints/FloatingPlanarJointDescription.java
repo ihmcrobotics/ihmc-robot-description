@@ -1,7 +1,7 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.joints;
 
 import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.robotics.robotDescription.joints.JointDescription;
+import us.ihmc.robotics.robotDescription.Plane;
 
 public class FloatingPlanarJointDescription extends JointDescription
 {
