@@ -41,6 +41,9 @@ import us.ihmc.robotics.robotDescription.sensors.ForceSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.JointWrenchSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.LidarSensorDescription;
+import us.ihmc.robotics.robotDescription.simulation.ExternalForcePointDescription;
+import us.ihmc.robotics.robotDescription.simulation.GroundContactPointDescription;
+import us.ihmc.robotics.robotDescription.simulation.KinematicPointDescription;
 
 public class RobotDescriptionTest
 {

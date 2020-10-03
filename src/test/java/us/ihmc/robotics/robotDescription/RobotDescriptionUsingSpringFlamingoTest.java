@@ -16,6 +16,7 @@ import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
 import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.JointWrenchSensorDescription;
+import us.ihmc.robotics.robotDescription.simulation.GroundContactPointDescription;
 
 public class RobotDescriptionUsingSpringFlamingoTest
 {

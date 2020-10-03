@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.simulation;
 
 import us.ihmc.euclid.tuple3D.Vector3D;
 
