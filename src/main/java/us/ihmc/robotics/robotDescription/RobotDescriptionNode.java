@@ -2,6 +2,8 @@ package us.ihmc.robotics.robotDescription;
 
 import java.util.List;
 
+import us.ihmc.robotics.robotDescription.joints.JointDescription;
+
 public interface RobotDescriptionNode
 {
    public abstract String getName();

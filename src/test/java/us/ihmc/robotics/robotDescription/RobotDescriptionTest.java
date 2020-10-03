@@ -28,6 +28,11 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.graphicsDescription.Graphics3DObject;
 import us.ihmc.graphicsDescription.appearance.YoAppearance;
 import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
+import us.ihmc.robotics.robotDescription.joints.FloatingJointDescription;
+import us.ihmc.robotics.robotDescription.joints.JointDescription;
+import us.ihmc.robotics.robotDescription.joints.OneDoFJointDescription;
+import us.ihmc.robotics.robotDescription.joints.PinJointDescription;
+import us.ihmc.robotics.robotDescription.joints.SliderJointDescription;
 
 public class RobotDescriptionTest
 {

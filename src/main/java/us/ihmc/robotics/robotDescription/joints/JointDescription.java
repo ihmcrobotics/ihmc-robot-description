@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.joints;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,17 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
+import us.ihmc.robotics.robotDescription.CameraSensorDescription;
+import us.ihmc.robotics.robotDescription.ExternalForcePointDescription;
+import us.ihmc.robotics.robotDescription.ForceSensorDescription;
+import us.ihmc.robotics.robotDescription.GroundContactPointDescription;
+import us.ihmc.robotics.robotDescription.IMUSensorDescription;
+import us.ihmc.robotics.robotDescription.JointWrenchSensorDescription;
+import us.ihmc.robotics.robotDescription.KinematicPointDescription;
+import us.ihmc.robotics.robotDescription.LidarSensorDescription;
+import us.ihmc.robotics.robotDescription.LinkDescription;
+import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
+import us.ihmc.robotics.robotDescription.SensorDescription;
 
 public class JointDescription implements RobotDescriptionNode
 {
