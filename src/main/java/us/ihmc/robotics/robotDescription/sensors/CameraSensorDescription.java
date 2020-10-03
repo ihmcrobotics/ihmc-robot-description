@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.sensors;
 
 import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;

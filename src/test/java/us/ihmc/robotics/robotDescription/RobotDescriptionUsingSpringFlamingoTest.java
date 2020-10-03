@@ -13,6 +13,9 @@ import us.ihmc.robotics.robotDescription.joints.FloatingPlanarJointDescription;
 import us.ihmc.robotics.robotDescription.joints.PinJointDescription;
 import us.ihmc.robotics.robotDescription.links.LinkDescription;
 import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
+import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.JointWrenchSensorDescription;
 
 public class RobotDescriptionUsingSpringFlamingoTest
 {

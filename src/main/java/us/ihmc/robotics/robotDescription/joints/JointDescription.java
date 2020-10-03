@@ -8,17 +8,17 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
-import us.ihmc.robotics.robotDescription.CameraSensorDescription;
 import us.ihmc.robotics.robotDescription.ExternalForcePointDescription;
-import us.ihmc.robotics.robotDescription.ForceSensorDescription;
 import us.ihmc.robotics.robotDescription.GroundContactPointDescription;
-import us.ihmc.robotics.robotDescription.IMUSensorDescription;
-import us.ihmc.robotics.robotDescription.JointWrenchSensorDescription;
 import us.ihmc.robotics.robotDescription.KinematicPointDescription;
-import us.ihmc.robotics.robotDescription.LidarSensorDescription;
 import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
-import us.ihmc.robotics.robotDescription.SensorDescription;
 import us.ihmc.robotics.robotDescription.links.LinkDescription;
+import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.ForceSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.JointWrenchSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.LidarSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.SensorDescription;
 
 public class JointDescription implements RobotDescriptionNode
 {

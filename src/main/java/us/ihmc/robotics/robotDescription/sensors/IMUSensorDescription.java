@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.sensors;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 
