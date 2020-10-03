@@ -1,9 +1,8 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.collision;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.transform.interfaces.RigidBodyTransformBasics;
 import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
-import us.ihmc.robotics.robotDescription.collision.ConvexShapeDescriptionReadOnly;
 
 public class SphereDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
 {
