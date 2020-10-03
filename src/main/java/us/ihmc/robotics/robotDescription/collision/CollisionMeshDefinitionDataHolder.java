@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription.collisionMeshDefinitionData;
+package us.ihmc.robotics.robotDescription.collision;
 
 import java.util.ArrayList;
 import java.util.List;

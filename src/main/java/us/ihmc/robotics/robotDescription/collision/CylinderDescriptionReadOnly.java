@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.collision;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 

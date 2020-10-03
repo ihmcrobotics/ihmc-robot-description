@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import us.ihmc.graphicsDescription.Graphics3DObject;
-import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.BoxCollisionMeshDefinitionData;
-import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.CollisionMeshDefinitionData;
-import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.CollisionMeshDefinitionDataHolder;
-import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.CylinderCollisionMeshDefinitionData;
-import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.SphereCollisionMeshDefinitionData;
+import us.ihmc.robotics.robotDescription.collision.BoxCollisionMeshDefinitionData;
+import us.ihmc.robotics.robotDescription.collision.CollisionMeshDefinitionData;
+import us.ihmc.robotics.robotDescription.collision.CollisionMeshDefinitionDataHolder;
+import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
+import us.ihmc.robotics.robotDescription.collision.CylinderCollisionMeshDefinitionData;
+import us.ihmc.robotics.robotDescription.collision.SphereCollisionMeshDefinitionData;
 
 public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHolder
 {

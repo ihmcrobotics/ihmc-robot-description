@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.collision;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,9 @@ import us.ihmc.euclid.shape.convexPolytope.interfaces.ConvexPolytope3DReadOnly;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
+import us.ihmc.robotics.robotDescription.SphereDescriptionReadOnly;
 
-public class CollisionMeshDescription implements CollisionMaskHolder
+public class CollisionMeshDescription implements OldCollisionMaskHolder
 {
    private final Pose3D pose = new Pose3D();
    private final ArrayList<ConvexShapeDescriptionReadOnly> convexShapeDescriptions = new ArrayList<>();

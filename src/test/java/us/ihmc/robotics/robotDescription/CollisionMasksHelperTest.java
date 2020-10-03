@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
+import us.ihmc.robotics.robotDescription.collision.OldCollisionMaskHolder;
+import us.ihmc.robotics.robotDescription.collision.OldCollisionMasksHelper;
+import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
 
 public class CollisionMasksHelperTest
 {
@@ -22,15 +25,15 @@ public class CollisionMasksHelperTest
       CollisionMeshDescription objectFive = new CollisionMeshDescription();
       CollisionMeshDescription objectSix = new CollisionMeshDescription();
 
-      CollisionMasksHelper helper = new CollisionMasksHelper();
+      OldCollisionMasksHelper helper = new OldCollisionMasksHelper();
       assertEquals(1, helper.getNextGroupBitMask());
 
-      ArrayList<CollisionMaskHolder> groupOne = new ArrayList<>();
+      ArrayList<OldCollisionMaskHolder> groupOne = new ArrayList<>();
 
       groupOne.add(objectOne);
       groupOne.add(objectTwo);
 
-      ArrayList<CollisionMaskHolder> groupTwo = new ArrayList<>();
+      ArrayList<OldCollisionMaskHolder> groupTwo = new ArrayList<>();
       groupTwo.add(objectThree);
       groupTwo.add(objectFour);
 
@@ -67,7 +70,7 @@ public class CollisionMasksHelperTest
       assertEquals(0b00, objectThree.getCollisionMask());
       assertEquals(0b00, objectFour.getCollisionMask());
 
-      ArrayList<CollisionMaskHolder> groupThree = new ArrayList<>();
+      ArrayList<OldCollisionMaskHolder> groupThree = new ArrayList<>();
       groupThree.add(objectOne);
       groupThree.add(objectFour);
       helper.addCollisionGroup("GroupThree", groupThree);
@@ -78,14 +81,14 @@ public class CollisionMasksHelperTest
       assertEquals(0b010, objectThree.getCollisionGroup());
       assertEquals(0b110, objectFour.getCollisionGroup());
 
-      ArrayList<CollisionMaskHolder> groupFour = new ArrayList<>();
+      ArrayList<OldCollisionMaskHolder> groupFour = new ArrayList<>();
       groupFour.add(objectFive);
       groupFour.add(objectSix);
       helper.addCollisionGroup("GroupFour", groupFour);
       assertEquals(0b1000, objectFive.getCollisionGroup());
       assertEquals(0b1000, objectFive.getCollisionGroup());
 
-      ArrayList<CollisionMaskHolder> groupFive = new ArrayList<>();
+      ArrayList<OldCollisionMaskHolder> groupFive = new ArrayList<>();
       groupFive.add(objectSix);
       helper.addCollisionGroup("GroupFive", groupFive);
       assertEquals(32, helper.getNextGroupBitMask());
@@ -123,15 +126,15 @@ public class CollisionMasksHelperTest
    @Test // timeout = 30000
    public void testMaxNumberOfGroupsInCollisionMasksHelper()
    {
-      CollisionMasksHelper helper = new CollisionMasksHelper();
+      OldCollisionMasksHelper helper = new OldCollisionMasksHelper();
 
       for (int i = 0; i < 32; i++)
       {
-         ArrayList<CollisionMaskHolder> group = new ArrayList<>();
+         ArrayList<OldCollisionMaskHolder> group = new ArrayList<>();
          helper.addCollisionGroup("Group" + i, group);
       }
 
-      ArrayList<CollisionMaskHolder> group32 = new ArrayList<>();
+      ArrayList<OldCollisionMaskHolder> group32 = new ArrayList<>();
 
       CollisionMeshDescription object32 = new CollisionMeshDescription();
       group32.add(object32);
@@ -149,6 +152,6 @@ public class CollisionMasksHelperTest
 
    public static void main(String[] args)
    {
-      MutationTestFacilitator.facilitateMutationTestForClass(CollisionMasksHelper.class, CollisionMasksHelperTest.class);
+      MutationTestFacilitator.facilitateMutationTestForClass(OldCollisionMasksHelper.class, CollisionMasksHelperTest.class);
    }
 }

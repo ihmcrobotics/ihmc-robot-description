@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.collision;
 
 import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.geometry.LineSegment3D;

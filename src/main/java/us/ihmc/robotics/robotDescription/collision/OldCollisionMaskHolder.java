@@ -1,6 +1,6 @@
-package us.ihmc.robotics.robotDescription;
+package us.ihmc.robotics.robotDescription.collision;
 
-public interface CollisionMaskHolder
+public interface OldCollisionMaskHolder
 {
    public abstract int getCollisionGroup();
 

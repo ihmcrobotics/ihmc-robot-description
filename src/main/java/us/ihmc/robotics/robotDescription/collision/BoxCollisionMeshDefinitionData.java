@@ -1,4 +1,4 @@
-package us.ihmc.robotics.robotDescription.collisionMeshDefinitionData;
+package us.ihmc.robotics.robotDescription.collision;
 
 public class BoxCollisionMeshDefinitionData extends CollisionMeshDefinitionData
 {
