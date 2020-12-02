@@ -5,6 +5,11 @@ import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 
 public class SliderJointDescription extends OneDoFJointDescription
 {
+   public SliderJointDescription(String name)
+   {
+      super(name);
+   }
+
    public SliderJointDescription(String name, Tuple3DReadOnly offsetFromParentJoint, Vector3DReadOnly jointAxis)
    {
       super(name, offsetFromParentJoint, jointAxis);

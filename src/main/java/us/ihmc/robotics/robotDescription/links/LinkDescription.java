@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ejml.data.DMatrix;
-import org.ejml.data.DMatrixRMaj;
-import org.ejml.dense.row.CommonOps_DDRM;
 
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DReadOnly;
+import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 import us.ihmc.graphicsDescription.appearance.AppearanceDefinition;
 import us.ihmc.graphicsDescription.appearance.YoAppearance;
 import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
@@ -23,8 +22,8 @@ public class LinkDescription
    private String name;
 
    private double mass;
-   private final Vector3D centerOfMassOffset = new Vector3D();
-   private final DMatrixRMaj momentOfInertia = new DMatrixRMaj(3, 3);
+   private final RigidBodyTransform inertiaPose = new RigidBodyTransform();
+   private final Matrix3D momentOfInertia = new Matrix3D();
 
    private final Vector3D principalMomentsOfInertia = new Vector3D();
    private final RotationMatrix principalAxesRotation = new RotationMatrix();
@@ -41,7 +40,7 @@ public class LinkDescription
    {
       name = other.name;
       mass = other.mass;
-      centerOfMassOffset.set(other.centerOfMassOffset);
+      inertiaPose.set(other.inertiaPose);
       momentOfInertia.set(other.momentOfInertia);
       principalMomentsOfInertia.set(other.principalMomentsOfInertia);
       principalAxesRotation.set(other.principalAxesRotation);
@@ -94,24 +93,24 @@ public class LinkDescription
       this.mass = mass;
    }
 
-   public void getCenterOfMassOffset(Tuple3DBasics centerOfMassOffsetToPack)
+   public RigidBodyTransform getInertiaPose()
    {
-      centerOfMassOffsetToPack.set(centerOfMassOffset);
+      return inertiaPose;
    }
 
-   public Vector3D getCenterOfMassOffset()
+   public Vector3DBasics getCenterOfMassOffset()
    {
-      return centerOfMassOffset;
+      return inertiaPose.getTranslation();
    }
 
    public void setCenterOfMassOffset(Tuple3DReadOnly centerOfMassOffset)
    {
-      this.centerOfMassOffset.set(centerOfMassOffset);
+      getCenterOfMassOffset().set(centerOfMassOffset);
    }
 
    public void setCenterOfMassOffset(double xOffset, double yOffset, double zOffset)
    {
-      centerOfMassOffset.set(xOffset, yOffset, zOffset);
+      getCenterOfMassOffset().set(xOffset, yOffset, zOffset);
    }
 
    public void setMomentOfInertia(DMatrix momentOfInertia)
@@ -121,28 +120,7 @@ public class LinkDescription
 
    public void setMomentOfInertia(Matrix3DReadOnly momentOfInertia)
    {
-      for (int i = 0; i < 3; i++)
-      {
-         for (int j = 0; j < 3; j++)
-         {
-            this.momentOfInertia.set(i, j, momentOfInertia.getElement(i, j));
-         }
-      }
-   }
-
-   public Matrix3D getMomentOfInertiaCopy()
-   {
-      Matrix3D momentOfInertia = new Matrix3D();
-
-      for (int i = 0; i < 3; i++)
-      {
-         for (int j = 0; j < 3; j++)
-         {
-            momentOfInertia.setElement(i, j, this.momentOfInertia.get(i, j));
-         }
-      }
-
-      return momentOfInertia;
+      this.momentOfInertia.set(momentOfInertia);
    }
 
    public void setMassAndRadiiOfGyration(double mass, double radiusOfGyrationX, double radiusOfGyrationY, double radiusOfGyrationZ)
@@ -158,20 +136,17 @@ public class LinkDescription
 
    public void getMomentOfInertia(DMatrix momentOfInertiaToPack)
    {
-      momentOfInertiaToPack.set(momentOfInertia);
+      momentOfInertia.get(momentOfInertiaToPack);
    }
 
-   public DMatrixRMaj getMomentOfInertia()
+   public Matrix3D getMomentOfInertia()
    {
       return momentOfInertia;
    }
 
    public void setMomentOfInertia(double Ixx, double Iyy, double Izz)
    {
-      momentOfInertia.zero();
-      momentOfInertia.set(0, 0, Ixx);
-      momentOfInertia.set(1, 1, Iyy);
-      momentOfInertia.set(2, 2, Izz);
+      momentOfInertia.setToDiagonal(Ixx, Iyy, Izz);
 
    }
 
@@ -196,10 +171,7 @@ public class LinkDescription
    {
       linkGraphics.identity();
 
-      Vector3D comOffset = new Vector3D();
-      getCenterOfMassOffset(comOffset);
-
-      linkGraphics.translate(comOffset.getX(), comOffset.getY(), comOffset.getZ());
+      linkGraphics.translate(getCenterOfMassOffset());
       linkGraphics.addCoordinateSystem(length);
 
       linkGraphics.identity();
@@ -240,13 +212,10 @@ public class LinkDescription
 
       double vertexSize = 0.01 * inertiaEllipsoidRadii.length();
 
-      Vector3D comOffset = new Vector3D();
-      getCenterOfMassOffset(comOffset);
-
       for (Vector3D vector : inertiaEllipsoidAxes)
       {
          linkGraphics.identity();
-         linkGraphics.translate(comOffset.getX(), comOffset.getY(), comOffset.getZ());
+         linkGraphics.translate(getCenterOfMassOffset());
          linkGraphics.translate(vector);
          linkGraphics.addCube(vertexSize, vertexSize, vertexSize, appearance);
       }
@@ -301,7 +270,7 @@ public class LinkDescription
       face8.add(p2);
 
       linkGraphics.identity();
-      linkGraphics.translate(comOffset.getX(), comOffset.getY(), comOffset.getZ());
+      linkGraphics.translate(getCenterOfMassOffset());
       linkGraphics.addPolygon(face1, appearance);
       linkGraphics.addPolygon(face2, appearance);
       linkGraphics.addPolygon(face3, appearance);
@@ -334,11 +303,8 @@ public class LinkDescription
       if (appearance == null)
          appearance = YoAppearance.Black();
 
-      Vector3D comOffset = new Vector3D();
-      getCenterOfMassOffset(comOffset);
-
       linkGraphics.identity();
-      linkGraphics.translate(comOffset.getX(), comOffset.getY(), comOffset.getZ());
+      linkGraphics.translate(getCenterOfMassOffset());
       linkGraphics.rotate(principalAxesRotation);
       linkGraphics.addEllipsoid(inertiaEllipsoidRadii.getX(), inertiaEllipsoidRadii.getY(), inertiaEllipsoidRadii.getZ(), appearance);
       linkGraphics.identity();
@@ -354,23 +320,20 @@ public class LinkDescription
     */
    public void addBoxFromMassProperties(AppearanceDefinition appearance)
    {
-      Vector3D comOffset = new Vector3D();
-      getCenterOfMassOffset(comOffset);
-
-      if (mass <= 0 || momentOfInertia.get(0, 0) <= 0 || momentOfInertia.get(1, 1) <= 0 || momentOfInertia.get(2, 2) <= 0
-            || momentOfInertia.get(0, 0) + momentOfInertia.get(1, 1) <= momentOfInertia.get(2, 2)
-            || momentOfInertia.get(1, 1) + momentOfInertia.get(2, 2) <= momentOfInertia.get(0, 0)
-            || momentOfInertia.get(0, 0) + momentOfInertia.get(2, 2) <= momentOfInertia.get(1, 1))
+      if (mass <= 0 || momentOfInertia.getM00() <= 0 || momentOfInertia.getM11() <= 0 || momentOfInertia.getM22() <= 0
+            || momentOfInertia.getM00() + momentOfInertia.getM11() <= momentOfInertia.getM22()
+            || momentOfInertia.getM11() + momentOfInertia.getM22() <= momentOfInertia.getM00()
+            || momentOfInertia.getM00() + momentOfInertia.getM22() <= momentOfInertia.getM11())
       {
          System.err.println(getName() + " has unrealistic inertia");
       }
       else
       {
          linkGraphics.identity();
-         linkGraphics.translate(comOffset.getX(), comOffset.getY(), comOffset.getZ());
-         double lx = Math.sqrt(6.0 * (momentOfInertia.get(2, 2) + momentOfInertia.get(1, 1) - momentOfInertia.get(0, 0)) / mass);
-         double ly = Math.sqrt(6.0 * (momentOfInertia.get(2, 2) + momentOfInertia.get(0, 0) - momentOfInertia.get(1, 1)) / mass);
-         double lz = Math.sqrt(6.0 * (momentOfInertia.get(0, 0) + momentOfInertia.get(1, 1) - momentOfInertia.get(2, 2)) / mass);
+         linkGraphics.translate(getCenterOfMassOffset());
+         double lx = Math.sqrt(6.0 * (momentOfInertia.getM22() + momentOfInertia.getM11() - momentOfInertia.getM00()) / mass);
+         double ly = Math.sqrt(6.0 * (momentOfInertia.getM22() + momentOfInertia.getM00() - momentOfInertia.getM11()) / mass);
+         double lz = Math.sqrt(6.0 * (momentOfInertia.getM00() + momentOfInertia.getM11() - momentOfInertia.getM22()) / mass);
          linkGraphics.translate(0.0, 0.0, -lz / 2.0);
          linkGraphics.addCube(lx, ly, lz, appearance);
          linkGraphics.identity();
@@ -385,7 +348,7 @@ public class LinkDescription
    public void scale(double factor, double massScalePower, boolean scaleInertia)
    {
       // Center of mass offset scales with the scaling factor
-      centerOfMassOffset.scale(factor);
+      getCenterOfMassOffset().scale(factor);
 
       // Mass scales with factor^massScalePower. massScalePower is 3 when considering constant density
 
@@ -394,7 +357,7 @@ public class LinkDescription
          mass = Math.pow(factor, massScalePower) * mass;
          // The components of the inertia matrix are defined with int(r^2 dm). So they scale factor ^ (2 + massScalePower)
          double inertiaScale = Math.pow(factor, massScalePower + 2);
-         CommonOps_DDRM.scale(inertiaScale, momentOfInertia);
+         momentOfInertia.scale(inertiaScale);
          computePrincipalMomentsOfInertia();
       }
 

@@ -5,9 +5,7 @@ import java.util.List;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
-import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
 import us.ihmc.robotics.robotDescription.links.LinkDescription;
 import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
@@ -22,12 +20,12 @@ import us.ihmc.robotics.robotDescription.simulation.KinematicPointDescription;
 
 public class JointDescription implements RobotDescriptionNode
 {
-   private final String name;
+   private String name;
+   private JointDescription parentJoint;
+   private final RigidBodyTransform transformToParentJoint = new RigidBodyTransform();
+
    private final List<JointDescription> childrenJointDescriptions = new ArrayList<>();
    private final List<LoopClosureConstraintDescription> childrenConstraintDescriptions = new ArrayList<>();
-
-   private JointDescription parentJoint;
-   private final Vector3D offsetFromParentJoint = new Vector3D();
 
    private LinkDescription link;
 
@@ -45,16 +43,30 @@ public class JointDescription implements RobotDescriptionNode
 
    private boolean isDynamic = true;
 
+   public JointDescription()
+   {
+   }
+
+   public JointDescription(String name)
+   {
+      this.name = name;
+   }
+
    public JointDescription(String name, Tuple3DReadOnly offsetFromParentJoint)
    {
       this.name = name;
-      this.offsetFromParentJoint.set(offsetFromParentJoint);
+      transformToParentJoint.getTranslation().set(offsetFromParentJoint);
+   }
+
+   public void setName(String name)
+   {
+      this.name = name;
    }
 
    public JointDescription(JointDescription other)
    {
       this.name = other.name;
-      offsetFromParentJoint.set(other.offsetFromParentJoint);
+      transformToParentJoint.set(other.transformToParentJoint);
       link = other.link == null ? null : other.link.copy();
 
       other.childrenConstraintDescriptions.forEach(kp -> childrenConstraintDescriptions.add(kp.copy()));
@@ -83,24 +95,14 @@ public class JointDescription implements RobotDescriptionNode
       this.parentJoint = parentJoint;
    }
 
-   public void setOffsetFromParentJoint(Tuple3DReadOnly offset)
-   {
-      offsetFromParentJoint.set(offset);
-   }
-
    public JointDescription getParentJoint()
    {
       return parentJoint;
    }
 
-   public Vector3DReadOnly getOffsetFromParentJoint()
+   public RigidBodyTransform getTransformToParentJoint()
    {
-      return offsetFromParentJoint;
-   }
-
-   public void getOffsetFromParentJoint(Tuple3DBasics offsetToPack)
-   {
-      offsetToPack.set(offsetFromParentJoint);
+      return transformToParentJoint;
    }
 
    public LinkDescription getLink()
@@ -263,15 +265,10 @@ public class JointDescription implements RobotDescriptionNode
 
    public static void scaleChildrenJoint(List<JointDescription> childrenJoints, double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
-      Vector3D offsetFromParentJoint = new Vector3D();
       for (int i = 0; i < childrenJoints.size(); i++)
       {
          JointDescription description = childrenJoints.get(i);
-
-         description.getOffsetFromParentJoint(offsetFromParentJoint);
-         offsetFromParentJoint.scale(factor);
-         description.setOffsetFromParentJoint(offsetFromParentJoint);
-
+         description.getTransformToParentJoint().getTranslation().scale(factor);
          description.scale(factor, massScalePower, ignoreInertiaScaleJointList);
       }
 

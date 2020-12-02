@@ -4,58 +4,192 @@ import java.util.List;
 
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
-import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 
 public class OneDoFJointDescription extends JointDescription
 {
-   private boolean containsLimitStops;
-   private double qMin = Double.NEGATIVE_INFINITY;
-   private double qMax = Double.POSITIVE_INFINITY;
-   private double kLimit, bLimit;
+   private double positionLowerLimit = Double.NEGATIVE_INFINITY, positionUpperLimit = Double.POSITIVE_INFINITY;
+   private double kpPositionLimit, kdPositionLimit;
 
-   private double effortLimit = Double.POSITIVE_INFINITY;
+   private double velocityLowerLimit = Double.NEGATIVE_INFINITY, velocityUpperLimit = Double.POSITIVE_INFINITY;
+   private double kpVelocityLimit;
 
-   private double velocityLimit = Double.POSITIVE_INFINITY;
-   private double velocityDamping;
+   private double effortLowerLimit = Double.NEGATIVE_INFINITY, effortUpperLimit = Double.POSITIVE_INFINITY;
 
    private double damping;
    private double stiction;
 
-   private final Vector3D jointAxis = new Vector3D();
+   private final Vector3D axis = new Vector3D();
 
-   public OneDoFJointDescription(String name, Tuple3DReadOnly offset, Vector3DReadOnly jointAxis)
+   public OneDoFJointDescription(String name)
+   {
+      super(name);
+   }
+
+   public OneDoFJointDescription(String name, Tuple3DReadOnly offset, Vector3DReadOnly axis)
    {
       super(name, offset);
-      this.jointAxis.set(jointAxis);
+      this.axis.set(axis);
    }
 
    public OneDoFJointDescription(OneDoFJointDescription other)
    {
       super(other);
-      jointAxis.set(other.jointAxis);
+      axis.set(other.axis);
 
-      containsLimitStops = other.containsLimitStops;
-      qMin = other.qMin;
-      qMax = other.qMax;
-      kLimit = other.kLimit;
-      bLimit = other.bLimit;
-      effortLimit = other.effortLimit;
-      velocityLimit = other.velocityLimit;
-      velocityDamping = other.velocityDamping;
+      positionLowerLimit = other.positionLowerLimit;
+      positionUpperLimit = other.positionUpperLimit;
+      kpPositionLimit = other.kpPositionLimit;
+      kdPositionLimit = other.kdPositionLimit;
+      velocityLowerLimit = other.velocityLowerLimit;
+      velocityUpperLimit = other.velocityUpperLimit;
+      kpVelocityLimit = other.kpVelocityLimit;
+      effortLowerLimit = other.effortLowerLimit;
+      effortUpperLimit = other.effortUpperLimit;
       damping = other.damping;
       stiction = other.stiction;
    }
 
-   public void setVelocityLimits(double velocityLimit, double velocityDamping)
+   public void setPositionLowerLimit(double positionLowerLimit)
    {
-      this.velocityLimit = velocityLimit;
-      this.velocityDamping = velocityDamping;
+      this.positionLowerLimit = positionLowerLimit;
+   }
+
+   public void setPositionUpperLimit(double positionUpperLimit)
+   {
+      this.positionUpperLimit = positionUpperLimit;
+   }
+
+   public void setPositionLimits(double positionLowerLimit, double positionUpperLimit)
+   {
+      this.positionLowerLimit = positionLowerLimit;
+      this.positionUpperLimit = positionUpperLimit;
+   }
+
+   public void setPositionLimits(double positionLimit)
+   {
+      this.positionLowerLimit = -positionLimit;
+      this.positionUpperLimit = +positionLimit;
+   }
+
+   public void setKpPositionLimit(double kpPositionLimit)
+   {
+      this.kpPositionLimit = kpPositionLimit;
+   }
+
+   public void setKdPositionLimit(double kdPositionLimit)
+   {
+      this.kdPositionLimit = kdPositionLimit;
+   }
+
+   public void setPositionLimitGains(double kpPositionLimit, double kdPositionLimit)
+   {
+      this.kpPositionLimit = kpPositionLimit;
+      this.kdPositionLimit = kdPositionLimit;
+   }
+
+   public void setVelocityLowerLimit(double velocityLowerLimit)
+   {
+      this.velocityLowerLimit = velocityLowerLimit;
+   }
+
+   public void setVelocityUpperLimit(double velocityUpperLimit)
+   {
+      this.velocityUpperLimit = velocityUpperLimit;
+   }
+
+   public void setVelocityLimits(double velocityLowerLimit, double velocityUpperLimit)
+   {
+      this.velocityLowerLimit = velocityLowerLimit;
+      this.velocityUpperLimit = velocityUpperLimit;
+   }
+
+   public void setVelocityLimits(double velocityLimit)
+   {
+      this.velocityLowerLimit = -velocityLimit;
+      this.velocityUpperLimit = +velocityLimit;
+   }
+
+   public void setKpVelocityLimit(double kpVelocityLimit)
+   {
+      this.kpVelocityLimit = kpVelocityLimit;
+   }
+
+   public void setEffortLowerLimit(double effortLowerLimit)
+   {
+      this.effortLowerLimit = effortLowerLimit;
+   }
+
+   public void setEffortUpperLimit(double effortUpperLimit)
+   {
+      this.effortUpperLimit = effortUpperLimit;
+   }
+
+   public void setEffortLimits(double effortLowerLimit, double effortUpperLimit)
+   {
+      this.effortLowerLimit = effortLowerLimit;
+      this.effortUpperLimit = effortUpperLimit;
+   }
+
+   public void setEffortLimits(double effortLimit)
+   {
+      this.effortLowerLimit = -effortLimit;
+      this.effortUpperLimit = +effortLimit;
    }
 
    public void setDamping(double damping)
    {
       this.damping = damping;
+   }
+
+   public void setStiction(double stiction)
+   {
+      this.stiction = stiction;
+   }
+
+   public double getPositionLowerLimit()
+   {
+      return positionLowerLimit;
+   }
+
+   public double getPositionUpperLimit()
+   {
+      return positionUpperLimit;
+   }
+
+   public double getKpPositionLimit()
+   {
+      return kpPositionLimit;
+   }
+
+   public double getKdPositionLimit()
+   {
+      return kdPositionLimit;
+   }
+
+   public double getVelocityLowerLimit()
+   {
+      return velocityLowerLimit;
+   }
+
+   public double getVelocityUpperLimit()
+   {
+      return velocityUpperLimit;
+   }
+
+   public double getKpVelocityLimit()
+   {
+      return kpVelocityLimit;
+   }
+
+   public double getEffortLowerLimit()
+   {
+      return effortLowerLimit;
+   }
+
+   public double getEffortUpperLimit()
+   {
+      return effortUpperLimit;
    }
 
    public double getDamping()
@@ -68,68 +202,9 @@ public class OneDoFJointDescription extends JointDescription
       return stiction;
    }
 
-   public double getVelocityLimit()
+   public Vector3D getAxis()
    {
-      return velocityLimit;
-   }
-
-   public double getVelocityDamping()
-   {
-      return velocityDamping;
-   }
-
-   public void setStiction(double stiction)
-   {
-      this.stiction = stiction;
-   }
-
-   public void setLimitStops(double qMin, double qMax, double kLimit, double bLimit)
-   {
-      containsLimitStops = true;
-      this.qMin = qMin;
-      this.qMax = qMax;
-      this.kLimit = kLimit;
-      this.bLimit = bLimit;
-   }
-
-   public Vector3DReadOnly getJointAxis()
-   {
-      return jointAxis;
-   }
-
-   public void getJointAxis(Vector3DBasics jointAxisToPack)
-   {
-      jointAxisToPack.set(jointAxis);
-   }
-
-   public boolean containsLimitStops()
-   {
-      return containsLimitStops;
-   }
-
-   public double[] getLimitStopParameters()
-   {
-      return new double[] {qMin, qMax, kLimit, bLimit};
-   }
-
-   public double getLowerLimit()
-   {
-      return qMin;
-   }
-
-   public double getUpperLimit()
-   {
-      return qMax;
-   }
-
-   public void setEffortLimit(double effortLimit)
-   {
-      this.effortLimit = effortLimit;
-   }
-
-   public double getEffortLimit()
-   {
-      return effortLimit;
+      return axis;
    }
 
    @Override
@@ -138,10 +213,10 @@ public class OneDoFJointDescription extends JointDescription
       double massScale = Math.pow(factor, massScalePower);
       damping = massScale * damping;
 
-      kLimit = massScale * kLimit;
-      bLimit = massScale * bLimit;
+      kpPositionLimit = massScale * kpPositionLimit;
+      kdPositionLimit = massScale * kdPositionLimit;
 
-      velocityDamping = massScale * velocityDamping;
+      kpVelocityLimit = massScale * kpVelocityLimit;
 
       super.scale(factor, massScalePower, ignoreInertiaScaleJointList);
    }
