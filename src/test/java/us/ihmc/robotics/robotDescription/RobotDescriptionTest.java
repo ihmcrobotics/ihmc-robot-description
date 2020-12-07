@@ -1,5 +1,6 @@
 package us.ihmc.robotics.robotDescription;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static us.ihmc.robotics.Assert.assertEquals;
@@ -311,6 +312,15 @@ public class RobotDescriptionTest
          assertEquals(expected.getOffsetFromParentJoint(), actual.getOffsetFromParentJoint());
          assertLinkDescriptionEquals(expected.getLink(), actual.getLink());
 
+         if (expected instanceof FloatingJointDescription)
+            assertFloatingJointDescriptionPropertiesEqual((FloatingJointDescription) expected, (FloatingJointDescription) actual);
+         else if (expected instanceof FloatingPlanarJointDescription)
+            assertFloatingPlanarJointDescriptionPropertiesEqual((FloatingPlanarJointDescription) expected, (FloatingPlanarJointDescription) actual);
+         else if (expected instanceof OneDoFJointDescription)
+            assertOneDoFJointDescriptionPropertiesEqual((OneDoFJointDescription) expected, (OneDoFJointDescription) actual);
+         else
+            fail("Assertions not implemented for: " + expected.getClass().getSimpleName());
+
          { // Quick assertions on parent joint
             JointDescription expectedParentJoint = expected.getParentJoint();
             JointDescription actualParentJoint = actual.getParentJoint();
@@ -445,6 +455,30 @@ public class RobotDescriptionTest
       {
          throw new AssertionFailedError("Assertion failed for joint: " + expected.getName(), e);
       }
+   }
+
+   private static void assertFloatingJointDescriptionPropertiesEqual(FloatingJointDescription expected, FloatingJointDescription actual)
+   {
+      assertEquals(expected.getJointVariableName(), actual.getJointVariableName());
+   }
+
+   private static void assertFloatingPlanarJointDescriptionPropertiesEqual(FloatingPlanarJointDescription expected, FloatingPlanarJointDescription actual)
+   {
+      assertEquals(expected.getPlane(), actual.getPlane());
+   }
+
+   private static void assertOneDoFJointDescriptionPropertiesEqual(OneDoFJointDescription expected, OneDoFJointDescription actual)
+   {
+      assertEquals(expected.containsLimitStops(), actual.containsLimitStops());
+      assertEquals(expected.getLowerLimit(), actual.getLowerLimit());
+      assertEquals(expected.getUpperLimit(), actual.getUpperLimit());
+      assertArrayEquals(expected.getLimitStopParameters(), actual.getLimitStopParameters());
+      assertEquals(expected.getDamping(), actual.getDamping());
+      assertEquals(expected.getStiction(), actual.getStiction());
+      assertEquals(expected.getVelocityLimit(), actual.getVelocityLimit());
+      assertEquals(expected.getVelocityDamping(), actual.getVelocityDamping());
+      assertEquals(expected.getJointAxis(), actual.getJointAxis());
+      assertEquals(expected.getEffortLimit(), actual.getEffortLimit());
    }
 
    private static void assertLinkDescriptionEquals(LinkDescription expected, LinkDescription actual)
