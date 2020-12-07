@@ -7,6 +7,7 @@ import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
+import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 
 public class JointDescription implements RobotDescriptionNode
 {
@@ -39,6 +40,27 @@ public class JointDescription implements RobotDescriptionNode
       this.offsetFromParentJoint.set(offsetFromParentJoint);
    }
 
+   public JointDescription(JointDescription other)
+   {
+      this.name = other.name;
+      offsetFromParentJoint.set(other.offsetFromParentJoint);
+      link = other.link == null ? null : other.link.copy();
+
+      other.childrenConstraintDescriptions.forEach(kp -> childrenConstraintDescriptions.add(kp.copy()));
+      childrenConstraintDescriptions.forEach(e -> e.setParentJoint(this));
+      other.kinematicPoints.forEach(kp -> kinematicPoints.add(kp.copy()));
+      other.externalForcePoints.forEach(efp -> externalForcePoints.add(efp.copy()));
+      other.groundContactPoints.forEach(gcp -> groundContactPoints.add(gcp.copy()));
+
+      other.wrenchSensors.forEach(sensor -> wrenchSensors.add(sensor.copy()));
+      other.cameraSensors.forEach(sensor -> cameraSensors.add(sensor.copy()));
+      other.imuSensors.forEach(sensor -> imuSensors.add(sensor.copy()));
+      other.lidarSensors.forEach(sensor -> lidarSensors.add(sensor.copy()));
+      other.forceSensors.forEach(sensor -> forceSensors.add(sensor.copy()));
+
+      isDynamic = other.isDynamic;
+   }
+
    @Override
    public String getName()
    {
@@ -58,6 +80,11 @@ public class JointDescription implements RobotDescriptionNode
    public JointDescription getParentJoint()
    {
       return parentJoint;
+   }
+
+   public Vector3DReadOnly getOffsetFromParentJoint()
+   {
+      return offsetFromParentJoint;
    }
 
    public void getOffsetFromParentJoint(Tuple3DBasics offsetToPack)
@@ -283,5 +310,17 @@ public class JointDescription implements RobotDescriptionNode
          offset.scale(factor);
          kinematicPoint.setOffsetFromJoint(offset);
       }
+   }
+
+   @Override
+   public JointDescription copy()
+   {
+      return new JointDescription(this);
+   }
+
+   @Override
+   public String toString()
+   {
+      return getClass().getSimpleName() + ", joint: " + name;
    }
 }

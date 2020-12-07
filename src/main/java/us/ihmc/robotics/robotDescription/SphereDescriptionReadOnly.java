@@ -25,4 +25,9 @@ public class SphereDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
       transformToPack.set(rigidBodyTransform);
    }
 
+   @Override
+   public SphereDescriptionReadOnly copy()
+   {
+      return new SphereDescriptionReadOnly(radius, rigidBodyTransform);
+   }
 }

@@ -30,6 +30,23 @@ public class OneDoFJointDescription extends JointDescription
       this.jointAxis.set(jointAxis);
    }
 
+   public OneDoFJointDescription(OneDoFJointDescription other)
+   {
+      super(other);
+      jointAxis.set(other.jointAxis);
+
+      containsLimitStops = other.containsLimitStops;
+      qMin = other.qMin;
+      qMax = other.qMax;
+      kLimit = other.kLimit;
+      bLimit = other.bLimit;
+      effortLimit = other.effortLimit;
+      velocityLimit = other.velocityLimit;
+      velocityDamping = other.velocityDamping;
+      damping = other.damping;
+      stiction = other.stiction;
+   }
+
    public void setVelocityLimits(double velocityLimit, double velocityDamping)
    {
       this.velocityLimit = velocityLimit;
@@ -127,5 +144,11 @@ public class OneDoFJointDescription extends JointDescription
       velocityDamping = massScale * velocityDamping;
 
       super.scale(factor, massScalePower, ignoreInertiaScaleJointList);
+   }
+
+   @Override
+   public OneDoFJointDescription copy()
+   {
+      return new OneDoFJointDescription(this);
    }
 }

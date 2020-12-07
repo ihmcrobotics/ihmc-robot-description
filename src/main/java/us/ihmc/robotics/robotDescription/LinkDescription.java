@@ -36,6 +36,21 @@ public class LinkDescription
       this.name = name;
    }
 
+   public LinkDescription(LinkDescription other)
+   {
+      name = other.name;
+      mass = other.mass;
+      centerOfMassOffset.set(other.centerOfMassOffset);
+      momentOfInertia.set(other.momentOfInertia);
+      principalMomentsOfInertia.set(other.principalMomentsOfInertia);
+      principalAxesRotation.set(other.principalAxesRotation);
+
+      linkGraphics = new LinkGraphicsDescription();
+      linkGraphics.combine(other.linkGraphics);
+
+      other.collisionMeshes.forEach(collisionMesh -> collisionMeshes.add(collisionMesh.copy()));
+   }
+
    public String getName()
    {
       return name;
@@ -389,5 +404,16 @@ public class LinkDescription
             collisionMeshes.get(i).scale(factor);
          }
       }
+   }
+
+   public LinkDescription copy()
+   {
+      return new LinkDescription(this);
+   }
+
+   @Override
+   public String toString()
+   {
+      return "Link: " + name;
    }
 }

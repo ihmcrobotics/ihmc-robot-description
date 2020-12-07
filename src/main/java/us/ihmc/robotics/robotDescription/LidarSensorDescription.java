@@ -21,6 +21,20 @@ public class LidarSensorDescription extends SensorDescription
       super(name, transformToJoint);
    }
 
+   public LidarSensorDescription(LidarSensorDescription other)
+   {
+      super(other);
+
+      sweepYawMin = other.sweepYawMin;
+      sweepYawMax = other.sweepYawMax;
+      heightPitchMin = other.heightPitchMin;
+      heightPitchMax = other.heightPitchMax;
+      minRange = other.minRange;
+      maxRange = other.maxRange;
+      pointsPerSweep = other.pointsPerSweep;
+      scanHeight = other.scanHeight;
+   }
+
    public double getSweepYawMin()
    {
       return sweepYawMin;
@@ -117,5 +131,11 @@ public class LidarSensorDescription extends SensorDescription
    public void setScanHeight(int scanHeight)
    {
       this.scanHeight = scanHeight;
+   }
+
+   @Override
+   public LidarSensorDescription copy()
+   {
+      return new LidarSensorDescription(this);
    }
 }

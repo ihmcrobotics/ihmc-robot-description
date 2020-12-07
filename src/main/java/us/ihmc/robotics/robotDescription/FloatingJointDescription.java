@@ -17,9 +17,20 @@ public class FloatingJointDescription extends JointDescription
       this.jointVariableName = jointVariableName;
    }
 
+   public FloatingJointDescription(FloatingJointDescription other)
+   {
+      super(other);
+      this.jointVariableName = other.jointVariableName;
+   }
+
    public String getJointVariableName()
    {
       return jointVariableName;
    }
 
+   @Override
+   public FloatingJointDescription copy()
+   {
+      return new FloatingJointDescription(this);
+   }
 }

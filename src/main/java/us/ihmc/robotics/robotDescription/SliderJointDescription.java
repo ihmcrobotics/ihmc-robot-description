@@ -9,4 +9,15 @@ public class SliderJointDescription extends OneDoFJointDescription
    {
       super(name, offsetFromParentJoint, jointAxis);
    }
+
+   public SliderJointDescription(SliderJointDescription other)
+   {
+      super(other);
+   }
+
+   @Override
+   public SliderJointDescription copy()
+   {
+      return new SliderJointDescription(this);
+   }
 }

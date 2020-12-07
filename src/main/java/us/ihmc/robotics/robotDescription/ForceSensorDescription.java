@@ -13,6 +13,13 @@ public class ForceSensorDescription extends SensorDescription
       super(name, transformToJoint);
    }
 
+   public ForceSensorDescription(ForceSensorDescription other)
+   {
+      super(other);
+      useGroundContactPoints = other.useGroundContactPoints;
+      useShapeCollision = other.useShapeCollision;
+   }
+
    public boolean useShapeCollision()
    {
       return useShapeCollision;
@@ -33,4 +40,9 @@ public class ForceSensorDescription extends SensorDescription
       this.useGroundContactPoints = useGroundContactPoints;
    }
 
+   @Override
+   public ForceSensorDescription copy()
+   {
+      return new ForceSensorDescription(this);
+   }
 }

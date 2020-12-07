@@ -5,7 +5,6 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 
 public class JointWrenchSensorDescription extends SensorDescription
 {
-
    public JointWrenchSensorDescription(String name, Vector3D offsetFromJoint)
    {
       super(name, offsetFromJoint);
@@ -16,4 +15,14 @@ public class JointWrenchSensorDescription extends SensorDescription
       super(name, transformToJoint);
    }
 
+   public JointWrenchSensorDescription(JointWrenchSensorDescription other)
+   {
+      super(other);
+   }
+
+   @Override
+   public JointWrenchSensorDescription copy()
+   {
+      return new JointWrenchSensorDescription(this);
+   }
 }

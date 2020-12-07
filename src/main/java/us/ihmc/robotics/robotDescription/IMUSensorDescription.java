@@ -19,6 +19,21 @@ public class IMUSensorDescription extends SensorDescription
       super(name, imuTransform);
    }
 
+   public IMUSensorDescription(IMUSensorDescription other)
+   {
+      super(other);
+
+      accelerationNoiseMean = other.accelerationNoiseMean;
+      accelerationNoiseStandardDeviation = other.accelerationNoiseStandardDeviation;
+      accelerationBiasMean = other.accelerationBiasMean;
+      accelerationBiasStandardDeviation = other.accelerationBiasStandardDeviation;
+
+      angularVelocityNoiseMean = other.angularVelocityNoiseMean;
+      angularVelocityNoiseStandardDeviation = other.angularVelocityNoiseStandardDeviation;
+      angularVelocityBiasMean = other.angularVelocityBiasMean;
+      angularVelocityBiasStandardDeviation = other.angularVelocityBiasStandardDeviation;
+   }
+
    public void setAccelerationNoiseParameters(double noiseMean, double noiseStandardDeviation)
    {
       setAccelerationNoiseMean(noiseMean);
@@ -123,4 +138,9 @@ public class IMUSensorDescription extends SensorDescription
       this.angularVelocityBiasStandardDeviation = angularVelocityBiasStandardDeviation;
    }
 
+   @Override
+   public IMUSensorDescription copy()
+   {
+      return new IMUSensorDescription(this);
+   }
 }

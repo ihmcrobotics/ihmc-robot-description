@@ -59,4 +59,9 @@ public class CapsuleDescriptionReadOnly implements ConvexShapeDescriptionReadOnl
       lineSegmentToPack.set(capToCapLineSegment);
    }
 
+   @Override
+   public CapsuleDescriptionReadOnly copy()
+   {
+      return new CapsuleDescriptionReadOnly(radius, capToCapLineSegment, new RigidBodyTransform());
+   }
 }

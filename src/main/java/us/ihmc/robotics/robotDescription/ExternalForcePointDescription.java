@@ -8,4 +8,15 @@ public class ExternalForcePointDescription extends KinematicPointDescription
    {
       super(name, offsetFromJoint);
    }
+
+   public ExternalForcePointDescription(ExternalForcePointDescription other)
+   {
+      super(other);
+   }
+
+   @Override
+   public ExternalForcePointDescription copy()
+   {
+      return new ExternalForcePointDescription(this);
+   }
 }

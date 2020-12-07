@@ -2,6 +2,7 @@ package us.ihmc.robotics.robotDescription;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import us.ihmc.graphicsDescription.Graphics3DObject;
 import us.ihmc.robotics.robotDescription.collisionMeshDefinitionData.BoxCollisionMeshDefinitionData;
@@ -18,6 +19,12 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
    public RobotDescription(String name)
    {
       setName(name);
+   }
+
+   public RobotDescription(RobotDescription other)
+   {
+      name = other.name;
+      other.rootJoints.forEach(joint -> rootJoints.add(cloneJointDescriptionRecursive(joint)));
    }
 
    public void addRootJoint(JointDescription rootJoint)
@@ -59,7 +66,7 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
       return null;
    }
 
-   private JointDescription getJointDescriptionRecursively(String name, JointDescription jointDescription)
+   private static JointDescription getJointDescriptionRecursively(String name, JointDescription jointDescription)
    {
       if (jointDescription.getName().equals(name))
          return jointDescription;
@@ -71,6 +78,32 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
          if (jointDescriptionRecursively != null)
             return jointDescriptionRecursively;
       }
+      return null;
+   }
+
+   public JointDescription findJointDescription(Predicate<JointDescription> condition)
+   {
+      for (JointDescription rootJoint : rootJoints)
+      {
+         JointDescription result = findJointDescription(condition, rootJoint);
+         if (result != null)
+            return result;
+      }
+      return null;
+   }
+
+   private static JointDescription findJointDescription(Predicate<JointDescription> condition, JointDescription start)
+   {
+      if (condition.test(start))
+         return start;
+
+      for (JointDescription child : start.getChildrenJoints())
+      {
+         JointDescription result = findJointDescription(condition, child);
+         if (result != null)
+            return result;
+      }
+
       return null;
    }
 
@@ -107,6 +140,12 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
    public void scale(double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
       JointDescription.scaleChildrenJoint(getChildrenJoints(), factor, massScalePower, ignoreInertiaScaleJointList);
+   }
+
+   @Override
+   public RobotDescription copy()
+   {
+      return new RobotDescription(this);
    }
 
    public void addCollisionMeshDefinitionData(CollisionMeshDefinitionDataHolder collisionMeshDefinitionDataHolder)
@@ -230,5 +269,39 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
                                   collisionMeshDefinitionData.getRadius(),
                                   collisionMeshDefinitionData.getYoAppearance());
       }
+   }
+
+   public static JointDescription cloneJointDescriptionRecursive(JointDescription source)
+   {
+      List<LoopClosureConstraintDescription> unresolvedConstraintDescriptions = new ArrayList<>();
+      JointDescription clone = cloneJointDescriptionRecursive(source, unresolvedConstraintDescriptions);
+
+      for (LoopClosureConstraintDescription constraint : unresolvedConstraintDescriptions)
+      {
+         JointDescription otherParentJoint = getJointDescriptionRecursively(constraint.getParentJoint().getName(), source);
+         LoopClosureConstraintDescription otherConstraint = otherParentJoint.getChildrenConstraintDescriptions().stream()
+                                                                            .filter(e -> e.getName().equals(constraint.getName())).findFirst().get();
+         String constraintLinkName = otherConstraint.getLink().getName();
+         constraint.setLink(findJointDescription(j -> j.getLink().getName().equals(constraintLinkName), clone).getLink());
+      }
+
+      return clone;
+   }
+
+   private static JointDescription cloneJointDescriptionRecursive(JointDescription source,
+                                                                  List<LoopClosureConstraintDescription> unresolvedConstraintDescriptions)
+   {
+      JointDescription clone = source.copy();
+
+      for (JointDescription child : source.getChildrenJoints())
+      {
+         JointDescription childClone = cloneJointDescriptionRecursive(child, unresolvedConstraintDescriptions);
+         clone.addJoint(childClone);
+      }
+
+      if (unresolvedConstraintDescriptions != null)
+         unresolvedConstraintDescriptions.addAll(clone.getChildrenConstraintDescriptions());
+
+      return clone;
    }
 }
