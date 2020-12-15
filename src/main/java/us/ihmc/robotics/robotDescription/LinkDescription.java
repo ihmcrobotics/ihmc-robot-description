@@ -51,6 +51,11 @@ public class LinkDescription
       other.collisionMeshes.forEach(collisionMesh -> collisionMeshes.add(collisionMesh.copy()));
    }
 
+   public void setName(String name)
+   {
+      this.name = name;
+   }
+
    public String getName()
    {
       return name;
