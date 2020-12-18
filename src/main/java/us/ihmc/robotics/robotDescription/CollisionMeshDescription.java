@@ -191,4 +191,16 @@ public class CollisionMeshDescription implements CollisionMaskHolder
    {
       throw new RuntimeException("TODO: Implement me");
    }
+
+   public CollisionMeshDescription copy()
+   {
+      CollisionMeshDescription copy = new CollisionMeshDescription();
+      copy.pose.set(pose);
+      convexShapeDescriptions.forEach(shape -> copy.convexShapeDescriptions.add(shape.copy()));
+      copy.isGround = isGround;
+      copy.collisionGroup = collisionGroup;
+      copy.collisionMask = collisionMask;
+      copy.estimatedNumberOfContactPoints = estimatedNumberOfContactPoints;
+      return copy;
+   }
 }

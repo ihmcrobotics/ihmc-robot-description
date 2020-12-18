@@ -88,6 +88,28 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    }
 
    /**
+    * Copy constructor.
+    * <p>
+    * All the properties from {@code other} are copied into the new constraint. The {@code parentJoint}
+    * and {@code link} are not copied.
+    * </p>
+    * 
+    * @param other the other constraint to copy. Not modified.
+    */
+   public LoopClosureConstraintDescription(LoopClosureConstraintDescription other)
+   {
+      name = other.name;
+      offsetFromParentJoint.set(other.offsetFromParentJoint);
+      offsetFromLinkParentJoint.set(other.offsetFromLinkParentJoint);
+
+      constraintForceSubSpace.set(other.constraintForceSubSpace);
+      constraintMomentSubSpace.set(other.constraintMomentSubSpace);
+
+      proportionalGains.set(other.proportionalGains);
+      derivativeGains.set(other.derivativeGains);
+   }
+
+   /**
     * Creates a generic constraint for enforcing a loop closure which degrees of freedom depends on the
     * given {@code constraintForceSubSpace} and {@code constraintMomentSubSpace}.
     * <p>
@@ -239,5 +261,11 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    @Override
    public void scale(double factor, double massScalePower, List<String> ignoreInertiaScaleJointList)
    {
+   }
+
+   @Override
+   public LoopClosureConstraintDescription copy()
+   {
+      return new LoopClosureConstraintDescription(this);
    }
 }

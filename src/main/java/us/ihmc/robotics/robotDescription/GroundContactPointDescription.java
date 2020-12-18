@@ -18,9 +18,20 @@ public class GroundContactPointDescription extends ExternalForcePointDescription
       this.groupIdentifier = groupIdentifier;
    }
 
+   public GroundContactPointDescription(GroundContactPointDescription other)
+   {
+      super(other);
+      groupIdentifier = other.groupIdentifier;
+   }
+
    public int getGroupIdentifier()
    {
       return groupIdentifier;
    }
 
+   @Override
+   public GroundContactPointDescription copy()
+   {
+      return new GroundContactPointDescription(this);
+   }
 }

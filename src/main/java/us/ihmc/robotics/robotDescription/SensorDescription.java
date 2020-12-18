@@ -23,6 +23,12 @@ public class SensorDescription
       this.transformToJoint.set(transformToJoint);
    }
 
+   public SensorDescription(SensorDescription other)
+   {
+      name = other.name;
+      transformToJoint.set(other.transformToJoint);
+   }
+
    public String getName()
    {
       return name;
@@ -56,5 +62,10 @@ public class SensorDescription
    public Vector3DBasics getOffsetFromJoint()
    {
       return transformToJoint.getTranslation();
+   }
+
+   public SensorDescription copy()
+   {
+      return new SensorDescription(this);
    }
 }
