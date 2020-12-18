@@ -35,4 +35,9 @@ public class CubeDescriptionReadOnly implements ConvexShapeDescriptionReadOnly
       transformToPack.set(rigidBodyTransformToCenter);
    }
 
+   @Override
+   public CubeDescriptionReadOnly copy()
+   {
+      return new CubeDescriptionReadOnly(lengthX, widthY, heightZ, rigidBodyTransformToCenter);
+   }
 }

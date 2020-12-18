@@ -49,6 +49,21 @@ public class LoopClosurePinConstraintDescription extends LoopClosureConstraintDe
    }
 
    /**
+    * Copy constructor.
+    * <p>
+    * All the properties from {@code other} are copied into the new constraint. The {@code parentJoint}
+    * and {@code link} are not copied.
+    * </p>
+    * 
+    * @param other the other constraint to copy. Not modified.
+    */
+   public LoopClosurePinConstraintDescription(LoopClosurePinConstraintDescription other)
+   {
+      super(other);
+      axis.set(other.axis);
+   }
+
+   /**
     * Sets the axis around which this constraint is allowed to freely rotate.
     * <p>
     * This method also updates internally the constraint momentum sub-space.
@@ -66,5 +81,11 @@ public class LoopClosurePinConstraintDescription extends LoopClosureConstraintDe
    public Vector3DBasics getAxis()
    {
       return axis;
+   }
+
+   @Override
+   public LoopClosurePinConstraintDescription copy()
+   {
+      return new LoopClosurePinConstraintDescription(this);
    }
 }

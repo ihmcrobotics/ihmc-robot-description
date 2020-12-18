@@ -32,6 +32,17 @@ public class CameraSensorDescription extends SensorDescription
       setClipFar(clipFar);
    }
 
+   public CameraSensorDescription(CameraSensorDescription other)
+   {
+      super(other);
+
+      fieldOfView = other.fieldOfView;
+      clipNear = other.clipNear;
+      clipFar = other.clipFar;
+      imageWidth = other.imageWidth;
+      imageHeight = other.imageHeight;
+   }
+
    public double getFieldOfView()
    {
       return fieldOfView;
@@ -80,5 +91,11 @@ public class CameraSensorDescription extends SensorDescription
    public void setImageHeight(int imageHeight)
    {
       this.imageHeight = imageHeight;
+   }
+
+   @Override
+   public CameraSensorDescription copy()
+   {
+      return new CameraSensorDescription(this);
    }
 }

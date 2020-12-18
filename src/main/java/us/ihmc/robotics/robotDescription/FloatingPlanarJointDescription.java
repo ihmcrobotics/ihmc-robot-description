@@ -12,6 +12,12 @@ public class FloatingPlanarJointDescription extends JointDescription
       setType(plane);
    }
 
+   public FloatingPlanarJointDescription(FloatingPlanarJointDescription other)
+   {
+      super(other);
+      plane = other.plane;
+   }
+
    public Plane getPlane()
    {
       return plane;
@@ -22,4 +28,9 @@ public class FloatingPlanarJointDescription extends JointDescription
       this.plane = plane;
    }
 
+   @Override
+   public FloatingPlanarJointDescription copy()
+   {
+      return new FloatingPlanarJointDescription(this);
+   }
 }

@@ -15,6 +15,12 @@ public class KinematicPointDescription
       this.offsetFromJoint.set(offsetFromJoint);
    }
 
+   public KinematicPointDescription(KinematicPointDescription other)
+   {
+      name = other.name;
+      offsetFromJoint.set(other.offsetFromJoint);
+   }
+
    public String getName()
    {
       return name;
@@ -40,4 +46,8 @@ public class KinematicPointDescription
       this.offsetFromJoint.set(offsetFromJoint);
    }
 
+   public KinematicPointDescription copy()
+   {
+      return new KinematicPointDescription(this);
+   }
 }

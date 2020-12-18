@@ -9,4 +9,15 @@ public class PinJointDescription extends OneDoFJointDescription
    {
       super(name, offsetFromParentJoint, jointAxis);
    }
+
+   public PinJointDescription(PinJointDescription other)
+   {
+      super(other);
+   }
+
+   @Override
+   public PinJointDescription copy()
+   {
+      return new PinJointDescription(this);
+   }
 }

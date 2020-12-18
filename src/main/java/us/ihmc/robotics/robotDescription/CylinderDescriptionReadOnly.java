@@ -29,4 +29,9 @@ public class CylinderDescriptionReadOnly implements ConvexShapeDescriptionReadOn
       transformToPack.set(rigidBodyTransformToCenter);
    }
 
+   @Override
+   public CylinderDescriptionReadOnly copy()
+   {
+      return new CylinderDescriptionReadOnly(radius, height, rigidBodyTransformToCenter);
+   }
 }

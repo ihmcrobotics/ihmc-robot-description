@@ -20,4 +20,9 @@ public class ConvexPolytopeDescriptionReadOnly implements ConvexShapeDescription
       return new ConvexPolytope3D(convexPolytope);
    }
 
+   @Override
+   public ConvexPolytopeDescriptionReadOnly copy()
+   {
+      return new ConvexPolytopeDescriptionReadOnly(convexPolytope, new RigidBodyTransform());
+   }
 }
