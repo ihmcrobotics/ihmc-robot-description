@@ -1,10 +1,22 @@
 package us.ihmc.robotics.robotDescription.loaders.sdf;
 
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.matrix.Matrix3D;
@@ -25,19 +37,26 @@ import us.ihmc.graphicsDescription.geometry.GeometryDescription;
 import us.ihmc.graphicsDescription.geometry.ModelFileGeometryDescription;
 import us.ihmc.graphicsDescription.geometry.Sphere3DDescription;
 import us.ihmc.robotics.robotDescription.Plane;
+import us.ihmc.robotics.robotDescription.RobotDescription;
 import us.ihmc.robotics.robotDescription.joints.FixedJointDescription;
+import us.ihmc.robotics.robotDescription.joints.FloatingJointDescription;
 import us.ihmc.robotics.robotDescription.joints.FloatingPlanarJointDescription;
 import us.ihmc.robotics.robotDescription.joints.JointDescription;
 import us.ihmc.robotics.robotDescription.joints.OneDoFJointDescription;
 import us.ihmc.robotics.robotDescription.joints.PinJointDescription;
 import us.ihmc.robotics.robotDescription.joints.SliderJointDescription;
 import us.ihmc.robotics.robotDescription.links.LinkDescription;
+import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFGeometry;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFInertia;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint.SDFAxis;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint.SDFAxis.SDFLimit;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink.SDFInertial;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFModel;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFRoot;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFURIHolder;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual.SDFMaterial;
 
@@ -56,6 +75,185 @@ public class SDFTools
    private static final double DEFAULT_UPPER_LIMIT = Double.POSITIVE_INFINITY;
    private static final double DEFAULT_EFFORT_LIMIT = Double.POSITIVE_INFINITY;
    private static final double DEFAULT_VELOCITY_LIMIT = Double.POSITIVE_INFINITY;
+
+   public static SDFRoot loadSDFRoot(File sdfFile) throws JAXBException
+   {
+      return loadSDFRoot(sdfFile, Collections.emptyList());
+   }
+
+   public static SDFRoot loadSDFRoot(File sdfFile, Collection<String> resourceDirectories) throws JAXBException
+   {
+      Set<String> allResourceDirectories = new HashSet<>(resourceDirectories);
+      File parentFile = sdfFile.getParentFile();
+
+      if (parentFile != null)
+      {
+         allResourceDirectories.add(parentFile.getAbsolutePath() + File.separator);
+         Stream.of(parentFile.listFiles(File::isDirectory)).map(file -> file.getAbsolutePath() + File.separator).forEach(allResourceDirectories::add);
+      }
+
+      JAXBContext context = JAXBContext.newInstance(SDFRoot.class);
+      Unmarshaller um = context.createUnmarshaller();
+      SDFRoot sdfRoot = (SDFRoot) um.unmarshal(sdfFile);
+
+      resolvePaths(sdfRoot, allResourceDirectories);
+
+      return sdfRoot;
+   }
+
+   public static SDFRoot loadSDFRoot(InputStream inputStream, Collection<String> resourceDirectories) throws JAXBException
+   {
+      JAXBContext context = JAXBContext.newInstance(SDFRoot.class);
+      Unmarshaller um = context.createUnmarshaller();
+      SDFRoot sdfRoot = (SDFRoot) um.unmarshal(inputStream);
+
+      resolvePaths(sdfRoot, resourceDirectories);
+
+      return sdfRoot;
+   }
+
+   public static void resolvePaths(SDFRoot sdfRoot, Collection<String> resourceDirectories)
+   {
+      List<SDFURIHolder> uriHolders = sdfRoot.getURIHolders();
+
+      for (SDFURIHolder sdfURIHolder : uriHolders)
+      {
+         sdfURIHolder.setUri(tryToConvertToPath(sdfURIHolder.getUri(), resourceDirectories));
+      }
+   }
+
+   public static String tryToConvertToPath(String filename, Collection<String> resourceDirectories)
+   {
+      try
+      {
+         URI uri = new URI(filename);
+
+         String authority = uri.getAuthority() == null ? "" : uri.getAuthority();
+
+         for (String resourceDirectory : resourceDirectories)
+         {
+            String fullname = resourceDirectory + authority + uri.getPath();
+            // Path relative to class root
+            if (SDFTools.class.getClassLoader().getResource(fullname) != null)
+            {
+               return fullname;
+            }
+            // Absolute path
+            if (new File(fullname).exists())
+            {
+               return fullname;
+            }
+         }
+
+         // Let's look in the parent directories of the resources if we can find a match to authority
+         String resourceContainingAuthority = null;
+
+         for (String resourceDirectory : resourceDirectories)
+         {
+            if (resourceDirectory.contains(authority))
+            {
+               resourceContainingAuthority = resourceDirectory;
+               break;
+            }
+         }
+
+         if (resourceContainingAuthority != null)
+         {
+            int lastIndexOf = resourceContainingAuthority.lastIndexOf(authority, resourceContainingAuthority.length());
+            String newResource = resourceContainingAuthority.substring(0, lastIndexOf);
+
+            if (!resourceDirectories.contains(newResource))
+            {
+               resourceDirectories.add(newResource);
+               return tryToConvertToPath(filename, resourceDirectories);
+            }
+         }
+      }
+      catch (URISyntaxException e)
+      {
+         System.err.println("Malformed resource path in SDF file for path: " + filename);
+      }
+
+      return null;
+   }
+
+   public static RobotDescription toFloatingRootJointRobotDescription(RobotDescription robotDefinition, SDFModel sdfModel)
+   {
+      return toRobotDefinition(new FloatingJointDescription(), sdfModel);
+   }
+
+   public static RobotDescription toRobotDefinition(JointDescription rootJoint, SDFModel sdfModel)
+   {
+      List<SDFLink> sdfLinks = sdfModel.getLinks();
+      List<SDFJoint> sdfJoints = sdfModel.getJoints();
+
+      List<LinkDescription> rigidBodyDefinitions = sdfLinks.stream().map(SDFTools::toRigidBodyDefinition).collect(Collectors.toList());
+      List<JointDescription> jointDefinitions;
+      if (sdfJoints == null)
+         jointDefinitions = Collections.emptyList();
+      else
+         jointDefinitions = sdfJoints.stream().map(SDFTools::toJointDefinition).collect(Collectors.toList());
+      LinkDescription rootBodyDefinition = connectKinematics(rigidBodyDefinitions, jointDefinitions, sdfJoints, sdfLinks);
+
+      if (rootJoint.getName() == null)
+         rootJoint.setName(rootBodyDefinition.getName());
+      rootJoint.setLink(rootBodyDefinition);
+
+      RobotDescription robotDefinition = new RobotDescription(sdfModel.getName());
+      robotDefinition.addRootJoint(rootJoint);
+
+      return robotDefinition;
+   }
+
+   public static LinkDescription toRigidBodyDefinition(SDFLink sdfLink)
+   {
+      LinkDescription description = new LinkDescription(sdfLink.getName());
+
+      SDFInertial sdfInertial = sdfLink.getInertial();
+
+      if (sdfInertial == null)
+      {
+         description.setMass(parseDouble(null, DEFAULT_MASS));
+         description.getMomentOfInertia().set(parseMomentOfInertia(null));
+         description.getInertiaPose().set(parsePose(null));
+      }
+      else
+      {
+         description.setMass(parseDouble(sdfInertial.getMass(), DEFAULT_MASS));
+         description.getMomentOfInertia().set(parseMomentOfInertia(sdfInertial.getInertia()));
+         description.getInertiaPose().set(parsePose(sdfInertial.getPose()));
+      }
+
+      if (sdfLink.getVisuals() != null)
+      {
+         LinkGraphicsDescription linkGraphicsDescription = new LinkGraphicsDescription();
+         sdfLink.getVisuals().stream().map(SDFTools::toVisualDefinition).forEach(linkGraphicsDescription::addVisualDescription);
+         description.setLinkGraphics(linkGraphicsDescription);
+      }
+
+      return description;
+   }
+
+   public static JointDescription toJointDefinition(SDFJoint sdfJoint)
+   {
+      switch (sdfJoint.getType())
+      {
+         case "continuous":
+            return toRevoluteJointDefinition(sdfJoint, true);
+         case "revolute":
+            return toRevoluteJointDefinition(sdfJoint, false);
+         case "prismatic":
+            return toPrismaticJointDefinition(sdfJoint);
+         case "fixed":
+            return toFixedJoint(sdfJoint);
+         case "floating":
+            return toSixDoFJointDefinition(sdfJoint);
+         case "planar":
+            return toPlanarJointDefinition(sdfJoint);
+         default:
+            throw new RuntimeException("Unexpected value for the joint type: " + sdfJoint.getType());
+      }
+   }
 
    public static LinkDescription connectKinematics(List<LinkDescription> rigidBodyDefinitions, List<JointDescription> jointDefinitions,
                                                    List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks)
@@ -148,33 +346,38 @@ public class SDFTools
 
    private static PinJointDescription toRevoluteJointDefinition(SDFJoint sdfJoint, boolean ignorePositionLimits)
    {
-      PinJointDescription definition = new PinJointDescription(sdfJoint.getName());
+      PinJointDescription description = new PinJointDescription(sdfJoint.getName());
 
-      definition.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
-      definition.getAxis().set(parseAxis(sdfJoint.getAxis()));
-      parseLimit(sdfJoint.getAxis().getLimit(), definition, ignorePositionLimits);
+      description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
+      description.getAxis().set(parseAxis(sdfJoint.getAxis()));
+      parseLimit(sdfJoint.getAxis().getLimit(), description, ignorePositionLimits);
 
-      return definition;
+      return description;
    }
 
    private static SliderJointDescription toPrismaticJointDefinition(SDFJoint sdfJoint)
    {
-      SliderJointDescription definition = new SliderJointDescription(sdfJoint.getName());
-      definition.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
-      definition.getAxis().set(parseAxis(sdfJoint.getAxis()));
-      parseLimit(sdfJoint.getAxis().getLimit(), definition, false);
+      SliderJointDescription description = new SliderJointDescription(sdfJoint.getName());
+      description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
+      description.getAxis().set(parseAxis(sdfJoint.getAxis()));
+      parseLimit(sdfJoint.getAxis().getLimit(), description, false);
 
-      return definition;
+      return description;
    }
 
    private static FixedJointDescription toFixedJoint(SDFJoint sdfJoint)
    {
-      FixedJointDescription definition = new FixedJointDescription(sdfJoint.getName());
-
+      FixedJointDescription description = new FixedJointDescription(sdfJoint.getName());
       RigidBodyTransform parseRigidBodyTransform = parsePose(sdfJoint.getPose());
-      definition.getTransformToParentJoint().set(parseRigidBodyTransform);
+      description.getTransformToParentJoint().set(parseRigidBodyTransform);
+      return description;
+   }
 
-      return definition;
+   private static FloatingJointDescription toSixDoFJointDefinition(SDFJoint sdfJoint)
+   {
+      FloatingJointDescription description = new FloatingJointDescription(sdfJoint.getName());
+      description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
+      return description;
    }
 
    private static FloatingPlanarJointDescription toPlanarJointDefinition(SDFJoint sdfJoint)
@@ -193,10 +396,10 @@ public class SDFTools
          throw new UnsupportedOperationException("Planar joint are supported only with a surface normal equal to: "
                + EuclidCoreIOTools.getTuple3DString(Axis3D.Y) + ", received:" + surfaceNormal);
 
-      FloatingPlanarJointDescription definition = new FloatingPlanarJointDescription(sdfJoint.getName(), plane);
-      definition.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
+      FloatingPlanarJointDescription description = new FloatingPlanarJointDescription(sdfJoint.getName(), plane);
+      description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
 
-      return definition;
+      return description;
    }
 
    public static VisualDescription toVisualDefinition(SDFVisual sdfVisual)

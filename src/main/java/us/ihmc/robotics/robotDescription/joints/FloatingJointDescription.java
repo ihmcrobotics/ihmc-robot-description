@@ -4,7 +4,11 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 
 public class FloatingJointDescription extends JointDescription
 {
-   private final String jointVariableName;
+   private String jointVariableName;
+
+   public FloatingJointDescription()
+   {
+   }
 
    public FloatingJointDescription(String name)
    {
