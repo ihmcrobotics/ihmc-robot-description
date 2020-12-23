@@ -206,8 +206,8 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
          }
 
          linkGraphics.identity();
-         linkGraphics.transform(collisionMeshDefinitionData.getTransformToParentJoint());
-         linkGraphics.translate(0, 0, -0.5 * collisionMeshDefinitionData.getHeight());
+         linkGraphics.appendTransform(collisionMeshDefinitionData.getTransformToParentJoint());
+         linkGraphics.appendTranslation(0, 0, -0.5 * collisionMeshDefinitionData.getHeight());
          linkGraphics.addCube(collisionMeshDefinitionData.getLength(),
                               collisionMeshDefinitionData.getWidth(),
                               collisionMeshDefinitionData.getHeight(),
@@ -239,7 +239,7 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
          }
 
          linkGraphics.identity();
-         linkGraphics.transform(collisionMeshDefinitionData.getTransformToParentJoint());
+         linkGraphics.appendTransform(collisionMeshDefinitionData.getTransformToParentJoint());
          linkGraphics.addSphere(collisionMeshDefinitionData.getRadius(), collisionMeshDefinitionData.getYoAppearance());
 
       }
@@ -269,7 +269,7 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
          }
 
          linkGraphics.identity();
-         linkGraphics.transform(collisionMeshDefinitionData.getTransformToParentJoint());
+         linkGraphics.appendTransform(collisionMeshDefinitionData.getTransformToParentJoint());
          linkGraphics.addCylinder(collisionMeshDefinitionData.getHeight(),
                                   collisionMeshDefinitionData.getRadius(),
                                   collisionMeshDefinitionData.getYoAppearance());

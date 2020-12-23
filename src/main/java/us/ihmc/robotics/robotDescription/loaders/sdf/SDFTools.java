@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.tools.EuclidCoreIOTools;
+import us.ihmc.euclid.transform.AffineTransform;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.UnitVector3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
@@ -39,8 +40,6 @@ import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint.SDFAxis.SDFL
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual.SDFMaterial;
-import us.ihmc.scs2.definition.robot.JointDefinition;
-import us.ihmc.scs2.definition.visual.VisualDefinition;
 
 public class SDFTools
 {
@@ -135,11 +134,11 @@ public class SDFTools
             inertiaPose.transform(childDefinition.getMomentOfInertia());
             childLinkPose.transform(childDefinition.getMomentOfInertia());
             inertiaPose.getRotation().setToZero();
-            for (VisualDescription visualDefinition : childDefinition.getVisualDefinitions())
+
+            for (VisualDescription visualDescription : childDefinition.getLinkGraphics().getVisualDescriptions())
             {
-               RigidBodyTransform visualPose = visualDefinition.getPose();
-               childLinkPose.getRotation().transform(visualPose.getRotation());
-               childLinkPose.getRotation().transform(visualPose.getTranslation());
+               AffineTransform visualPose = visualDescription.getPose();
+               visualPose.prependOrientation(childLinkPose.getRotation());
             }
          }
 
@@ -205,12 +204,12 @@ public class SDFTools
       if (sdfVisual == null)
          return null;
 
-      VisualDescription visualDefinition = new VisualDescription();
-      visualDefinition.setName(sdfVisual.getName());
-      visualDefinition.setPose(parsePose(sdfVisual.getPose()));
-      visualDefinition.setMaterial(toMaterialDefinition(sdfVisual.getMaterial()));
-      visualDefinition.setGeometry(toGeometryDefinition(sdfVisual.getGeometry()));
-      return visualDefinition;
+      VisualDescription visualDescription = new VisualDescription();
+      visualDescription.setName(sdfVisual.getName());
+      visualDescription.setPose(new AffineTransform(parsePose(sdfVisual.getPose())));
+      visualDescription.setMaterial(toMaterialDefinition(sdfVisual.getMaterial()));
+      visualDescription.setGeometry(toGeometryDefinition(sdfVisual.getGeometry()));
+      return visualDescription;
    }
 
    public static GeometryDescription toGeometryDefinition(SDFGeometry sdfGeometry)

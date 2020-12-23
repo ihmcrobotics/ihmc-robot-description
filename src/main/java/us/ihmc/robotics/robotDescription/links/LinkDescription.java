@@ -171,7 +171,7 @@ public class LinkDescription
    {
       linkGraphics.identity();
 
-      linkGraphics.translate(getCenterOfMassOffset());
+      linkGraphics.appendTranslation(getCenterOfMassOffset());
       linkGraphics.addCoordinateSystem(length);
 
       linkGraphics.identity();
@@ -215,8 +215,8 @@ public class LinkDescription
       for (Vector3D vector : inertiaEllipsoidAxes)
       {
          linkGraphics.identity();
-         linkGraphics.translate(getCenterOfMassOffset());
-         linkGraphics.translate(vector);
+         linkGraphics.appendTranslation(getCenterOfMassOffset());
+         linkGraphics.appendTranslation(vector);
          linkGraphics.addCube(vertexSize, vertexSize, vertexSize, appearance);
       }
 
@@ -270,7 +270,7 @@ public class LinkDescription
       face8.add(p2);
 
       linkGraphics.identity();
-      linkGraphics.translate(getCenterOfMassOffset());
+      linkGraphics.appendTranslation(getCenterOfMassOffset());
       linkGraphics.addPolygon(face1, appearance);
       linkGraphics.addPolygon(face2, appearance);
       linkGraphics.addPolygon(face3, appearance);
@@ -304,8 +304,8 @@ public class LinkDescription
          appearance = YoAppearance.Black();
 
       linkGraphics.identity();
-      linkGraphics.translate(getCenterOfMassOffset());
-      linkGraphics.rotate(principalAxesRotation);
+      linkGraphics.appendTranslation(getCenterOfMassOffset());
+      linkGraphics.appendRotation(principalAxesRotation);
       linkGraphics.addEllipsoid(inertiaEllipsoidRadii.getX(), inertiaEllipsoidRadii.getY(), inertiaEllipsoidRadii.getZ(), appearance);
       linkGraphics.identity();
    }
@@ -330,11 +330,11 @@ public class LinkDescription
       else
       {
          linkGraphics.identity();
-         linkGraphics.translate(getCenterOfMassOffset());
+         linkGraphics.appendTranslation(getCenterOfMassOffset());
          double lx = Math.sqrt(6.0 * (momentOfInertia.getM22() + momentOfInertia.getM11() - momentOfInertia.getM00()) / mass);
          double ly = Math.sqrt(6.0 * (momentOfInertia.getM22() + momentOfInertia.getM00() - momentOfInertia.getM11()) / mass);
          double lz = Math.sqrt(6.0 * (momentOfInertia.getM00() + momentOfInertia.getM11() - momentOfInertia.getM22()) / mass);
-         linkGraphics.translate(0.0, 0.0, -lz / 2.0);
+         linkGraphics.appendTranslation(0.0, 0.0, -lz / 2.0);
          linkGraphics.addCube(lx, ly, lz, appearance);
          linkGraphics.identity();
       }
@@ -363,7 +363,7 @@ public class LinkDescription
 
       if (linkGraphics != null)
       {
-         linkGraphics.preScale(factor);
+         linkGraphics.prependScale(factor);
       }
 
       if (collisionMeshes != null)
