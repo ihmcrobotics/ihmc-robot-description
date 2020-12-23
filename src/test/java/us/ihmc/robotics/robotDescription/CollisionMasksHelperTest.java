@@ -1,16 +1,16 @@
 package us.ihmc.robotics.robotDescription;
 
-import static us.ihmc.robotics.Assert.assertEquals;
-import static us.ihmc.robotics.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
 import us.ihmc.commons.MutationTestFacilitator;
+import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
 import us.ihmc.robotics.robotDescription.collision.OldCollisionMaskHolder;
 import us.ihmc.robotics.robotDescription.collision.OldCollisionMasksHelper;
-import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
 
 public class CollisionMasksHelperTest
 {
