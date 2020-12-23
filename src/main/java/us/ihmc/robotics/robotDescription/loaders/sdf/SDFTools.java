@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ import us.ihmc.graphicsDescription.geometry.Cylinder3DDescription;
 import us.ihmc.graphicsDescription.geometry.GeometryDescription;
 import us.ihmc.graphicsDescription.geometry.ModelFileGeometryDescription;
 import us.ihmc.graphicsDescription.geometry.Sphere3DDescription;
+import us.ihmc.log.LogTools;
 import us.ihmc.robotics.robotDescription.Plane;
 import us.ihmc.robotics.robotDescription.RobotDescription;
 import us.ihmc.robotics.robotDescription.joints.FixedJointDescription;
@@ -56,9 +58,23 @@ import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink.SDFInertial;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFModel;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFRoot;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Camera;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.IMU;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.IMU.IMUNoise;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.IMU.IMUNoise.NoiseParameters;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Noise;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Range;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Scan.HorizontalScan;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Scan.VerticalScan;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFURIHolder;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual.SDFMaterial;
+import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.LidarSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.SensorDescription;
 
 public class SDFTools
 {
@@ -205,56 +221,6 @@ public class SDFTools
       return robotDefinition;
    }
 
-   public static LinkDescription toRigidBodyDefinition(SDFLink sdfLink)
-   {
-      LinkDescription description = new LinkDescription(sdfLink.getName());
-
-      SDFInertial sdfInertial = sdfLink.getInertial();
-
-      if (sdfInertial == null)
-      {
-         description.setMass(parseDouble(null, DEFAULT_MASS));
-         description.getMomentOfInertia().set(parseMomentOfInertia(null));
-         description.getInertiaPose().set(parsePose(null));
-      }
-      else
-      {
-         description.setMass(parseDouble(sdfInertial.getMass(), DEFAULT_MASS));
-         description.getMomentOfInertia().set(parseMomentOfInertia(sdfInertial.getInertia()));
-         description.getInertiaPose().set(parsePose(sdfInertial.getPose()));
-      }
-
-      if (sdfLink.getVisuals() != null)
-      {
-         LinkGraphicsDescription linkGraphicsDescription = new LinkGraphicsDescription();
-         sdfLink.getVisuals().stream().map(SDFTools::toVisualDefinition).forEach(linkGraphicsDescription::addVisualDescription);
-         description.setLinkGraphics(linkGraphicsDescription);
-      }
-
-      return description;
-   }
-
-   public static JointDescription toJointDefinition(SDFJoint sdfJoint)
-   {
-      switch (sdfJoint.getType())
-      {
-         case "continuous":
-            return toRevoluteJointDefinition(sdfJoint, true);
-         case "revolute":
-            return toRevoluteJointDefinition(sdfJoint, false);
-         case "prismatic":
-            return toPrismaticJointDefinition(sdfJoint);
-         case "fixed":
-            return toFixedJoint(sdfJoint);
-         case "floating":
-            return toSixDoFJointDefinition(sdfJoint);
-         case "planar":
-            return toPlanarJointDefinition(sdfJoint);
-         default:
-            throw new RuntimeException("Unexpected value for the joint type: " + sdfJoint.getType());
-      }
-   }
-
    public static LinkDescription connectKinematics(List<LinkDescription> rigidBodyDefinitions, List<JointDescription> jointDefinitions,
                                                    List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks)
    {
@@ -348,7 +314,57 @@ public class SDFTools
       }
    }
 
-   private static PinJointDescription toRevoluteJointDefinition(SDFJoint sdfJoint, boolean ignorePositionLimits)
+   public static LinkDescription toRigidBodyDefinition(SDFLink sdfLink)
+   {
+      LinkDescription description = new LinkDescription(sdfLink.getName());
+
+      SDFInertial sdfInertial = sdfLink.getInertial();
+
+      if (sdfInertial == null)
+      {
+         description.setMass(parseDouble(null, DEFAULT_MASS));
+         description.getMomentOfInertia().set(parseMomentOfInertia(null));
+         description.getInertiaPose().set(parsePose(null));
+      }
+      else
+      {
+         description.setMass(parseDouble(sdfInertial.getMass(), DEFAULT_MASS));
+         description.getMomentOfInertia().set(parseMomentOfInertia(sdfInertial.getInertia()));
+         description.getInertiaPose().set(parsePose(sdfInertial.getPose()));
+      }
+
+      if (sdfLink.getVisuals() != null)
+      {
+         LinkGraphicsDescription linkGraphicsDescription = new LinkGraphicsDescription();
+         sdfLink.getVisuals().stream().map(SDFTools::toVisualDefinition).forEach(linkGraphicsDescription::addVisualDescription);
+         description.setLinkGraphics(linkGraphicsDescription);
+      }
+
+      return description;
+   }
+
+   public static JointDescription toJointDefinition(SDFJoint sdfJoint)
+   {
+      switch (sdfJoint.getType())
+      {
+         case "continuous":
+            return toRevoluteJointDefinition(sdfJoint, true);
+         case "revolute":
+            return toRevoluteJointDefinition(sdfJoint, false);
+         case "prismatic":
+            return toPrismaticJointDefinition(sdfJoint);
+         case "fixed":
+            return toFixedJoint(sdfJoint);
+         case "floating":
+            return toSixDoFJointDefinition(sdfJoint);
+         case "planar":
+            return toPlanarJointDefinition(sdfJoint);
+         default:
+            throw new RuntimeException("Unexpected value for the joint type: " + sdfJoint.getType());
+      }
+   }
+
+   public static PinJointDescription toRevoluteJointDefinition(SDFJoint sdfJoint, boolean ignorePositionLimits)
    {
       PinJointDescription description = new PinJointDescription(sdfJoint.getName());
 
@@ -359,7 +375,7 @@ public class SDFTools
       return description;
    }
 
-   private static SliderJointDescription toPrismaticJointDefinition(SDFJoint sdfJoint)
+   public static SliderJointDescription toPrismaticJointDefinition(SDFJoint sdfJoint)
    {
       SliderJointDescription description = new SliderJointDescription(sdfJoint.getName());
       description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
@@ -369,7 +385,7 @@ public class SDFTools
       return description;
    }
 
-   private static FixedJointDescription toFixedJoint(SDFJoint sdfJoint)
+   public static FixedJointDescription toFixedJoint(SDFJoint sdfJoint)
    {
       FixedJointDescription description = new FixedJointDescription(sdfJoint.getName());
       RigidBodyTransform parseRigidBodyTransform = parsePose(sdfJoint.getPose());
@@ -377,14 +393,14 @@ public class SDFTools
       return description;
    }
 
-   private static FloatingJointDescription toSixDoFJointDefinition(SDFJoint sdfJoint)
+   public static FloatingJointDescription toSixDoFJointDefinition(SDFJoint sdfJoint)
    {
       FloatingJointDescription description = new FloatingJointDescription(sdfJoint.getName());
       description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
       return description;
    }
 
-   private static FloatingPlanarJointDescription toPlanarJointDefinition(SDFJoint sdfJoint)
+   public static FloatingPlanarJointDescription toPlanarJointDefinition(SDFJoint sdfJoint)
    {
       Vector3D surfaceNormal = parseAxis(sdfJoint.getAxis());
 
@@ -402,6 +418,129 @@ public class SDFTools
 
       FloatingPlanarJointDescription description = new FloatingPlanarJointDescription(sdfJoint.getName(), plane);
       description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
+
+      return description;
+   }
+
+   public static List<SensorDescription> toSensorDescription(SDFSensor sdfSensor)
+   {
+      List<SensorDescription> descriptions = new ArrayList<>();
+
+      switch (sdfSensor.getType())
+      {
+         case "camera":
+         case "multicamera":
+         case "depth":
+            descriptions.addAll(toCameraSensorDescription(sdfSensor.getCamera()));
+            break;
+         case "imu":
+            descriptions.add(toIMUSensorDescription(sdfSensor.getImu()));
+            break;
+         case "gpu_ray":
+         case "ray":
+            descriptions.add(toLidarSensorDescription(sdfSensor.getRay()));
+            break;
+         default:
+            throw new UnsupportedOperationException("Unsupport sensor type: " + sdfSensor.getType());
+      }
+
+      int updatePeriod = (int) (1000.0 / Double.parseDouble(sdfSensor.getUpdateRate()));
+
+      for (SensorDescription description : descriptions)
+      {
+         description.setName(sdfSensor.getName() + "_" + description.getName());
+         description.getTransformToJoint().preMultiply(parsePose(sdfSensor.getPose()));
+         description.setUpdatePeriod(updatePeriod);
+      }
+
+      return descriptions;
+   }
+
+   public static List<CameraSensorDescription> toCameraSensorDescription(List<Camera> sdfCameras)
+   {
+      return sdfCameras.stream().map(SDFTools::toCameraSensorDescription).collect(Collectors.toList());
+   }
+
+   public static CameraSensorDescription toCameraSensorDescription(Camera sdfCamera)
+   {
+      CameraSensorDescription description = new CameraSensorDescription();
+      description.setName(sdfCamera.getName());
+      description.getTransformToJoint().set(parsePose(sdfCamera.getPose()));
+      description.setFieldOfView(parseDouble(sdfCamera.getHorizontalFov(), Double.NaN));
+      description.setClipNear(parseDouble(sdfCamera.getClip().getNear(), Double.NaN));
+      description.setClipFar(parseDouble(sdfCamera.getClip().getFar(), Double.NaN));
+      description.setImageWidth(parseInteger(sdfCamera.getImage().getWidth(), -1));
+      description.setImageHeight(parseInteger(sdfCamera.getImage().getHeight(), -1));
+      return description;
+   }
+
+   public static LidarSensorDescription toLidarSensorDescription(Ray sdfRay)
+   {
+      LidarSensorDescription description = new LidarSensorDescription();
+
+      Range sdfRange = sdfRay.getRange();
+      double sdfRangeMax = parseDouble(sdfRange.getMax(), Double.NaN);
+      double sdfRangeMin = parseDouble(sdfRange.getMin(), Double.NaN);
+      double sdfRangeResolution = parseDouble(sdfRange.getResolution(), Double.NaN);
+
+      HorizontalScan sdfHorizontalScan = sdfRay.getScan().getHorizontal();
+      VerticalScan sdfVerticalScan = sdfRay.getScan().getVertical();
+      double sdfMaxSweepAngle = parseDouble(sdfHorizontalScan.getMaxAngle(), 0.0);
+      double sdfMinSweepAngle = parseDouble(sdfHorizontalScan.getMinAngle(), 0.0);
+      double sdfMaxHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMaxAngle(), 0.0);
+      double sdfMinHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMinAngle(), 0.0);
+
+      int sdfSamples = parseInteger(sdfHorizontalScan.getSamples(), -1) / 3 * 3;
+      int sdfScanHeight = sdfVerticalScan == null ? 1 : parseInteger(sdfVerticalScan.getSamples(), 1);
+
+      Noise sdfNoise = sdfRay.getNoise();
+      if (sdfNoise != null)
+      {
+         if ("gaussian".equals(sdfNoise.getType()))
+         {
+            description.setGaussianNoiseMean(parseDouble(sdfNoise.getMean(), 0.0));
+            description.setGaussianNoiseStandardDeviation(parseDouble(sdfNoise.getStddev(), 0.0));
+         }
+         else
+         {
+            LogTools.error("Unknown noise model: {}.", sdfNoise.getType());
+         }
+      }
+
+      description.getTransformToJoint().set(parsePose(sdfRay.getPose()));
+      description.setPointsPerSweep(sdfSamples);
+      description.setSweepYawLimits(sdfMinSweepAngle, sdfMaxSweepAngle);
+      description.setHeightPitchLimits(sdfMinHeightAngle, sdfMaxHeightAngle);
+      description.setRangeLimits(sdfRangeMin, sdfRangeMax);
+      description.setRangeResolution(sdfRangeResolution);
+      description.setScanHeight(sdfScanHeight);
+      return description;
+   }
+
+   public static IMUSensorDescription toIMUSensorDescription(IMU sdfIMU)
+   {
+      IMUSensorDescription description = new IMUSensorDescription();
+
+      IMUNoise sdfNoise = sdfIMU.getNoise();
+      if (sdfNoise != null)
+      {
+         if ("gaussian".equals(sdfNoise.getType()))
+         {
+            NoiseParameters accelerationNoise = sdfNoise.getAccel();
+            NoiseParameters angularVelocityNoise = sdfNoise.getRate();
+
+            description.setAccelerationNoiseParameters(parseDouble(accelerationNoise.getMean(), 0.0), parseDouble(accelerationNoise.getStddev(), 0.0));
+            description.setAccelerationBiasParameters(parseDouble(accelerationNoise.getBias_mean(), 0.0), parseDouble(accelerationNoise.getBias_stddev(), 0.0));
+
+            description.setAngularVelocityNoiseParameters(parseDouble(angularVelocityNoise.getMean(), 0.0), parseDouble(angularVelocityNoise.getStddev(), 0.0));
+            description.setAngularVelocityBiasParameters(parseDouble(angularVelocityNoise.getBias_mean(), 0.0),
+                                                         parseDouble(angularVelocityNoise.getBias_stddev(), 0.0));
+         }
+         else
+         {
+            LogTools.error("Unknown IMU noise model: {}.", sdfNoise.getType());
+         }
+      }
 
       return description;
    }
@@ -571,6 +710,13 @@ public class SDFTools
       if (value == null)
          return defaultValue;
       return Double.parseDouble(value);
+   }
+
+   public static int parseInteger(String value, int defaultValue)
+   {
+      if (value == null)
+         return defaultValue;
+      return Integer.parseInt(value);
    }
 
    public static Vector3D parseVector3D(String value, Vector3D defaultValue)

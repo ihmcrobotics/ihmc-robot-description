@@ -1,15 +1,20 @@
 package us.ihmc.robotics.robotDescription.sensors;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
-import us.ihmc.euclid.transform.interfaces.RigidBodyTransformBasics;
 import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
-import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 
 public class SensorDescription
 {
    private String name;
    private final RigidBodyTransform transformToJoint = new RigidBodyTransform();
+
+   // Period in milliseconds
+   private int updatePeriod;
+
+   public SensorDescription()
+   {
+   }
 
    public SensorDescription(String name, Tuple3DReadOnly offsetFromJoint)
    {
@@ -27,6 +32,7 @@ public class SensorDescription
    {
       name = other.name;
       transformToJoint.set(other.transformToJoint);
+      updatePeriod = other.updatePeriod;
    }
 
    public String getName()
@@ -39,14 +45,14 @@ public class SensorDescription
       this.name = name;
    }
 
+   public RigidBodyTransform getTransformToJoint()
+   {
+      return transformToJoint;
+   }
+
    public void setOffsetFromJoint(Tuple3DReadOnly offsetFromJoint)
    {
       transformToJoint.setTranslationAndIdentityRotation(offsetFromJoint);
-   }
-
-   public void getTransformToJoint(RigidBodyTransformBasics transformToJointToPack)
-   {
-      transformToJointToPack.set(transformToJoint);
    }
 
    public void setTransformToJoint(RigidBodyTransformReadOnly transformToJoint)
@@ -54,14 +60,14 @@ public class SensorDescription
       this.transformToJoint.set(transformToJoint);
    }
 
-   public RigidBodyTransform getTransformToJoint()
+   public int getUpdatePeriod()
    {
-      return transformToJoint;
+      return updatePeriod;
    }
 
-   public Vector3DBasics getOffsetFromJoint()
+   public void setUpdatePeriod(int updatePeriod)
    {
-      return transformToJoint.getTranslation();
+      this.updatePeriod = updatePeriod;
    }
 
    public SensorDescription copy()

@@ -12,9 +12,17 @@ public class LidarSensorDescription extends SensorDescription
 
    private double minRange;
    private double maxRange;
+   private double rangeResolution;
 
    private int pointsPerSweep;
    private int scanHeight;
+
+   private double gaussianNoiseMean;
+   private double gaussianNoiseStandardDeviation;
+
+   public LidarSensorDescription()
+   {
+   }
 
    public LidarSensorDescription(String name, RigidBodyTransformReadOnly transformToJoint)
    {
@@ -31,8 +39,11 @@ public class LidarSensorDescription extends SensorDescription
       heightPitchMax = other.heightPitchMax;
       minRange = other.minRange;
       maxRange = other.maxRange;
+      rangeResolution = other.rangeResolution;
       pointsPerSweep = other.pointsPerSweep;
       scanHeight = other.scanHeight;
+      gaussianNoiseMean = other.gaussianNoiseMean;
+      gaussianNoiseStandardDeviation = other.gaussianNoiseStandardDeviation;
    }
 
    public double getSweepYawMin()
@@ -65,6 +76,11 @@ public class LidarSensorDescription extends SensorDescription
       return maxRange;
    }
 
+   public double getRangeResolution()
+   {
+      return rangeResolution;
+   }
+
    public int getPointsPerSweep()
    {
       return pointsPerSweep;
@@ -73,6 +89,16 @@ public class LidarSensorDescription extends SensorDescription
    public int getScanHeight()
    {
       return scanHeight;
+   }
+
+   public double getGaussianNoiseMean()
+   {
+      return gaussianNoiseMean;
+   }
+
+   public double getGaussianNoiseStandardDeviation()
+   {
+      return gaussianNoiseStandardDeviation;
    }
 
    public void setSweepYawLimits(double min, double max)
@@ -123,6 +149,11 @@ public class LidarSensorDescription extends SensorDescription
       this.maxRange = maxRange;
    }
 
+   public void setRangeResolution(double rangeResolution)
+   {
+      this.rangeResolution = rangeResolution;
+   }
+
    public void setPointsPerSweep(int pointsPerSweep)
    {
       this.pointsPerSweep = pointsPerSweep;
@@ -131,6 +162,16 @@ public class LidarSensorDescription extends SensorDescription
    public void setScanHeight(int scanHeight)
    {
       this.scanHeight = scanHeight;
+   }
+
+   public void setGaussianNoiseMean(double gaussianNoiseMean)
+   {
+      this.gaussianNoiseMean = gaussianNoiseMean;
+   }
+
+   public void setGaussianNoiseStandardDeviation(double gaussianNoiseStandardDeviation)
+   {
+      this.gaussianNoiseStandardDeviation = gaussianNoiseStandardDeviation;
    }
 
    @Override

@@ -12,6 +12,10 @@ public class CameraSensorDescription extends SensorDescription
    private int imageWidth;
    private int imageHeight;
 
+   public CameraSensorDescription()
+   {
+   }
+
    public CameraSensorDescription(String name, Tuple3DReadOnly offsetFromJoint)
    {
       super(name, offsetFromJoint);

@@ -14,6 +14,10 @@ public class IMUSensorDescription extends SensorDescription
    private double angularVelocityBiasMean;
    private double angularVelocityBiasStandardDeviation;
 
+   public IMUSensorDescription()
+   {
+   }
+
    public IMUSensorDescription(String name, RigidBodyTransform imuTransform)
    {
       super(name, imuTransform);
