@@ -265,17 +265,21 @@ public class SDFTools
 
       if (sdfJoints != null)
       {
+         Map<String, JointDescription> parentJointDefinitionMap = sdfJoints.stream()
+                                                                           .collect(Collectors.toMap(SDFJoint::getChild,
+                                                                                                     sdfJoint -> jointDefinitionMap.get(sdfJoint.getName())));
+
          for (SDFJoint sdfJoint : sdfJoints)
          {
             String parent = sdfJoint.getParent();
             String child = sdfJoint.getChild();
-            LinkDescription parentLinkDescription = rigidBodyDefinitionMap.get(parent);
-            LinkDescription childLinkDescription = rigidBodyDefinitionMap.get(child);
+            JointDescription parentJointDescription = parentJointDefinitionMap.get(parent);
             JointDescription jointDefinition = jointDefinitionMap.get(sdfJoint.getName());
+            LinkDescription childLinkDescription = rigidBodyDefinitionMap.get(child);
             jointDefinition.getTransformToParentJoint().set(parsePose(sdfLinkMap.get(sdfJoint.getParent()).getPose()));
 
             jointDefinition.setLink(childLinkDescription);
-            jointDefinition.getChildrenJoints().add(jointDefinition);
+            parentJointDescription.getChildrenJoints().add(jointDefinition);
          }
       }
 
