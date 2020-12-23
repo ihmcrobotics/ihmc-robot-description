@@ -1,10 +1,8 @@
 package us.ihmc.robotics.robotDescription;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 import static us.ihmc.robotics.Assert.assertEquals;
-import static us.ihmc.robotics.Assert.assertFalse;
 import static us.ihmc.robotics.Assert.assertNull;
 import static us.ihmc.robotics.Assert.assertTrue;
 
@@ -68,17 +66,17 @@ public class RobotDescriptionTest
 
       assertEquals(1.2, rootLinkOne.getMass(), 1e-7);
 
-      Vector3D comOffsetCheck = new Vector3D();
-      rootLinkOne.getCenterOfMassOffset(comOffsetCheck);
+      Vector3D comOffsetCheck = new Vector3D(rootLinkOne.getCenterOfMassOffset());
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 2.0, 3.0), comOffsetCheck, 1e-7);
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 2.0, 3.0), rootLinkOne.getCenterOfMassOffset(), 1e-7);
 
-      Matrix3D momentOfInertiaCopy = rootLinkOne.getMomentOfInertiaCopy();
+      Matrix3D momentOfInertiaCopy = new Matrix3D(rootLinkOne.getMomentOfInertia());
       assertEquals(0.1, momentOfInertiaCopy.getM00(), 1e-7);
       assertEquals(0.2, momentOfInertiaCopy.getM11(), 1e-7);
       assertEquals(0.3, momentOfInertiaCopy.getM22(), 1e-7);
 
-      DMatrixRMaj momentOfInertiaCheck = rootLinkOne.getMomentOfInertia();
+      DMatrixRMaj momentOfInertiaCheck = new DMatrixRMaj(3, 3);
+      rootLinkOne.getMomentOfInertia(momentOfInertiaCheck);
       assertEquals(0.1, momentOfInertiaCheck.get(0, 0), 1e-7);
       assertEquals(0.2, momentOfInertiaCheck.get(1, 1), 1e-7);
       assertEquals(0.3, momentOfInertiaCheck.get(2, 2), 1e-7);
@@ -94,8 +92,7 @@ public class RobotDescriptionTest
       assertTrue(rootJointOne == rootJoints.get(0));
 
       PinJointDescription rootJointTwo = new PinJointDescription("rootJointTwo", new Vector3D(-0.1, -0.2, -0.3), Axis3D.Y);
-      Vector3D jointAxisCheck = new Vector3D();
-      rootJointTwo.getJointAxis(jointAxisCheck);
+      Vector3D jointAxisCheck = new Vector3D(rootJointTwo.getAxis());
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(0.0, 1.0, 0.0), jointAxisCheck, 1e-7);
 
       LinkDescription rootLinkTwo = new LinkDescription("rootLinkTwo");
@@ -115,8 +112,7 @@ public class RobotDescriptionTest
 
       PinJointDescription childJointOne = new PinJointDescription("childJointOne", new Vector3D(1.2, 1.3, 7.7), Axis3D.Z);
 
-      Vector3D jointOffsetCheck = new Vector3D();
-      childJointOne.getOffsetFromParentJoint(jointOffsetCheck);
+      Vector3D jointOffsetCheck = new Vector3D(childJointOne.getTransformToParentJoint().getTranslation());
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.2, 1.3, 7.7), jointOffsetCheck, 1e-7);
 
       LinkDescription childLinkOne = new LinkDescription("childLinkOne");
@@ -143,27 +139,17 @@ public class RobotDescriptionTest
       assertEquals(rootJointOne, childJointOne.getParentJoint());
       assertNull(rootJointOne.getParentJoint());
 
-      childJointOne.setOffsetFromParentJoint(new Vector3D(-0.4, -0.5, -0.6));
-      childJointOne.getOffsetFromParentJoint(jointOffsetCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(-0.4, -0.5, -0.6), jointOffsetCheck, 1e-7);
-
-      assertFalse(childJointOne.containsLimitStops());
-
       double qMin = -0.2;
       double qMax = 0.4;
       double kLimit = 1000.0;
       double bLimit = 100.0;
-      childJointOne.setLimitStops(qMin, qMax, kLimit, bLimit);
-      double[] limitStopParameters = childJointOne.getLimitStopParameters();
-      assertEquals(4, limitStopParameters.length);
+      childJointOne.setPositionLimits(qMin, qMax);
+      childJointOne.setPositionLimitGains(kLimit, bLimit);
 
-      assertEquals(qMin, limitStopParameters[0], 1e-7);
-      assertEquals(qMax, limitStopParameters[1], 1e-7);
-      assertEquals(kLimit, limitStopParameters[2], 1e-7);
-      assertEquals(bLimit, limitStopParameters[3], 1e-7);
-
-      assertEquals(qMin, childJointOne.getLowerLimit(), 1e-7);
-      assertEquals(qMax, childJointOne.getUpperLimit(), 1e-7);
+      assertEquals(qMin, childJointOne.getPositionLowerLimit(), 1e-7);
+      assertEquals(qMax, childJointOne.getPositionUpperLimit(), 1e-7);
+      assertEquals(kLimit, childJointOne.getKpPositionLimit(), 1e-7);
+      assertEquals(bLimit, childJointOne.getKdPositionLimit(), 1e-7);
 
       childJointOne.setDamping(4.4);
       assertEquals(4.4, childJointOne.getDamping(), 1e-7);
@@ -171,37 +157,34 @@ public class RobotDescriptionTest
       childJointOne.setStiction(7.7);
       assertEquals(7.7, childJointOne.getStiction(), 1e-7);
 
-      childJointOne.setEffortLimit(400.3);
-      assertEquals(400.3, childJointOne.getEffortLimit(), 1e-7);
+      childJointOne.setEffortLimits(400.3);
+      assertEquals(-400.3, childJointOne.getEffortLowerLimit(), 1e-7);
+      assertEquals(400.3, childJointOne.getEffortUpperLimit(), 1e-7);
 
       childJointOne.setVelocityLimits(10.0, 30.0);
-      assertEquals(10.0, childJointOne.getVelocityLimit(), 1e-7);
-      assertEquals(30.0, childJointOne.getVelocityDamping(), 1e-7);
+      assertEquals(-10.0, childJointOne.getVelocityLowerLimit(), 1e-7);
+      assertEquals(10.0, childJointOne.getVelocityUpperLimit(), 1e-7);
+      assertEquals(30.0, childJointOne.getKpVelocityLimit(), 1e-7);
 
-      assertTrue(childJointOne.containsLimitStops());
-
-      childJointOne.getJointAxis(jointAxisCheck);
+      jointAxisCheck.set(childJointOne.getAxis());
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(0.0, 0.0, 1.0), jointAxisCheck, 1e-7);
 
       //TODO: Do Axis vectors need to be normalized???
       SliderJointDescription childJointTwo = new SliderJointDescription("childJointTwo", new Vector3D(0.5, 0.7, 0.9), new Vector3D(1.1, 2.2, 3.3));
-      assertTrue(Double.POSITIVE_INFINITY == childJointTwo.getEffortLimit());
-      assertTrue(Double.POSITIVE_INFINITY == childJointTwo.getVelocityLimit());
-      assertFalse(childJointTwo.containsLimitStops());
-      assertTrue(Double.NEGATIVE_INFINITY == childJointTwo.getLowerLimit());
-      assertTrue(Double.POSITIVE_INFINITY == childJointTwo.getUpperLimit());
+      assertTrue(Double.NEGATIVE_INFINITY == childJointTwo.getEffortLowerLimit());
+      assertTrue(Double.POSITIVE_INFINITY == childJointTwo.getEffortUpperLimit());
+      assertTrue(Double.NEGATIVE_INFINITY == childJointTwo.getVelocityLowerLimit());
+      assertTrue(Double.POSITIVE_INFINITY == childJointTwo.getVelocityUpperLimit());
+      assertTrue(Double.NEGATIVE_INFINITY == childJointTwo.getPositionLowerLimit());
+      assertTrue(Double.POSITIVE_INFINITY == childJointTwo.getPositionUpperLimit());
+      assertEquals(0.0, childJointTwo.getKpPositionLimit(), 1e-7);
+      assertEquals(0.0, childJointTwo.getKdPositionLimit(), 1e-7);
 
-      limitStopParameters = childJointTwo.getLimitStopParameters();
-      assertTrue(Double.NEGATIVE_INFINITY == limitStopParameters[0]);
-      assertTrue(Double.POSITIVE_INFINITY == limitStopParameters[1]);
-      assertEquals(0.0, limitStopParameters[2], 1e-7);
-      assertEquals(0.0, limitStopParameters[3], 1e-7);
-
-      assertEquals(0.0, childJointTwo.getVelocityDamping(), 1e-7);
+      assertEquals(0.0, childJointTwo.getKpVelocityLimit(), 1e-7);
       assertEquals(0.0, childJointTwo.getDamping(), 1e-7);
       assertEquals(0.0, childJointTwo.getStiction(), 1e-7);
 
-      childJointTwo.getJointAxis(jointAxisCheck);
+      jointAxisCheck.set(childJointTwo.getAxis());
       EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.1, 2.2, 3.3), jointAxisCheck, 1e-7);
 
       LinkDescription childLinkTwo = new LinkDescription("childLinkTwo");
@@ -219,10 +202,8 @@ public class RobotDescriptionTest
       assertTrue(childJointTwo == childrenJoints.get(1));
 
       PinJointDescription childJointThree = new PinJointDescription("childJointThree", new Vector3D(9.9, 0.0, -0.5), Axis3D.X);
-      childJointThree.getOffsetFromParentJoint(jointOffsetCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(9.9, 0.0, -0.5), jointOffsetCheck, 1e-7);
-      childJointThree.getJointAxis(jointAxisCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 0.0, 0.0), jointAxisCheck, 1e-7);
+      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(9.9, 0.0, -0.5), childJointThree.getTransformToParentJoint().getTranslation(), 1e-7);
+      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 0.0, 0.0), childJointThree.getAxis(), 1e-7);
 
       LinkDescription childLinkThree = new LinkDescription("childLinkThree");
       childLinkThree.setMass(1.9);
@@ -326,7 +307,7 @@ public class RobotDescriptionTest
          assertEquals(expected.getName(), actual.getName());
          assertEquals(expected.getClass(), actual.getClass());
          assertEquals(expected.isDynamic(), actual.isDynamic());
-         assertEquals(expected.getOffsetFromParentJoint(), actual.getOffsetFromParentJoint());
+         assertEquals(expected.getTransformToParentJoint(), actual.getTransformToParentJoint());
          assertLinkDescriptionEquals(expected.getLink(), actual.getLink());
 
          if (expected instanceof FloatingJointDescription)
@@ -486,16 +467,18 @@ public class RobotDescriptionTest
 
    private static void assertOneDoFJointDescriptionPropertiesEqual(OneDoFJointDescription expected, OneDoFJointDescription actual)
    {
-      assertEquals(expected.containsLimitStops(), actual.containsLimitStops());
-      assertEquals(expected.getLowerLimit(), actual.getLowerLimit());
-      assertEquals(expected.getUpperLimit(), actual.getUpperLimit());
-      assertArrayEquals(expected.getLimitStopParameters(), actual.getLimitStopParameters());
+      assertEquals(expected.getPositionLowerLimit(), actual.getPositionLowerLimit());
+      assertEquals(expected.getPositionUpperLimit(), actual.getPositionUpperLimit());
+      assertEquals(expected.getKpPositionLimit(), actual.getKpPositionLimit());
+      assertEquals(expected.getKdPositionLimit(), actual.getKdPositionLimit());
       assertEquals(expected.getDamping(), actual.getDamping());
       assertEquals(expected.getStiction(), actual.getStiction());
-      assertEquals(expected.getVelocityLimit(), actual.getVelocityLimit());
-      assertEquals(expected.getVelocityDamping(), actual.getVelocityDamping());
-      assertEquals(expected.getJointAxis(), actual.getJointAxis());
-      assertEquals(expected.getEffortLimit(), actual.getEffortLimit());
+      assertEquals(expected.getVelocityLowerLimit(), actual.getVelocityLowerLimit());
+      assertEquals(expected.getVelocityUpperLimit(), actual.getVelocityUpperLimit());
+      assertEquals(expected.getKpVelocityLimit(), actual.getKpVelocityLimit());
+      assertEquals(expected.getAxis(), actual.getAxis());
+      assertEquals(expected.getEffortLowerLimit(), actual.getEffortLowerLimit());
+      assertEquals(expected.getEffortUpperLimit(), actual.getEffortUpperLimit());
    }
 
    private static void assertLinkDescriptionEquals(LinkDescription expected, LinkDescription actual)
@@ -507,7 +490,7 @@ public class RobotDescriptionTest
       assertEquals(expected.getName(), actual.getName());
       assertEquals(expected.getMass(), actual.getMass());
       assertEquals(expected.getCenterOfMassOffset(), actual.getCenterOfMassOffset());
-      assertTrue(MatrixFeatures_DDRM.isEquals(expected.getMomentOfInertia(), actual.getMomentOfInertia()));
+      assertEquals(expected.getMomentOfInertia(), actual.getMomentOfInertia());
       // TODO Implement assertions for LinkGraphicsDescription and CollisionMeshDescription.
    }
 
@@ -637,7 +620,7 @@ public class RobotDescriptionTest
    {
       FloatingJointDescription next = new FloatingJointDescription(name, name + "VarName");
       next.setIsDynamic(random.nextBoolean());
-      next.setOffsetFromParentJoint(EuclidCoreRandomTools.nextPoint3D(random));
+      next.getTransformToParentJoint().getTranslation().set(EuclidCoreRandomTools.nextPoint3D(random));
       return next;
    }
 
@@ -645,7 +628,7 @@ public class RobotDescriptionTest
    {
       FloatingPlanarJointDescription next = new FloatingPlanarJointDescription(name, Plane.values[random.nextInt(Plane.values.length)]);
       next.setIsDynamic(random.nextBoolean());
-      next.setOffsetFromParentJoint(EuclidCoreRandomTools.nextPoint3D(random));
+      next.getTransformToParentJoint().getTranslation().set(EuclidCoreRandomTools.nextPoint3D(random));
       return next;
    }
 
@@ -656,11 +639,11 @@ public class RobotDescriptionTest
       next.setVelocityLimits(EuclidCoreRandomTools.nextDouble(random), EuclidCoreRandomTools.nextDouble(random));
       next.setDamping(EuclidCoreRandomTools.nextDouble(random));
       if (random.nextBoolean())
-         next.setLimitStops(EuclidCoreRandomTools.nextDouble(random, -Math.PI, 0.0),
-                            EuclidCoreRandomTools.nextDouble(random, 0, Math.PI),
-                            EuclidCoreRandomTools.nextDouble(random),
-                            EuclidCoreRandomTools.nextDouble(random));
-      next.setEffortLimit(EuclidCoreRandomTools.nextDouble(random));
+      {
+         next.setPositionLimits(EuclidCoreRandomTools.nextDouble(random, -Math.PI, 0.0), EuclidCoreRandomTools.nextDouble(random, 0, Math.PI));
+         next.setPositionLimitGains(EuclidCoreRandomTools.nextDouble(random), EuclidCoreRandomTools.nextDouble(random));
+      }
+      next.setEffortLimits(EuclidCoreRandomTools.nextDouble(random));
       return next;
    }
 
@@ -671,11 +654,11 @@ public class RobotDescriptionTest
       next.setVelocityLimits(EuclidCoreRandomTools.nextDouble(random), EuclidCoreRandomTools.nextDouble(random));
       next.setDamping(EuclidCoreRandomTools.nextDouble(random));
       if (random.nextBoolean())
-         next.setLimitStops(EuclidCoreRandomTools.nextDouble(random, -Math.PI, 0.0),
-                            EuclidCoreRandomTools.nextDouble(random, 0, Math.PI),
-                            EuclidCoreRandomTools.nextDouble(random),
-                            EuclidCoreRandomTools.nextDouble(random));
-      next.setEffortLimit(EuclidCoreRandomTools.nextDouble(random));
+      {
+         next.setPositionLimits(EuclidCoreRandomTools.nextDouble(random, -Math.PI, 0.0), EuclidCoreRandomTools.nextDouble(random, 0, Math.PI));
+         next.setPositionLimitGains(EuclidCoreRandomTools.nextDouble(random), EuclidCoreRandomTools.nextDouble(random));
+      }
+      next.setEffortLimits(EuclidCoreRandomTools.nextDouble(random));
       return next;
    }
 
@@ -732,8 +715,8 @@ public class RobotDescriptionTest
             default:
                break;
          }
-         next.translate(EuclidCoreRandomTools.nextPoint3D(random));
-         next.rotate(EuclidCoreRandomTools.nextQuaternion(random));
+         next.appendTranslation(EuclidCoreRandomTools.nextPoint3D(random));
+         next.appendRotation(EuclidCoreRandomTools.nextQuaternion(random));
       }
 
       return next;

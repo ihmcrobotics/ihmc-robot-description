@@ -101,7 +101,8 @@ public class RobotDescriptionUsingSpringFlamingoTest
       LinkDescription r_lower_leg = lower_leg("r_lower_leg");
       rightKnee.setLink(r_lower_leg);
       rightHip.addJoint(rightKnee);
-      rightKnee.setLimitStops(-Math.PI, 0.0, 1000.0, 40.0);
+      rightKnee.setPositionLimits(-Math.PI, 0.0);
+      rightKnee.setPositionLimitGains(1000.0, 40.0);
 
       JointWrenchSensorDescription rightKneeWrenchSensor = new JointWrenchSensorDescription("rightKneeWrenchSensor", new Vector3D());
       rightKnee.addJointWrenchSensor(rightKneeWrenchSensor);
@@ -137,7 +138,8 @@ public class RobotDescriptionUsingSpringFlamingoTest
       LinkDescription l_lower_leg = lower_leg("l_lower_leg");
       leftKnee.setLink(l_lower_leg);
       leftHip.addJoint(leftKnee);
-      leftKnee.setLimitStops(-Math.PI, 0.0, 1000.0, 40.0);
+      leftKnee.setPositionLimits(-Math.PI, 0.0);
+      leftKnee.setPositionLimitGains(1000.0, 40.0);
 
       JointWrenchSensorDescription leftKneeWrenchSensor = new JointWrenchSensorDescription("leftKneeWrenchSensor", new Vector3D());
       leftKnee.addJointWrenchSensor(leftKneeWrenchSensor);
@@ -177,83 +179,83 @@ public class RobotDescriptionUsingSpringFlamingoTest
       if (SHOW_CARTOON_GRAPHICS)
       {
          /* For left half */
-         linkGraphics.translate(0.0, HIP_OFFSET_Y, 0.0);
-         linkGraphics.rotate(-55.0 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendTranslation(0.0, HIP_OFFSET_Y, 0.0);
+         linkGraphics.appendRotation(-55.0 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
 
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
 
          linkGraphics.identity();
 
          // For right half
-         linkGraphics.translate(0.0, -HIP_OFFSET_Y, 0.0);
-         linkGraphics.rotate(-55.0 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendTranslation(0.0, -HIP_OFFSET_Y, 0.0);
+         linkGraphics.appendRotation(-55.0 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
 
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
-         linkGraphics.rotate(7.333 * Math.PI / 180.0, Axis3D.Y);
+         linkGraphics.appendRotation(7.333 * Math.PI / 180.0, Axis3D.Y);
          linkGraphics.addCube(BODY_X, BODY_Y, BODY_Z, bodyAppearance);
 
          linkGraphics.identity();
 
-         linkGraphics.rotate(Math.PI / 2.0, Axis3D.X);
-         linkGraphics.translate(0.0, 0.0, -0.37 / 2.0);
+         linkGraphics.appendRotation(Math.PI / 2.0, Axis3D.X);
+         linkGraphics.appendTranslation(0.0, 0.0, -0.37 / 2.0);
 
          linkGraphics.addCylinder(0.37, 0.025);
       }
@@ -282,25 +284,25 @@ public class RobotDescriptionUsingSpringFlamingoTest
       LinkGraphicsDescription linkGraphics = new LinkGraphicsDescription();
       if (SHOW_CARTOON_GRAPHICS)
       {
-         linkGraphics.translate(0.0, 0.0, -UPPER_LINK_LENGTH);
-         linkGraphics.addCube(0.025, 0.053, 0.054, YoAppearance.AluminumMaterial());
+         linkGraphics.appendTranslation(0.0, 0.0, -UPPER_LINK_LENGTH);
+         linkGraphics.addCube(0.025, 0.053, 0.054, YoAppearance.DarkKhaki());
 
-         linkGraphics.translate(0.0, 0.0, 0.054);
-         linkGraphics.addCylinder(0.308, 0.0113, YoAppearance.BlackMetalMaterial());
+         linkGraphics.appendTranslation(0.0, 0.0, 0.054);
+         linkGraphics.addCylinder(0.308, 0.0113, YoAppearance.Black());
 
-         linkGraphics.translate(0.0, 0.0, 0.308);
-         linkGraphics.addCube(0.025, 0.053, 0.047, YoAppearance.AluminumMaterial());
+         linkGraphics.appendTranslation(0.0, 0.0, 0.308);
+         linkGraphics.addCube(0.025, 0.053, 0.047, YoAppearance.DarkKhaki());
 
          linkGraphics.identity();
-         linkGraphics.translate(0.0, 0.0, -UPPER_LINK_LENGTH);
-         linkGraphics.rotate(Math.PI / 2.0, Axis3D.X);
-         linkGraphics.translate(0.0, 0.0, -0.005);
+         linkGraphics.appendTranslation(0.0, 0.0, -UPPER_LINK_LENGTH);
+         linkGraphics.appendRotation(Math.PI / 2.0, Axis3D.X);
+         linkGraphics.appendTranslation(0.0, 0.0, -0.005);
          linkGraphics.addCylinder(0.01, 0.033, pulleyAppearance); /* Pulley */
 
          linkGraphics.identity();
-         linkGraphics.translate(0.0, 0.0, -UPPER_LINK_LENGTH);
-         linkGraphics.rotate(Math.PI / 2.0, Axis3D.X);
-         linkGraphics.translate(0.0, 0.0, -0.013);
+         linkGraphics.appendTranslation(0.0, 0.0, -UPPER_LINK_LENGTH);
+         linkGraphics.appendRotation(Math.PI / 2.0, Axis3D.X);
+         linkGraphics.appendTranslation(0.0, 0.0, -0.013);
          linkGraphics.addCylinder(0.025, 0.015, pulleyAppearance); /* Pulley */
       }
 
@@ -326,14 +328,14 @@ public class RobotDescriptionUsingSpringFlamingoTest
       if (SHOW_CARTOON_GRAPHICS)
       {
          LinkGraphicsDescription linkGraphics = new LinkGraphicsDescription();
-         linkGraphics.translate(0.0, 0.0, -LOWER_LINK_LENGTH);
-         linkGraphics.addCube(0.025, 0.04, 0.04, YoAppearance.AluminumMaterial());
+         linkGraphics.appendTranslation(0.0, 0.0, -LOWER_LINK_LENGTH);
+         linkGraphics.addCube(0.025, 0.04, 0.04, YoAppearance.DarkKhaki());
 
-         linkGraphics.translate(0.0, 0.0, 0.04);
-         linkGraphics.addCylinder(0.308, 0.0113, YoAppearance.BlackMetalMaterial());
+         linkGraphics.appendTranslation(0.0, 0.0, 0.04);
+         linkGraphics.addCylinder(0.308, 0.0113, YoAppearance.Black());
 
-         linkGraphics.translate(0.0, 0.0, 0.308);
-         linkGraphics.addCube(0.025, 0.04, 0.062, YoAppearance.AluminumMaterial());
+         linkGraphics.appendTranslation(0.0, 0.0, 0.308);
+         linkGraphics.addCube(0.025, 0.04, 0.062, YoAppearance.DarkKhaki());
          ret.setLinkGraphics(linkGraphics);
       }
 
@@ -356,11 +358,11 @@ public class RobotDescriptionUsingSpringFlamingoTest
       if (SHOW_CARTOON_GRAPHICS)
       {
          LinkGraphicsDescription linkGraphics = new LinkGraphicsDescription();
-         linkGraphics.translate(FOOT_X * (FOOT_OFFSET_PERCENT - 0.5), 0.0, FOOT_ZMIN);
+         linkGraphics.appendTranslation(FOOT_X * (FOOT_OFFSET_PERCENT - 0.5), 0.0, FOOT_ZMIN);
          linkGraphics.addCube(FOOT_X, FOOT_Y, FOOT_ZMAX - FOOT_ZMIN);
 
          linkGraphics.identity();
-         linkGraphics.translate(0.0, 0.0, FOOT_ZMAX);
+         linkGraphics.appendTranslation(0.0, 0.0, FOOT_ZMAX);
          linkGraphics.addCube(0.028, 0.028, -FOOT_ZMAX);
          ret.setLinkGraphics(linkGraphics);
       }
