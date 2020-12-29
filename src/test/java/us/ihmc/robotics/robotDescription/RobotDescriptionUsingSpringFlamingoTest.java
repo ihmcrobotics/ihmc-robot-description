@@ -80,12 +80,12 @@ public class RobotDescriptionUsingSpringFlamingoTest
       camRotation.setRotationYawAndZeroTranslation(Math.PI);
 
       CameraSensorDescription robotCam = new CameraSensorDescription("robot cam mount", camRotation);
-      plane.addCameraSensor(robotCam);
+      plane.addSensor(robotCam);
 
       RigidBodyTransform imuTransform = new RigidBodyTransform();
       imuTransform.getTranslation().set(new Vector3D(0.0, 0.0, 0.2));
       IMUSensorDescription imuMount = new IMUSensorDescription("FlamingoIMU", imuTransform);
-      plane.addIMUSensor(imuMount);
+      plane.addSensor(imuMount);
 
       /** ************************ Right limb ********************************** */
 
@@ -95,7 +95,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       plane.addJoint(rightHip);
 
       JointWrenchSensorDescription rightHipWrenchSensor = new JointWrenchSensorDescription("rightHipWrenchSensor", new Vector3D());
-      rightHip.addJointWrenchSensor(rightHipWrenchSensor);
+      rightHip.addSensor(rightHipWrenchSensor);
 
       rightKnee = new PinJointDescription("rk", new Vector3D(0.0, 0.0, -UPPER_LINK_LENGTH), Axis3D.Y); // right knee joint
       LinkDescription r_lower_leg = lower_leg("r_lower_leg");
@@ -105,7 +105,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       rightKnee.setPositionLimitGains(1000.0, 40.0);
 
       JointWrenchSensorDescription rightKneeWrenchSensor = new JointWrenchSensorDescription("rightKneeWrenchSensor", new Vector3D());
-      rightKnee.addJointWrenchSensor(rightKneeWrenchSensor);
+      rightKnee.addSensor(rightKneeWrenchSensor);
 
       rightAnkle = new PinJointDescription("ra", new Vector3D(0.0, 0.0, -LOWER_LINK_LENGTH), Axis3D.Y); // right ankle joint
       LinkDescription r_foot = foot("r_foot");
@@ -122,7 +122,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       rightAnkle.addGroundContactPoint(gc_rtoe);
 
       JointWrenchSensorDescription rightAnkleWrenchSensor = new JointWrenchSensorDescription("rightAnkleWrenchSensor", new Vector3D());
-      rightAnkle.addJointWrenchSensor(rightAnkleWrenchSensor);
+      rightAnkle.addSensor(rightAnkleWrenchSensor);
 
       /** ************************ Left limb ********************************** */
 
@@ -132,7 +132,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       plane.addJoint(leftHip);
 
       JointWrenchSensorDescription leftHipWrenchSensor = new JointWrenchSensorDescription("leftHipWrenchSensor", new Vector3D());
-      leftHip.addJointWrenchSensor(leftHipWrenchSensor);
+      leftHip.addSensor(leftHipWrenchSensor);
 
       leftKnee = new PinJointDescription("lk", new Vector3D(0.0, 0.0, -UPPER_LINK_LENGTH), Axis3D.Y); // left knee joint
       LinkDescription l_lower_leg = lower_leg("l_lower_leg");
@@ -142,7 +142,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       leftKnee.setPositionLimitGains(1000.0, 40.0);
 
       JointWrenchSensorDescription leftKneeWrenchSensor = new JointWrenchSensorDescription("leftKneeWrenchSensor", new Vector3D());
-      leftKnee.addJointWrenchSensor(leftKneeWrenchSensor);
+      leftKnee.addSensor(leftKneeWrenchSensor);
 
       leftAnkle = new PinJointDescription("la", new Vector3D(0.0, 0.0, -LOWER_LINK_LENGTH), Axis3D.Y); // left ankle joint
       LinkDescription l_foot = foot("l_foot");
@@ -159,7 +159,7 @@ public class RobotDescriptionUsingSpringFlamingoTest
       leftAnkle.addGroundContactPoint(gc_ltoe);
 
       JointWrenchSensorDescription leftAnkleWrenchSensor = new JointWrenchSensorDescription("leftAnkleWrenchSensor", new Vector3D());
-      leftAnkle.addJointWrenchSensor(leftAnkleWrenchSensor);
+      leftAnkle.addSensor(leftAnkleWrenchSensor);
    }
 
    private LinkDescription body()

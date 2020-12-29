@@ -130,9 +130,9 @@ public class RobotDescriptionTest
 
       RigidBodyTransform cameraOneTransformToJoint = new RigidBodyTransform();
       CameraSensorDescription cameraOneDescription = new CameraSensorDescription("cameraOne", cameraOneTransformToJoint);
-      childJointOne.addCameraSensor(cameraOneDescription);
+      childJointOne.addSensor(cameraOneDescription);
 
-      List<CameraSensorDescription> cameraSensors = childJointOne.getCameraSensors();
+      List<CameraSensorDescription> cameraSensors = childJointOne.getSensors(CameraSensorDescription.class);
       assertEquals(1, cameraSensors.size());
       assertTrue(cameraOneDescription == cameraSensors.get(0));
 
@@ -376,22 +376,24 @@ public class RobotDescriptionTest
             assertEquals(expectedSensor.getOffsetFromJoint(), actualSensor.getOffsetFromJoint());
          }
 
-         assertEquals(expected.getWrenchSensors().size(), actual.getWrenchSensors().size());
-         for (int i = 0; i < expected.getWrenchSensors().size(); i++)
+         assertEquals(expected.getSensors(JointWrenchSensorDescription.class).size(), actual.getSensors(JointWrenchSensorDescription.class).size());
+         for (int i = 0; i < expected.getSensors(JointWrenchSensorDescription.class).size(); i++)
          {
-            JointWrenchSensorDescription expectedSensor = expected.getWrenchSensors().get(i);
+            JointWrenchSensorDescription expectedSensor = expected.getSensors(JointWrenchSensorDescription.class).get(i);
             String sensorName = expectedSensor.getName();
-            JointWrenchSensorDescription actualSensor = actual.getWrenchSensors().stream().filter(e -> e.getName().equals(sensorName)).findFirst().orElse(null);
+            JointWrenchSensorDescription actualSensor = actual.getSensors(JointWrenchSensorDescription.class).stream()
+                                                              .filter(e -> e.getName().equals(sensorName)).findFirst().orElse(null);
             assertNotNull(actualSensor);
             assertEquals(expectedSensor.getTransformToJoint(), actualSensor.getTransformToJoint());
          }
 
-         assertEquals(expected.getCameraSensors().size(), actual.getCameraSensors().size());
-         for (int i = 0; i < expected.getCameraSensors().size(); i++)
+         assertEquals(expected.getSensors(CameraSensorDescription.class).size(), actual.getSensors(CameraSensorDescription.class).size());
+         for (int i = 0; i < expected.getSensors(CameraSensorDescription.class).size(); i++)
          {
-            CameraSensorDescription expectedSensor = expected.getCameraSensors().get(i);
+            CameraSensorDescription expectedSensor = expected.getSensors(CameraSensorDescription.class).get(i);
             String sensorName = expectedSensor.getName();
-            CameraSensorDescription actualSensor = actual.getCameraSensors().stream().filter(e -> e.getName().equals(sensorName)).findFirst().orElse(null);
+            CameraSensorDescription actualSensor = actual.getSensors(CameraSensorDescription.class).stream().filter(e -> e.getName().equals(sensorName))
+                                                         .findFirst().orElse(null);
             assertNotNull(actualSensor);
             assertEquals(expectedSensor.getFieldOfView(), actualSensor.getFieldOfView());
             assertEquals(expectedSensor.getClipNear(), actualSensor.getClipNear());
@@ -401,12 +403,13 @@ public class RobotDescriptionTest
             assertEquals(expectedSensor.getTransformToJoint(), actualSensor.getTransformToJoint());
          }
 
-         assertEquals(expected.getIMUSensors().size(), actual.getIMUSensors().size());
-         for (int i = 0; i < expected.getIMUSensors().size(); i++)
+         assertEquals(expected.getSensors(IMUSensorDescription.class).size(), actual.getSensors(IMUSensorDescription.class).size());
+         for (int i = 0; i < expected.getSensors(IMUSensorDescription.class).size(); i++)
          {
-            IMUSensorDescription expectedSensor = expected.getIMUSensors().get(i);
+            IMUSensorDescription expectedSensor = expected.getSensors(IMUSensorDescription.class).get(i);
             String sensorName = expectedSensor.getName();
-            IMUSensorDescription actualSensor = actual.getIMUSensors().stream().filter(e -> e.getName().equals(sensorName)).findFirst().orElse(null);
+            IMUSensorDescription actualSensor = actual.getSensors(IMUSensorDescription.class).stream().filter(e -> e.getName().equals(sensorName)).findFirst()
+                                                      .orElse(null);
             assertNotNull(actualSensor);
             assertEquals(expectedSensor.getAccelerationNoiseMean(), actualSensor.getAccelerationNoiseMean());
             assertEquals(expectedSensor.getAccelerationNoiseStandardDeviation(), actualSensor.getAccelerationNoiseStandardDeviation());
@@ -419,12 +422,13 @@ public class RobotDescriptionTest
             assertEquals(expectedSensor.getTransformToJoint(), actualSensor.getTransformToJoint());
          }
 
-         assertEquals(expected.getLidarSensors().size(), actual.getLidarSensors().size());
-         for (int i = 0; i < expected.getLidarSensors().size(); i++)
+         assertEquals(expected.getSensors(LidarSensorDescription.class).size(), actual.getSensors(LidarSensorDescription.class).size());
+         for (int i = 0; i < expected.getSensors(LidarSensorDescription.class).size(); i++)
          {
-            LidarSensorDescription expectedSensor = expected.getLidarSensors().get(i);
+            LidarSensorDescription expectedSensor = expected.getSensors(LidarSensorDescription.class).get(i);
             String sensorName = expectedSensor.getName();
-            LidarSensorDescription actualSensor = actual.getLidarSensors().stream().filter(e -> e.getName().equals(sensorName)).findFirst().orElse(null);
+            LidarSensorDescription actualSensor = actual.getSensors(LidarSensorDescription.class).stream().filter(e -> e.getName().equals(sensorName))
+                                                        .findFirst().orElse(null);
             assertNotNull(actualSensor);
             assertEquals(expectedSensor.getSweepYawMin(), actualSensor.getSweepYawMin());
             assertEquals(expectedSensor.getSweepYawMax(), actualSensor.getSweepYawMax());
@@ -437,12 +441,13 @@ public class RobotDescriptionTest
             assertEquals(expectedSensor.getTransformToJoint(), actualSensor.getTransformToJoint());
          }
 
-         assertEquals(expected.getForceSensors().size(), actual.getForceSensors().size());
-         for (int i = 0; i < expected.getForceSensors().size(); i++)
+         assertEquals(expected.getSensors(ForceSensorDescription.class).size(), actual.getSensors(ForceSensorDescription.class).size());
+         for (int i = 0; i < expected.getSensors(ForceSensorDescription.class).size(); i++)
          {
-            ForceSensorDescription expectedSensor = expected.getForceSensors().get(i);
+            ForceSensorDescription expectedSensor = expected.getSensors(ForceSensorDescription.class).get(i);
             String sensorName = expectedSensor.getName();
-            ForceSensorDescription actualSensor = actual.getForceSensors().stream().filter(e -> e.getName().equals(sensorName)).findFirst().orElse(null);
+            ForceSensorDescription actualSensor = actual.getSensors(ForceSensorDescription.class).stream().filter(e -> e.getName().equals(sensorName))
+                                                        .findFirst().orElse(null);
             assertNotNull(actualSensor);
             assertEquals(expectedSensor.useShapeCollision(), actualSensor.useShapeCollision());
             assertEquals(expectedSensor.useGroundContactPoints(), actualSensor.useGroundContactPoints());
@@ -533,27 +538,27 @@ public class RobotDescriptionTest
          if (random.nextBoolean())
          {
             for (int i = 0; i < random.nextInt(n); i++)
-               jointDescription.addJointWrenchSensor(nextJointWrenchSensorDescription(random, jointName + "_jws" + i));
+               jointDescription.addSensor(nextJointWrenchSensorDescription(random, jointName + "_jws" + i));
          }
          if (random.nextBoolean())
          {
             for (int i = 0; i < random.nextInt(n); i++)
-               jointDescription.addCameraSensor(nextCameraSensorDescription(random, jointName + "_cam" + i));
+               jointDescription.addSensor(nextCameraSensorDescription(random, jointName + "_cam" + i));
          }
          if (random.nextBoolean())
          {
             for (int i = 0; i < random.nextInt(n); i++)
-               jointDescription.addIMUSensor(nextIMUSensorDescription(random, jointName + "_imu" + i));
+               jointDescription.addSensor(nextIMUSensorDescription(random, jointName + "_imu" + i));
          }
          if (random.nextBoolean())
          {
             for (int i = 0; i < random.nextInt(n); i++)
-               jointDescription.addLidarSensor(nextLidarSensorDescription(random, jointName + "_lidar" + i));
+               jointDescription.addSensor(nextLidarSensorDescription(random, jointName + "_lidar" + i));
          }
          if (random.nextBoolean())
          {
             for (int i = 0; i < random.nextInt(n); i++)
-               jointDescription.addForceSensor(nextForceSensorDescription(random, jointName + "_fs" + i));
+               jointDescription.addSensor(nextForceSensorDescription(random, jointName + "_fs" + i));
          }
       }
    }

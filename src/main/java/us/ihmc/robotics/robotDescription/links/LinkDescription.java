@@ -16,10 +16,12 @@ import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 import us.ihmc.graphicsDescription.appearance.AppearanceDefinition;
 import us.ihmc.graphicsDescription.appearance.YoAppearance;
 import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
+import us.ihmc.robotics.robotDescription.joints.JointDescription;
 
 public class LinkDescription
 {
    private String name;
+   private JointDescription parentJoint;
 
    private double mass;
    private final RigidBodyTransform inertiaPose = new RigidBodyTransform();
@@ -59,6 +61,16 @@ public class LinkDescription
    public String getName()
    {
       return name;
+   }
+
+   public void setParentJoint(JointDescription parentJoint)
+   {
+      this.parentJoint = parentJoint;
+   }
+
+   public JointDescription getParentJoint()
+   {
+      return parentJoint;
    }
 
    public LinkGraphicsDescription getLinkGraphics()

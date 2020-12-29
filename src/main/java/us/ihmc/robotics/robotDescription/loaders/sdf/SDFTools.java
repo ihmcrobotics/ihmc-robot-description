@@ -53,6 +53,7 @@ import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFGeometry;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFInertia;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint.SDFAxis;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint.SDFAxis.SDFDynamics;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFJoint.SDFAxis.SDFLimit;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink.SDFInertial;
@@ -193,125 +194,169 @@ public class SDFTools
       return null;
    }
 
-   public static RobotDescription toFloatingRootJointRobotDescription(RobotDescription robotDefinition, SDFModel sdfModel)
+   public static RobotDescription toFloatingRootJointRobotDescription(SDFModel sdfModel)
    {
       return toRobotDefinition(new FloatingJointDescription(), sdfModel);
    }
 
    public static RobotDescription toRobotDefinition(JointDescription rootJoint, SDFModel sdfModel)
    {
-      List<SDFLink> sdfLinks = sdfModel.getLinks();
       List<SDFJoint> sdfJoints = sdfModel.getJoints();
+      List<SDFLink> sdfLinks = sdfModel.getLinks();
+      List<JointDescription> jointDefinitions = toJointDefinitions(sdfJoints);
+      List<LinkDescription> rigidBodyDefinitions = toRigidBodyDefinition(sdfLinks);
 
-      List<LinkDescription> rigidBodyDefinitions = sdfLinks.stream().map(SDFTools::toRigidBodyDefinition).collect(Collectors.toList());
-      List<JointDescription> jointDefinitions;
-      if (sdfJoints == null)
-         jointDefinitions = Collections.emptyList();
-      else
-         jointDefinitions = sdfJoints.stream().map(SDFTools::toJointDefinition).collect(Collectors.toList());
-      LinkDescription rootBodyDefinition = connectKinematics(rigidBodyDefinitions, jointDefinitions, sdfJoints, sdfLinks);
+      connectKinematics(sdfJoints, sdfLinks, rootJoint, jointDefinitions, rigidBodyDefinitions);
+      addSensors(sdfLinks, rigidBodyDefinitions);
+      correctTransforms(sdfJoints, sdfLinks, jointDefinitions);
 
-      if (rootJoint.getName() == null)
-         rootJoint.setName(rootBodyDefinition.getName());
-      rootJoint.setLink(rootBodyDefinition);
+      RobotDescription robotDescription = new RobotDescription(sdfModel.getName());
+      robotDescription.addRootJoint(rootJoint);
 
-      RobotDescription robotDefinition = new RobotDescription(sdfModel.getName());
-      robotDefinition.addRootJoint(rootJoint);
-
-      return robotDefinition;
+      return robotDescription;
    }
 
-   public static LinkDescription connectKinematics(List<LinkDescription> rigidBodyDefinitions, List<JointDescription> jointDefinitions,
-                                                   List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks)
+   public static void addSensors(List<SDFLink> sdfLinks, List<LinkDescription> rigidBodyDefinitions)
    {
+      Map<String, LinkDescription> rigidBodyDefinitionMap = rigidBodyDefinitions.stream()
+                                                                                .collect(Collectors.toMap(LinkDescription::getName, Function.identity()));
+
+      for (SDFLink sdfLink : sdfLinks)
+      {
+         if (sdfLink.getSensors() == null)
+            continue;
+
+         LinkDescription linkDescription = rigidBodyDefinitionMap.get(sdfLink.getName());
+         JointDescription parentJoint = linkDescription.getParentJoint();
+
+         for (SDFSensor sdfSensor : sdfLink.getSensors())
+         {
+            List<SensorDescription> sensorDescriptions = toSensorDescription(sdfSensor);
+            sensorDescriptions.forEach(parentJoint::addSensor);
+         }
+      }
+   }
+
+   public static void connectKinematics(List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks, JointDescription rootJoint, List<JointDescription> jointDefinitions,
+                                        List<LinkDescription> rigidBodyDefinitions)
+   {
+      if (sdfJoints == null)
+         return;
+
       Map<String, SDFLink> sdfLinkMap = sdfLinks.stream().collect(Collectors.toMap(SDFLink::getName, Function.identity()));
       Map<String, LinkDescription> rigidBodyDefinitionMap = rigidBodyDefinitions.stream()
                                                                                 .collect(Collectors.toMap(LinkDescription::getName, Function.identity()));
       Map<String, JointDescription> jointDefinitionMap = jointDefinitions.stream().collect(Collectors.toMap(JointDescription::getName, Function.identity()));
 
-      if (sdfJoints != null)
+      Map<String, JointDescription> parentJointDefinitionMap = sdfJoints.stream()
+                                                                        .collect(Collectors.toMap(SDFJoint::getChild,
+                                                                                                  sdfJoint -> jointDefinitionMap.get(sdfJoint.getName())));
+
+      assert sdfJoints.stream().map(SDFJoint::getParent).distinct().filter(parentLinkName -> !parentJointDefinitionMap.containsKey(parentLinkName))
+                      .count() == 1;
+
+      for (SDFJoint sdfJoint : sdfJoints)
       {
-         Map<String, JointDescription> parentJointDefinitionMap = sdfJoints.stream()
-                                                                           .collect(Collectors.toMap(SDFJoint::getChild,
-                                                                                                     sdfJoint -> jointDefinitionMap.get(sdfJoint.getName())));
+         String parent = sdfJoint.getParent();
 
-         for (SDFJoint sdfJoint : sdfJoints)
+         if (parentJointDefinitionMap.containsKey(parent))
+            continue;
+
+         // The parent link has no parent joint => it is the root link, we attach it to the given rootJoint.
+         rootJoint.setLink(rigidBodyDefinitionMap.get(parent));
+         parentJointDefinitionMap.put(parent, rootJoint);
+         break;
+      }
+
+      for (SDFJoint sdfJoint : sdfJoints)
+      {
+         String parent = sdfJoint.getParent();
+         String child = sdfJoint.getChild();
+         JointDescription parentJointDescription = parentJointDefinitionMap.get(parent);
+         JointDescription jointDefinition = jointDefinitionMap.get(sdfJoint.getName());
+         LinkDescription childLinkDescription = rigidBodyDefinitionMap.get(child);
+         jointDefinition.getTransformToParentJoint().set(parsePose(sdfLinkMap.get(sdfJoint.getParent()).getPose()));
+
+         jointDefinition.setLink(childLinkDescription);
+         parentJointDescription.addJoint(jointDefinition);
+      }
+
+      Map<String, SDFJoint> childToParentJoint = sdfJoints.stream().collect(Collectors.toMap(SDFJoint::getChild, Function.identity()));
+
+      String rootLinkName = sdfJoints.get(0).getParent();
+      SDFJoint parentJoint = childToParentJoint.get(rootLinkName);
+
+      while (parentJoint != null)
+      {
+         rootLinkName = parentJoint.getParent();
+         parentJoint = childToParentJoint.get(rootLinkName);
+      }
+
+      if (rootJoint.getName() == null)
+         rootJoint.setName(rigidBodyDefinitionMap.get(rootLinkName).getName());
+   }
+
+   private static void correctTransforms(List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks, List<JointDescription> jointDefinitions)
+   {
+      Map<String, SDFLink> sdfLinkMap = sdfLinks.stream().collect(Collectors.toMap(SDFLink::getName, Function.identity()));
+      Map<String, JointDescription> jointDefinitionMap = jointDefinitions.stream().collect(Collectors.toMap(JointDescription::getName, Function.identity()));
+      Map<String, SDFJoint> childToParentJoint = sdfJoints.stream().collect(Collectors.toMap(SDFJoint::getChild, Function.identity()));
+
+      for (SDFJoint sdfJoint : sdfJoints)
+      {
+         String jointName = sdfJoint.getName();
+         JointDescription jointDefinition = jointDefinitionMap.get(jointName);
+         LinkDescription childDefinition = jointDefinition.getLink();
+
+         String parentLinkName = sdfJoint.getParent();
+         String childLinkName = sdfJoint.getChild();
+         SDFJoint parentSDFJoint = childToParentJoint.get(parentLinkName);
+         SDFLink parentSDFLink = sdfLinkMap.get(parentLinkName);
+         SDFLink childSDFLink = sdfLinkMap.get(childLinkName);
+
+         RigidBodyTransform parentLinkPose = parsePose(parentSDFLink.getPose());
+         RigidBodyTransform childLinkPose = parsePose(childSDFLink.getPose());
+         RigidBodyTransform parentJointParsedPose = parsePose(parentSDFJoint != null ? parentSDFJoint.getPose() : null);
+         RigidBodyTransform jointParsedPose = parsePose(sdfJoint.getPose());
+
+         // Correct joint transform
+         RigidBodyTransform transformToParentJoint = jointDefinition.getTransformToParentJoint();
+         transformToParentJoint.setAndInvert(parentJointParsedPose);
+         transformToParentJoint.multiplyInvertOther(parentLinkPose);
+         transformToParentJoint.multiply(childLinkPose);
+         transformToParentJoint.multiply(jointParsedPose);
+         transformToParentJoint.getRotation().setToZero();
+         parentLinkPose.transform(transformToParentJoint.getTranslation());
+
+         // Correct link inertia pose
+         RigidBodyTransform inertiaPose = childDefinition.getInertiaPose();
+         Vector3DBasics comOffset = childDefinition.getInertiaPose().getTranslation();
+         childLinkPose.transform(comOffset);
+         inertiaPose.transform(childDefinition.getMomentOfInertia());
+         childLinkPose.transform(childDefinition.getMomentOfInertia());
+         inertiaPose.getRotation().setToZero();
+
+         // Correct visual transform
+         for (VisualDescription visualDescription : childDefinition.getLinkGraphics().getVisualDescriptions())
          {
-            String parent = sdfJoint.getParent();
-            String child = sdfJoint.getChild();
-            JointDescription parentJointDescription = parentJointDefinitionMap.get(parent);
-            JointDescription jointDefinition = jointDefinitionMap.get(sdfJoint.getName());
-            LinkDescription childLinkDescription = rigidBodyDefinitionMap.get(child);
-            jointDefinition.getTransformToParentJoint().set(parsePose(sdfLinkMap.get(sdfJoint.getParent()).getPose()));
+            AffineTransform visualPose = visualDescription.getPose();
+            visualPose.prependOrientation(childLinkPose.getRotation());
+         }
 
-            jointDefinition.setLink(childLinkDescription);
-            parentJointDescription.getChildrenJoints().add(jointDefinition);
+         for (SensorDescription sensorDescription : jointDefinition.getSensors())
+         {
+//            childLinkPose.transform(sensorDescription.getTransformToJoint());
+            sensorDescription.getTransformToJoint().prependOrientation(childLinkPose.getRotation());
          }
       }
+   }
 
-      if (sdfJoints == null)
-      {
-         return rigidBodyDefinitions.get(0);
-      }
+   public static List<LinkDescription> toRigidBodyDefinition(Collection<SDFLink> sdfLinks)
+   {
+      if (sdfLinks == null)
+         return null;
       else
-      {
-         Map<String, SDFJoint> childToParentJoint = sdfJoints.stream().collect(Collectors.toMap(SDFJoint::getChild, Function.identity()));
-
-         String rootLinkName = sdfJoints.get(0).getParent();
-         SDFJoint parentJoint = childToParentJoint.get(rootLinkName);
-
-         while (parentJoint != null)
-         {
-            rootLinkName = parentJoint.getParent();
-            parentJoint = childToParentJoint.get(rootLinkName);
-         }
-
-         for (SDFJoint sdfJoint : sdfJoints)
-         {
-            String jointName = sdfJoint.getName();
-            JointDescription jointDefinition = jointDefinitionMap.get(jointName);
-
-            String parentLinkName = sdfJoint.getParent();
-            String childLinkName = sdfJoint.getChild();
-            SDFJoint parentSDFJoint = childToParentJoint.get(parentLinkName);
-            SDFLink parentSDFLink = sdfLinkMap.get(parentLinkName);
-            SDFLink childSDFLink = sdfLinkMap.get(childLinkName);
-
-            RigidBodyTransform parentLinkPose = parsePose(parentSDFLink.getPose());
-            RigidBodyTransform childLinkPose = parsePose(childSDFLink.getPose());
-            RigidBodyTransform parentJointParsedPose = parsePose(parentSDFJoint != null ? parentSDFJoint.getPose() : null);
-            RigidBodyTransform jointParsedPose = parsePose(sdfJoint.getPose());
-
-            RigidBodyTransform parentJointPose = new RigidBodyTransform(parentLinkPose);
-            parentJointPose.multiply(parentJointParsedPose);
-
-            RigidBodyTransform jointPose = new RigidBodyTransform(childLinkPose);
-            jointPose.multiply(jointParsedPose);
-
-            RigidBodyTransform transformToParentJoint = jointDefinition.getTransformToParentJoint();
-            transformToParentJoint.setAndInvert(parentJointPose);
-            transformToParentJoint.multiply(jointPose);
-
-            jointDefinition.getTransformToParentJoint().getRotation().setToZero();
-            parentLinkPose.transform(jointDefinition.getTransformToParentJoint().getTranslation());
-
-            LinkDescription childDefinition = rigidBodyDefinitionMap.get(childSDFLink.getName());
-            RigidBodyTransform inertiaPose = childDefinition.getInertiaPose();
-            Vector3DBasics comOffset = childDefinition.getInertiaPose().getTranslation();
-            childLinkPose.transform(comOffset);
-            inertiaPose.transform(childDefinition.getMomentOfInertia());
-            childLinkPose.transform(childDefinition.getMomentOfInertia());
-            inertiaPose.getRotation().setToZero();
-
-            for (VisualDescription visualDescription : childDefinition.getLinkGraphics().getVisualDescriptions())
-            {
-               AffineTransform visualPose = visualDescription.getPose();
-               visualPose.prependOrientation(childLinkPose.getRotation());
-            }
-         }
-
-         return rigidBodyDefinitionMap.get(rootLinkName);
-      }
+         return sdfLinks.stream().map(SDFTools::toRigidBodyDefinition).collect(Collectors.toList());
    }
 
    public static LinkDescription toRigidBodyDefinition(SDFLink sdfLink)
@@ -343,6 +388,14 @@ public class SDFTools
       return description;
    }
 
+   public static List<JointDescription> toJointDefinitions(Collection<SDFJoint> sdfJoints)
+   {
+      if (sdfJoints == null)
+         return null;
+      else
+         return sdfJoints.stream().map(SDFTools::toJointDefinition).collect(Collectors.toList());
+   }
+
    public static JointDescription toJointDefinition(SDFJoint sdfJoint)
    {
       switch (sdfJoint.getType())
@@ -371,6 +424,7 @@ public class SDFTools
       description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
       description.getAxis().set(parseAxis(sdfJoint.getAxis()));
       parseLimit(sdfJoint.getAxis().getLimit(), description, ignorePositionLimits);
+      parseDynamics(sdfJoint.getAxis().getDynamics(), description);
 
       return description;
    }
@@ -381,6 +435,7 @@ public class SDFTools
       description.getTransformToParentJoint().set(parsePose(sdfJoint.getPose()));
       description.getAxis().set(parseAxis(sdfJoint.getAxis()));
       parseLimit(sdfJoint.getAxis().getLimit(), description, false);
+      parseDynamics(sdfJoint.getAxis().getDynamics(), description);
 
       return description;
    }
@@ -444,11 +499,14 @@ public class SDFTools
             throw new UnsupportedOperationException("Unsupport sensor type: " + sdfSensor.getType());
       }
 
-      int updatePeriod = (int) (1000.0 / Double.parseDouble(sdfSensor.getUpdateRate()));
+      int updatePeriod = sdfSensor.getUpdateRate() == null ? -1 : (int) (1000.0 / parseDouble(sdfSensor.getUpdateRate(), 1000.0));
 
       for (SensorDescription description : descriptions)
       {
-         description.setName(sdfSensor.getName() + "_" + description.getName());
+         if (description.getName() != null && !description.getName().isEmpty())
+            description.setName(sdfSensor.getName() + "_" + description.getName());
+         else
+            description.setName(sdfSensor.getName());
          description.getTransformToJoint().preMultiply(parsePose(sdfSensor.getPose()));
          description.setUpdatePeriod(updatePeriod);
       }
@@ -587,7 +645,7 @@ public class SDFTools
       if (sdfGeometry.getMesh() != null)
       {
          ModelFileGeometryDescription modelFileGeometryDefinition = new ModelFileGeometryDescription();
-         modelFileGeometryDefinition.getResourceDirectories().addAll(resourceDirectories);
+         modelFileGeometryDefinition.setResourceDirectories(resourceDirectories);
          modelFileGeometryDefinition.setFileName(sdfGeometry.getMesh().getUri());
          modelFileGeometryDefinition.setScale(parseVector3D(sdfGeometry.getMesh().getScale(), new Vector3D(1, 1, 1)));
          return modelFileGeometryDefinition;
@@ -694,6 +752,21 @@ public class SDFTools
       jointDescriptionToParseLimitInto.setPositionLimits(lowerLimit, upperLimit);
       jointDescriptionToParseLimitInto.setEffortLimits(effortLimit);
       jointDescriptionToParseLimitInto.setVelocityLimits(velocityLimit);
+   }
+
+   public static void parseDynamics(SDFDynamics sdfDynamics, OneDoFJointDescription jointDescriptionToParseDynamicsInto)
+   {
+      double damping = 0.0;
+      double stiction = 0.0;
+
+      if (sdfDynamics != null)
+      {
+         damping = parseDouble(sdfDynamics.getDamping(), 0.0);
+         stiction = parseDouble(sdfDynamics.getFriction(), 0.0);
+      }
+
+      jointDescriptionToParseDynamicsInto.setDamping(damping);
+      jointDescriptionToParseDynamicsInto.setStiction(stiction);
    }
 
    public static Vector3D parseAxis(SDFAxis axis)

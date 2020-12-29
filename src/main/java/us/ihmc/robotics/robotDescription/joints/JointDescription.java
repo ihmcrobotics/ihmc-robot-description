@@ -2,17 +2,13 @@ package us.ihmc.robotics.robotDescription.joints;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
 import us.ihmc.robotics.robotDescription.links.LinkDescription;
-import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
-import us.ihmc.robotics.robotDescription.sensors.ForceSensorDescription;
-import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
-import us.ihmc.robotics.robotDescription.sensors.JointWrenchSensorDescription;
-import us.ihmc.robotics.robotDescription.sensors.LidarSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.SensorDescription;
 import us.ihmc.robotics.robotDescription.simulation.ExternalForcePointDescription;
 import us.ihmc.robotics.robotDescription.simulation.GroundContactPointDescription;
@@ -34,12 +30,7 @@ public class JointDescription implements RobotDescriptionNode
    private final List<ExternalForcePointDescription> externalForcePoints = new ArrayList<>();
    private final List<GroundContactPointDescription> groundContactPoints = new ArrayList<>();
 
-   // Lists of sensors. When adding sensors, make sure to update the getSensors(List<SensorDescription>) function.
-   private final List<JointWrenchSensorDescription> wrenchSensors = new ArrayList<>();
-   private final List<CameraSensorDescription> cameraSensors = new ArrayList<>();
-   private final List<IMUSensorDescription> imuSensors = new ArrayList<>();
-   private final List<LidarSensorDescription> lidarSensors = new ArrayList<>();
-   private final List<ForceSensorDescription> forceSensors = new ArrayList<>();
+   private final List<SensorDescription> sensors = new ArrayList<>();
 
    private boolean isDynamic = true;
 
@@ -75,11 +66,7 @@ public class JointDescription implements RobotDescriptionNode
       other.externalForcePoints.forEach(efp -> externalForcePoints.add(efp.copy()));
       other.groundContactPoints.forEach(gcp -> groundContactPoints.add(gcp.copy()));
 
-      other.wrenchSensors.forEach(sensor -> wrenchSensors.add(sensor.copy()));
-      other.cameraSensors.forEach(sensor -> cameraSensors.add(sensor.copy()));
-      other.imuSensors.forEach(sensor -> imuSensors.add(sensor.copy()));
-      other.lidarSensors.forEach(sensor -> lidarSensors.add(sensor.copy()));
-      other.forceSensors.forEach(sensor -> forceSensors.add(sensor.copy()));
+      other.sensors.forEach(sensor -> sensors.add(sensor.copy()));
 
       isDynamic = other.isDynamic;
    }
@@ -112,7 +99,13 @@ public class JointDescription implements RobotDescriptionNode
 
    public void setLink(LinkDescription link)
    {
+      if (this.link != null)
+         this.link.setParentJoint(null);
+
       this.link = link;
+
+      if (link != null)
+         link.setParentJoint(this);
    }
 
    public void addJoint(JointDescription childJointDescription)
@@ -187,54 +180,19 @@ public class JointDescription implements RobotDescriptionNode
       return kinematicPoints;
    }
 
-   public void addJointWrenchSensor(JointWrenchSensorDescription jointWrenchSensorDescription)
+   public void addSensor(SensorDescription sensorDescription)
    {
-      wrenchSensors.add(jointWrenchSensorDescription);
+      sensors.add(sensorDescription);
    }
 
-   public List<JointWrenchSensorDescription> getWrenchSensors()
+   public List<SensorDescription> getSensors()
    {
-      return wrenchSensors;
+      return sensors;
    }
 
-   public void addCameraSensor(CameraSensorDescription cameraSensorDescription)
+   public <T extends SensorDescription> List<T> getSensors(Class<T> sensorType)
    {
-      cameraSensors.add(cameraSensorDescription);
-   }
-
-   public List<CameraSensorDescription> getCameraSensors()
-   {
-      return cameraSensors;
-   }
-
-   public void addIMUSensor(IMUSensorDescription imuSensorDescription)
-   {
-      imuSensors.add(imuSensorDescription);
-   }
-
-   public List<IMUSensorDescription> getIMUSensors()
-   {
-      return imuSensors;
-   }
-
-   public void addLidarSensor(LidarSensorDescription lidarSensor)
-   {
-      lidarSensors.add(lidarSensor);
-   }
-
-   public List<LidarSensorDescription> getLidarSensors()
-   {
-      return lidarSensors;
-   }
-
-   public void addForceSensor(ForceSensorDescription forceSensor)
-   {
-      forceSensors.add(forceSensor);
-   }
-
-   public List<ForceSensorDescription> getForceSensors()
-   {
-      return forceSensors;
+      return sensors.stream().filter(sensorType::isInstance).map(sensorType::cast).collect(Collectors.toList());
    }
 
    public void setIsDynamic(boolean isDynamic)
@@ -245,15 +203,6 @@ public class JointDescription implements RobotDescriptionNode
    public boolean isDynamic()
    {
       return isDynamic;
-   }
-
-   public void getSensors(List<SensorDescription> sensors)
-   {
-      sensors.addAll(wrenchSensors);
-      sensors.addAll(cameraSensors);
-      sensors.addAll(imuSensors);
-      sensors.addAll(lidarSensors);
-      sensors.addAll(forceSensors);
    }
 
    public void getAllKinematicPoints(List<KinematicPointDescription> allKinematicPoints)
@@ -291,18 +240,11 @@ public class JointDescription implements RobotDescriptionNode
 
    private void scaleSensorsOffsets(double factor)
    {
-      List<SensorDescription> sensors = new ArrayList<>();
-      getSensors(sensors);
-
       for (int i = 0; i < sensors.size(); i++)
       {
          SensorDescription sensor = sensors.get(i);
          RigidBodyTransform transformToJoint = sensor.getTransformToJoint();
-         Vector3D translation = new Vector3D();
-         translation.set(transformToJoint.getTranslation());
-         translation.scale(factor);
-         transformToJoint.getTranslation().set(translation);
-         sensor.setTransformToJoint(transformToJoint);
+         transformToJoint.getTranslation().scale(factor);
       }
    }
 

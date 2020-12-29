@@ -134,11 +134,14 @@ public class RobotDescription implements RobotDescriptionNode, GraphicsObjectsHo
 
    public LinkDescription getLinkDescription(String name)
    {
-      JointDescription jointDescription = getJointDescription(name);
-      if (jointDescription == null)
-         return null;
+      for (JointDescription rootJoint : rootJoints)
+      {
+         JointDescription result = findJointDescription(joint -> joint.getLink().getName().equals(name), rootJoint);
+         if (result != null)
+            return result.getLink();
+      }
 
-      return jointDescription.getLink();
+      return null;
    }
 
    @Override
