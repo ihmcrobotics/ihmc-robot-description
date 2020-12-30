@@ -56,7 +56,7 @@
   <link name="hokuyo_link">
     <inertial>
       <origin rpy="0 0 0" xyz="0.032428 0.0004084 -0.0041835"/>
-      <mass value="0.057664"/>
+      <mass value="0.057654"/>
       <inertia ixx="3.7174E-05" ixy="4.9927E-08" ixz="1.1015E-05" iyy="4.2412E-05" iyz="-9.8165E-09" izz="4.167E-05"/>
     </inertial>
     <visual>
@@ -126,8 +126,8 @@
           <horizontal>
             <samples>1081</samples>
             <resolution>1</resolution>
-            <min_angle>-2.356194</min_angle>
-            <max_angle>2.356194</max_angle>
+            <min_angle>-2.35619</min_angle>
+            <max_angle>2.35619</max_angle>
           </horizontal>
         </scan>
         <range>
@@ -175,7 +175,7 @@
       <camera name="left">
         <!-- Spec sheet says 80deg X 45deg @ 1024x544pix.  Based on feedback
              from teams, we're instead doing 80deg X 80deg @ 800x800pix. -->
-        <horizontal_fov>1.3962634</horizontal_fov>
+        <horizontal_fov>1.39626</horizontal_fov>
         <image>
           <width>1024</width>
           <height>544</height>
@@ -200,7 +200,7 @@
       <camera name="right">
         <pose>0 -0.07 0 0 0 0</pose>
         <!-- Spec sheet says 80deg X 45deg @ 1024x544pix. -->
-        <horizontal_fov>1.3962634</horizontal_fov>
+        <horizontal_fov>1.39626</horizontal_fov>
         <image>
           <width>1024</width>
           <height>544</height>
@@ -519,9 +519,9 @@
   </link>
   <link name="upperNeckPitchLink">
     <inertial>
-      <mass value="5.30991"/>
-      <origin rpy="0 0 0" xyz="0.102036 0.00422754 0.0409152"/>
-      <inertia ixx="0.0446288" ixy="-0.000443568" ixz="-0.0021252" iyy="0.0461084" iyz="-0.000644772" izz="0.0402031"/>
+      <mass value="3.89"/>
+      <origin rpy="0 0 0" xyz="0.100912 0.005783 0.034787"/>
+      <inertia ixx="0.039847525" ixy="-0.000470418" ixz="-0.002829842" iyy="0.041418564" iyz="-0.000782564" izz="0.036841236"/>
     </inertial>
     <visual>
       <geometry>
@@ -1926,9 +1926,9 @@
   </link>
   <link name="rightFoot">
     <inertial>
-      <mass value="2.37"/>
-      <origin rpy="0 0 0" xyz="0.0369087 0.00494324 -0.0489279"/>
-      <inertia ixx="0.00641532" ixy="0.00020788" ixz="0.00128536" iyy="0.0179943" iyz="-0.000202908" izz="0.0209358"/>
+      <mass value="2.27"/>
+      <origin rpy="0 0 0" xyz="0.037702  0.005161  -0.047634"/>
+      <inertia ixx="0.00623936" ixy="0.000217174" ixz="0.001340587" iyy="0.017786991" iyz="-0.000187749" izz="0.020774433"/>
     </inertial>
     <visual>
       <geometry>
@@ -2118,9 +2118,9 @@
   </link>
   <link name="leftFoot">
     <inertial>
-      <mass value="2.37"/>
-      <origin rpy="0 0 0" xyz="0.0369087 0.00494324 -0.0489279"/>
-      <inertia ixx="0.00641532" ixy="0.00020788" ixz="0.00128536" iyy="0.0179943" iyz="-0.000202908" izz="0.0209358"/>
+      <mass value="2.27"/>
+      <origin rpy="0 0 0" xyz="0.037702  0.005161  -0.047634"/>
+      <inertia ixx="0.00623936" ixy="0.000217174" ixz="0.001340587" iyy="0.017786991" iyz="-0.000187749" izz="0.020774433"/>
     </inertial>
     <visual>
       <geometry>
@@ -2201,7 +2201,7 @@
     <implicitSpringDamper>1</implicitSpringDamper>
   </gazebo>
   <joint name="leftAnkleRoll" type="revolute">
-    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0101259 0.0 0.0"/>
     <axis xyz="1 0 0"/>
     <parent link="leftAnklePitchLink"/>
     <child link="leftFoot"/>

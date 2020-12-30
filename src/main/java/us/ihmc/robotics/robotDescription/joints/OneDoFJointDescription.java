@@ -2,6 +2,7 @@ package us.ihmc.robotics.robotDescription.joints;
 
 import java.util.List;
 
+import us.ihmc.euclid.transform.interfaces.Transform;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
@@ -219,6 +220,20 @@ public class OneDoFJointDescription extends JointDescription
       kpVelocityLimit = massScale * kpVelocityLimit;
 
       super.scale(factor, massScalePower, ignoreInertiaScaleJointList);
+   }
+
+   @Override
+   public void applyTransform(Transform transform)
+   {
+      super.applyTransform(transform);
+      transform.transform(axis);
+   }
+
+   @Override
+   public void applyInverseTransform(Transform transform)
+   {
+      super.applyInverseTransform(transform);
+      transform.inverseTransform(axis);
    }
 
    @Override

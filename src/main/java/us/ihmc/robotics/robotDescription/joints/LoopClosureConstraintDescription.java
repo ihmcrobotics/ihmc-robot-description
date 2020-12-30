@@ -8,6 +8,7 @@ import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DBasics;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DReadOnly;
+import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
@@ -34,10 +35,10 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    private String name;
 
    private JointDescription parentJoint;
-   private final Vector3D offsetFromParentJoint = new Vector3D();
+   private final RigidBodyTransform transformToParentJoint = new RigidBodyTransform();
 
    private LinkDescription link;
-   private final Vector3D offsetFromLinkParentJoint = new Vector3D();
+   private final RigidBodyTransform transformToLinkParentJoint = new RigidBodyTransform();
 
    private final Matrix3D constraintForceSubSpace = identity();
    private final Matrix3D constraintMomentSubSpace = identity();
@@ -74,7 +75,7 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
     * The constraint will be applied to maintain a relative configuration between the link of the
     * parent joint of this constraint, and the constraint's link.
     * </p>
-    * 
+    *
     * @param name                      the name of the constraint, {@code YoVariable}s will be created
     *                                  using this name.
     * @param offsetFromParentJoint     the position of the constraint with respect to the parent joint.
@@ -85,8 +86,8 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
    public LoopClosureConstraintDescription(String name, Tuple3DReadOnly offsetFromParentJoint, Tuple3DReadOnly offsetFromLinkParentJoint)
    {
       this.name = name;
-      this.offsetFromParentJoint.set(offsetFromParentJoint);
-      this.offsetFromLinkParentJoint.set(offsetFromLinkParentJoint);
+      transformToParentJoint.getTranslation().set(offsetFromParentJoint);
+      transformToLinkParentJoint.getTranslation().set(offsetFromLinkParentJoint);
    }
 
    /**
@@ -95,14 +96,14 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
     * All the properties from {@code other} are copied into the new constraint. The {@code parentJoint}
     * and {@code link} are not copied.
     * </p>
-    * 
+    *
     * @param other the other constraint to copy. Not modified.
     */
    public LoopClosureConstraintDescription(LoopClosureConstraintDescription other)
    {
       name = other.name;
-      offsetFromParentJoint.set(other.offsetFromParentJoint);
-      offsetFromLinkParentJoint.set(other.offsetFromLinkParentJoint);
+      transformToParentJoint.set(other.transformToParentJoint);
+      transformToLinkParentJoint.set(other.transformToLinkParentJoint);
 
       constraintForceSubSpace.set(other.constraintForceSubSpace);
       constraintMomentSubSpace.set(other.constraintMomentSubSpace);
@@ -124,7 +125,7 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
     * <ul>
     * <li>For a constraint that only allows rotation around the z-axis, the matrices defining the
     * sub-space should be as follows:
-    * 
+    *
     * <pre>
     *                           / 1 0 0 \
     * constraintForceSubSpace = | 0 1 0 |
@@ -133,13 +134,13 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
     * constraintMomentSubSpace = | 0 1 0 |
     *                            \ 0 0 0 /
     * </pre>
-    * 
+    *
     * Note that by having <tt>constraintForceSubSpace</tt> be identity, the entire linear space is
     * constrained, while by having the last row of <tt>constraintMomentSubSpace</tt> be only zeros, the
     * z-axis is not constrained.
     * <li>For a constraint that only allows translation along the y-axis, the matrices defining the
     * sub-space should be as follows:
-    * 
+    *
     * <pre>
     *                           / 1 0 0 \
     * constraintForceSubSpace = | 0 0 0 |
@@ -152,7 +153,7 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
     * In other words, these matrices can be seen as selection matrices used for selecting which forces
     * and moments are to be applied.
     * </p>
-    * 
+    *
     * @param name                      the name of the constraint, {@code YoVariable}s will be created
     *                                  using this name.
     * @param offsetFromParentJoint     the position of the constraint with respect to the parent joint.
@@ -183,7 +184,7 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
     * <p>
     * Note that the gains are applied on the error in the local coordinates of the parent joints.
     * </p>
-    * 
+    *
     * @param proportionalGains the gains to apply on the position and rotation errors.
     * @param derivativeGains   the gains to apply on the linear and angular velocity errors.
     */
@@ -204,24 +205,19 @@ public class LoopClosureConstraintDescription implements RobotDescriptionNode
       this.parentJoint = parentJoint;
    }
 
-   public void setOffsetFromParentJoint(Tuple3DReadOnly offset)
-   {
-      offsetFromParentJoint.set(offset);
-   }
-
    public JointDescription getParentJoint()
    {
       return parentJoint;
    }
 
-   public Vector3DBasics getOffsetFromParentJoint()
+   public RigidBodyTransform getTransformToParentJoint()
    {
-      return offsetFromParentJoint;
+      return transformToParentJoint;
    }
 
-   public Vector3DBasics getOffsetFromLinkParentJoint()
+   public RigidBodyTransform getTransformToLinkParentJoint()
    {
-      return offsetFromLinkParentJoint;
+      return transformToLinkParentJoint;
    }
 
    public LinkDescription getLink()

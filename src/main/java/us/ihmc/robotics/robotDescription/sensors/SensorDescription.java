@@ -1,10 +1,12 @@
 package us.ihmc.robotics.robotDescription.sensors;
 
+import us.ihmc.euclid.interfaces.Transformable;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.transform.interfaces.RigidBodyTransformReadOnly;
+import us.ihmc.euclid.transform.interfaces.Transform;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 
-public class SensorDescription
+public class SensorDescription implements Transformable
 {
    private String name;
    private final RigidBodyTransform transformToJoint = new RigidBodyTransform();
@@ -73,5 +75,17 @@ public class SensorDescription
    public SensorDescription copy()
    {
       return new SensorDescription(this);
+   }
+
+   @Override
+   public void applyTransform(Transform transform)
+   {
+      transform.transform(transformToJoint);
+   }
+
+   @Override
+   public void applyInverseTransform(Transform transform)
+   {
+      transform.inverseTransform(transformToJoint);
    }
 }

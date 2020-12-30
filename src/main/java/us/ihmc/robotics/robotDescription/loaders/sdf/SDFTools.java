@@ -523,13 +523,13 @@ public class SDFTools
 
       SDFHorizontalScan sdfHorizontalScan = sdfRay.getScan().getHorizontal();
       SDFVerticalScan sdfVerticalScan = sdfRay.getScan().getVertical();
-      double sdfMaxSweepAngle = parseDouble(sdfHorizontalScan.getMaxAngle(), 0.0);
-      double sdfMinSweepAngle = parseDouble(sdfHorizontalScan.getMinAngle(), 0.0);
-      double sdfMaxHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMaxAngle(), 0.0);
-      double sdfMinHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMinAngle(), 0.0);
+      double maxSweepAngle = parseDouble(sdfHorizontalScan.getMaxAngle(), 0.0);
+      double minSweepAngle = parseDouble(sdfHorizontalScan.getMinAngle(), 0.0);
+      double maxHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMaxAngle(), 0.0);
+      double minHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMinAngle(), 0.0);
 
-      int sdfSamples = parseInteger(sdfHorizontalScan.getSamples(), -1) / 3 * 3;
-      int sdfScanHeight = sdfVerticalScan == null ? 1 : parseInteger(sdfVerticalScan.getSamples(), 1);
+      int samples = parseInteger(sdfHorizontalScan.getSamples(), -1) / 3 * 3;
+      int scanHeight = sdfVerticalScan == null ? 1 : parseInteger(sdfVerticalScan.getSamples(), 1);
 
       SDFNoise sdfNoise = sdfRay.getNoise();
       if (sdfNoise != null)
@@ -546,12 +546,12 @@ public class SDFTools
       }
 
       description.getTransformToJoint().set(parsePose(sdfRay.getPose()));
-      description.setPointsPerSweep(sdfSamples);
-      description.setSweepYawLimits(sdfMinSweepAngle, sdfMaxSweepAngle);
-      description.setHeightPitchLimits(sdfMinHeightAngle, sdfMaxHeightAngle);
+      description.setPointsPerSweep(samples);
+      description.setSweepYawLimits(minSweepAngle, maxSweepAngle);
+      description.setHeightPitchLimits(minHeightAngle, maxHeightAngle);
       description.setRangeLimits(sdfRangeMin, sdfRangeMax);
       description.setRangeResolution(sdfRangeResolution);
-      description.setScanHeight(sdfScanHeight);
+      description.setScanHeight(scanHeight);
       return description;
    }
 

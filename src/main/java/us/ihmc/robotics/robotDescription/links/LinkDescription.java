@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.ejml.data.DMatrix;
 
+import us.ihmc.euclid.interfaces.Transformable;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.matrix.RotationMatrix;
 import us.ihmc.euclid.matrix.interfaces.Matrix3DReadOnly;
 import us.ihmc.euclid.transform.RigidBodyTransform;
+import us.ihmc.euclid.transform.interfaces.Transform;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
@@ -18,7 +20,7 @@ import us.ihmc.graphicsDescription.appearance.YoAppearance;
 import us.ihmc.robotics.robotDescription.collision.CollisionMeshDescription;
 import us.ihmc.robotics.robotDescription.joints.JointDescription;
 
-public class LinkDescription
+public class LinkDescription implements Transformable
 {
    private String name;
    private JointDescription parentJoint;
@@ -390,6 +392,24 @@ public class LinkDescription
    public LinkDescription copy()
    {
       return new LinkDescription(this);
+   }
+
+   @Override
+   public void applyTransform(Transform transform)
+   {
+      transform.transform(inertiaPose);
+      transform.transform(momentOfInertia);
+      if (linkGraphics != null)
+         linkGraphics.getVisualDescriptions().forEach(visual -> transform.transform(visual.getPose()));
+   }
+
+   @Override
+   public void applyInverseTransform(Transform transform)
+   {
+      transform.inverseTransform(inertiaPose);
+      transform.inverseTransform(momentOfInertia);
+      if (linkGraphics != null)
+         linkGraphics.getVisualDescriptions().forEach(visual -> transform.inverseTransform(visual.getPose()));
    }
 
    @Override

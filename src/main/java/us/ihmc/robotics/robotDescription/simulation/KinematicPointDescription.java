@@ -1,10 +1,12 @@
 package us.ihmc.robotics.robotDescription.simulation;
 
+import us.ihmc.euclid.interfaces.Transformable;
+import us.ihmc.euclid.transform.interfaces.Transform;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DBasics;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 
-public class KinematicPointDescription
+public class KinematicPointDescription implements Transformable
 {
    private String name;
    private Vector3D offsetFromJoint = new Vector3D();
@@ -49,5 +51,17 @@ public class KinematicPointDescription
    public KinematicPointDescription copy()
    {
       return new KinematicPointDescription(this);
+   }
+
+   @Override
+   public void applyTransform(Transform transform)
+   {
+      transform.transform(offsetFromJoint);
+   }
+
+   @Override
+   public void applyInverseTransform(Transform transform)
+   {
+      transform.inverseTransform(offsetFromJoint);
    }
 }

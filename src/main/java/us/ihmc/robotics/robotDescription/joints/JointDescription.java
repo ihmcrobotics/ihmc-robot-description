@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import us.ihmc.euclid.interfaces.Transformable;
 import us.ihmc.euclid.transform.RigidBodyTransform;
+import us.ihmc.euclid.transform.interfaces.Transform;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.robotics.robotDescription.RobotDescriptionNode;
@@ -14,7 +16,7 @@ import us.ihmc.robotics.robotDescription.simulation.ExternalForcePointDescriptio
 import us.ihmc.robotics.robotDescription.simulation.GroundContactPointDescription;
 import us.ihmc.robotics.robotDescription.simulation.KinematicPointDescription;
 
-public class JointDescription implements RobotDescriptionNode
+public class JointDescription implements RobotDescriptionNode, Transformable
 {
    private String name;
    private JointDescription parentJoint;
@@ -111,13 +113,6 @@ public class JointDescription implements RobotDescriptionNode
    public void addJoint(JointDescription childJointDescription)
    {
       childrenJointDescriptions.add(childJointDescription);
-
-      if (childJointDescription.getParentJoint() != null)
-      {
-         throw new RuntimeException("JointDescription " + childJointDescription.getName() + "already has a parent joint: "
-               + childJointDescription.getParentJoint().getName());
-      }
-
       childJointDescription.setParentJoint(this);
    }
 
@@ -266,6 +261,26 @@ public class JointDescription implements RobotDescriptionNode
    public JointDescription copy()
    {
       return new JointDescription(this);
+   }
+
+   @Override
+   public void applyTransform(Transform transform)
+   {
+      transform.transform(transformToParentJoint);
+      kinematicPoints.forEach(kp -> kp.applyTransform(transform));
+      externalForcePoints.forEach(efp -> efp.applyTransform(transform));
+      groundContactPoints.forEach(gcp -> gcp.applyTransform(transform));
+      sensors.forEach(sensor -> sensor.applyTransform(transform));
+   }
+
+   @Override
+   public void applyInverseTransform(Transform transform)
+   {
+      transform.inverseTransform(transformToParentJoint);
+      kinematicPoints.forEach(kp -> kp.applyInverseTransform(transform));
+      externalForcePoints.forEach(efp -> efp.applyInverseTransform(transform));
+      groundContactPoints.forEach(gcp -> gcp.applyInverseTransform(transform));
+      sensors.forEach(sensor -> sensor.applyInverseTransform(transform));
    }
 
    @Override

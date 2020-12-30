@@ -138,7 +138,7 @@ public class ValkyrieModelLoadingTest
    private static final String[] RightMiddleFingerJointNames = {"rightMiddleFingerPitch1", "rightMiddleFingerPitch2", "rightMiddleFingerPitch3"};
    private static final String[] RightPinkyJointNames = {"rightPinkyPitch1", "rightPinkyPitch2", "rightPinkyPitch3"};
    private static final String[] RightThumbJointNames = {"rightThumbRoll", "rightThumbPitch1", "rightThumbPitch2", "rightThumbPitch3"};
-   private static final String[] AllJointNames = concatenate(new String[] {HokuyoJointName},
+   private static final String[] AllJointNames = concatenate(new String[] {PelvisName, HokuyoJointName},
                                                              LeftLegJointNames,
                                                              RightLegJointNames,
                                                              TorsoJointNames,
@@ -213,7 +213,8 @@ public class ValkyrieModelLoadingTest
       for (String jointName : AllJointNames)
       {
          assertNotNull(robotDescription.getJointDescription(jointName));
-         assertEquals(PinJointDescription.class, robotDescription.getJointDescription(jointName).getClass());
+         if (!jointName.equals(PelvisName))
+            assertEquals(PinJointDescription.class, robotDescription.getJointDescription(jointName).getClass());
       }
 
       for (String linkName : AllLinkNames)
@@ -279,7 +280,7 @@ public class ValkyrieModelLoadingTest
          String messagePrefix = "Link: " + linkName;
          Map<String, Object> linkProperties = robotProperties.get(linkName);
          LinkDescription linkDescription = robotDescription.getLinkDescription(linkName);
-         assertEquals((double) linkProperties.get("mass"), linkDescription.getMass(), messagePrefix);
+         assertEquals((double) linkProperties.get("mass"), linkDescription.getMass(), EPSILON, messagePrefix);
          EuclidCoreTestTools.assertTuple3DEquals(messagePrefix,
                                                  (Tuple3DReadOnly) linkProperties.get("centerOfMass"),
                                                  linkDescription.getCenterOfMassOffset(),
@@ -293,16 +294,19 @@ public class ValkyrieModelLoadingTest
 
    public static void assertSensorsProperties(RobotDescription robotDescription)
    {
-      // TODO Add other sensors
       Map<String, Map<String, Object>> robotProperties = valkyrieSensorProperties();
 
       int actualNumberOfCameras = 0;
+      int actualNumberOfIMUs = 0;
+      int actualNumberOfLidars = 0;
 
       for (String jointName : AllJointNames)
       {
          JointDescription jointDescription = robotDescription.getJointDescription(jointName);
 
          actualNumberOfCameras += jointDescription.getSensors(CameraSensorDescription.class).size();
+         actualNumberOfIMUs += jointDescription.getSensors(IMUSensorDescription.class).size();
+         actualNumberOfLidars += jointDescription.getSensors(LidarSensorDescription.class).size();
 
          for (SensorDescription sensorDescription : jointDescription.getSensors())
          {
@@ -313,15 +317,24 @@ public class ValkyrieModelLoadingTest
 
       int expectedNumberOfCameras = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
                                                          .filter(entry -> entry.getKey().equals("imageWidth")).count();
+      int expectedNumberOfIMUs = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
+                                                      .filter(entry -> entry.getKey().equals("accelerationNoiseMean")).count();
+      int expectedNumberOfLidars = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
+                                                        .filter(entry -> entry.getKey().equals("sweepYawMin")).count();
       assertEquals(expectedNumberOfCameras, actualNumberOfCameras);
+      assertEquals(expectedNumberOfIMUs, actualNumberOfIMUs);
+      assertEquals(expectedNumberOfLidars, actualNumberOfLidars);
    }
 
    private static void assertSensorProperties(SensorDescription sensorDescription, Map<String, Object> sensorProperties)
    {
+      if (sensorProperties == null)
+         return;
+
       EuclidCoreTestTools.assertRigidBodyTransformEquals("Sensor: " + sensorDescription.getName(),
                                                          (RigidBodyTransform) sensorProperties.get("transformToJoint"),
                                                          sensorDescription.getTransformToJoint(),
-                                                         0);
+                                                         EPSILON);
 
       if (sensorDescription instanceof CameraSensorDescription)
       {
