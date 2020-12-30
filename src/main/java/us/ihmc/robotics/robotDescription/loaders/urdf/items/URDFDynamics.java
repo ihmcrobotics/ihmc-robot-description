@@ -3,7 +3,7 @@ package us.ihmc.robotics.robotDescription.loaders.urdf.items;
 import java.util.Collections;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  * <a href="http://wiki.ros.org/urdf/XML/joint"> ROS Specification joint.</a>
@@ -15,13 +15,13 @@ public class URDFDynamics implements URDFItem
    private String damping;
    private String friction;
 
-   @XmlElement(name = "damping")
+   @XmlAttribute(name = "damping")
    public void setDamping(String damping)
    {
       this.damping = damping;
    }
 
-   @XmlElement(name = "friction")
+   @XmlAttribute(name = "friction")
    public void setFriction(String friction)
    {
       this.friction = friction;

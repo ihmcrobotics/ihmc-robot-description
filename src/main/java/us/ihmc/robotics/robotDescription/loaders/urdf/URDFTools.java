@@ -20,6 +20,7 @@ import javax.xml.bind.Unmarshaller;
 
 import us.ihmc.euclid.Axis3D;
 import us.ihmc.euclid.matrix.Matrix3D;
+import us.ihmc.euclid.matrix.interfaces.RotationMatrixBasics;
 import us.ihmc.euclid.transform.AffineTransform;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.Vector3D;
@@ -46,6 +47,7 @@ import us.ihmc.robotics.robotDescription.links.LinkDescription;
 import us.ihmc.robotics.robotDescription.links.LinkGraphicsDescription;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFAxis;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFColor;
+import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFDynamics;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFFilenameHolder;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFGeometry;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFInertia;
@@ -53,7 +55,6 @@ import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFInertial;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFJoint;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFLimit;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFLink;
-import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFLinkReference;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFMass;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFMaterial;
 import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFModel;
@@ -181,7 +182,7 @@ public class URDFTools
       return null;
    }
 
-   public static RobotDescription toFloatingRootJointRobotDescription(RobotDescription robotDefinition, URDFModel urdfModel)
+   public static RobotDescription toFloatingRootJointRobotDescription(URDFModel urdfModel)
    {
       return toRobotDefinition(new FloatingJointDescription(), urdfModel);
    }
@@ -191,22 +192,86 @@ public class URDFTools
       List<URDFLink> urdfLinks = urdfModel.getLinks();
       List<URDFJoint> urdfJoints = urdfModel.getJoints();
 
-      List<LinkDescription> rigidBodyDefinitions = urdfLinks.stream().map(URDFTools::toRigidBodyDefinition).collect(Collectors.toList());
-      List<JointDescription> jointDefinitions;
-      if (urdfJoints == null)
-         jointDefinitions = Collections.emptyList();
-      else
-         jointDefinitions = urdfJoints.stream().map(URDFTools::toJointDefinition).collect(Collectors.toList());
-      LinkDescription rootBodyDefinition = connectKinematics(rigidBodyDefinitions, jointDefinitions, urdfJoints);
-
-      if (rootJoint.getName() == null)
-         rootJoint.setName(rootBodyDefinition.getName());
-      rootJoint.setLink(rootBodyDefinition);
+      List<LinkDescription> rigidBodyDefinitions = toRigidBodyDefinition(urdfLinks);
+      List<JointDescription> jointDefinitions = toJointDefinitions(urdfJoints);
+      connectKinematics(urdfJoints, rootJoint, rigidBodyDefinitions, jointDefinitions);
+      correctTransforms(rootJoint);
 
       RobotDescription robotDefinition = new RobotDescription(urdfModel.getName());
       robotDefinition.addRootJoint(rootJoint);
 
       return robotDefinition;
+   }
+
+   public static void connectKinematics(List<URDFJoint> urdfJoints, JointDescription rootJoint, List<LinkDescription> rigidBodyDefinitions,
+                                        List<JointDescription> jointDefinitions)
+   {
+      if (urdfJoints == null)
+         return;
+
+      Map<String, LinkDescription> rigidBodyDefinitionMap = rigidBodyDefinitions.stream()
+                                                                                .collect(Collectors.toMap(LinkDescription::getName, Function.identity()));
+      Map<String, JointDescription> jointDefinitionMap = jointDefinitions.stream().collect(Collectors.toMap(JointDescription::getName, Function.identity()));
+
+      Map<String, JointDescription> parentJointDefinitionMap = urdfJoints.stream()
+                                                                         .collect(Collectors.toMap(urdfJoint -> urdfJoint.getChild().getLink(),
+                                                                                                   urdfJoint -> jointDefinitionMap.get(urdfJoint.getName())));
+
+      for (URDFJoint urdfJoint : urdfJoints)
+      {
+         String parent = urdfJoint.getParent().getLink();
+
+         if (parentJointDefinitionMap.containsKey(parent))
+            continue;
+
+         // The parent link has no parent joint => it is the root link, we attach it to the given rootJoint.
+         LinkDescription rootRigidBody = rigidBodyDefinitionMap.get(parent);
+         rootJoint.setLink(rootRigidBody);
+         if (rootJoint.getName() == null)
+            rootJoint.setName(rootRigidBody.getName());
+         parentJointDefinitionMap.put(parent, rootJoint);
+         break;
+      }
+
+      for (URDFJoint urdfJoint : urdfJoints)
+      {
+         String parent = urdfJoint.getParent().getLink();
+         String child = urdfJoint.getChild().getLink();
+         JointDescription parentJointDescription = parentJointDefinitionMap.get(parent);
+         JointDescription jointDefinition = jointDefinitionMap.get(urdfJoint.getName());
+         LinkDescription childLinkDescription = rigidBodyDefinitionMap.get(child);
+
+         jointDefinition.setLink(childLinkDescription);
+         parentJointDescription.addJoint(jointDefinition);
+      }
+   }
+
+   public static void correctTransforms(JointDescription jointDescription)
+   {
+      RotationMatrixBasics jointRotation = jointDescription.getTransformToParentJoint().getRotation();
+      if (jointDescription instanceof OneDoFJointDescription)
+         jointRotation.transform(((OneDoFJointDescription) jointDescription).getAxis());
+      LinkDescription linkDescription = jointDescription.getLink();
+      RigidBodyTransform inertiaPose = linkDescription.getInertiaPose();
+      inertiaPose.prependOrientation(jointRotation);
+      inertiaPose.transform(linkDescription.getMomentOfInertia());
+      inertiaPose.getRotation().setToZero();
+
+      for (JointDescription childDescription : jointDescription.getChildrenJoints())
+      {
+         childDescription.getTransformToParentJoint().prependOrientation(jointRotation);
+         correctTransforms(childDescription);
+      }
+
+      jointRotation.setToZero();
+   }
+
+   public static List<LinkDescription> toRigidBodyDefinition(Collection<URDFLink> urdfLinks)
+   {
+      if (urdfLinks == null)
+         return null;
+      else
+         return urdfLinks.stream().map(URDFTools::toRigidBodyDefinition).collect(Collectors.toList());
    }
 
    public static LinkDescription toRigidBodyDefinition(URDFLink urdfLink)
@@ -238,6 +303,14 @@ public class URDFTools
       return definition;
    }
 
+   public static List<JointDescription> toJointDefinitions(Collection<URDFJoint> urdfJoints)
+   {
+      if (urdfJoints == null)
+         return null;
+      else
+         return urdfJoints.stream().map(URDFTools::toJointDefinition).collect(Collectors.toList());
+   }
+
    public static JointDescription toJointDefinition(URDFJoint urdfJoint)
    {
       switch (urdfJoint.getType())
@@ -259,60 +332,13 @@ public class URDFTools
       }
    }
 
-   public static LinkDescription connectKinematics(List<LinkDescription> rigidBodyDefinitions, List<JointDescription> jointDefinitions,
-                                                   List<URDFJoint> urdfJoints)
-   {
-      Map<String, LinkDescription> rigidBodyDefinitionMap = rigidBodyDefinitions.stream()
-                                                                                .collect(Collectors.toMap(LinkDescription::getName, Function.identity()));
-      Map<String, JointDescription> jointDefinitionMap = jointDefinitions.stream().collect(Collectors.toMap(JointDescription::getName, Function.identity()));
-
-      if (urdfJoints != null)
-      {
-         Map<String, JointDescription> parentJointDefinitionMap = urdfJoints.stream()
-                                                                            .collect(Collectors.toMap(urdfJoint -> urdfJoint.getChild().getLink(),
-                                                                                                      urdfJoint -> jointDefinitionMap.get(urdfJoint.getName())));
-
-         for (URDFJoint urdfJoint : urdfJoints)
-         {
-            URDFLinkReference parent = urdfJoint.getParent();
-            URDFLinkReference child = urdfJoint.getChild();
-            JointDescription parentJoint = parentJointDefinitionMap.get(parent.getLink());
-            LinkDescription childRigidBodyDefinition = rigidBodyDefinitionMap.get(child.getLink());
-            JointDescription jointDefinition = jointDefinitionMap.get(urdfJoint.getName());
-
-            jointDefinition.setLink(childRigidBodyDefinition);
-            parentJoint.getChildrenJoints().add(jointDefinition);
-         }
-      }
-
-      if (urdfJoints == null)
-      {
-         return rigidBodyDefinitions.get(0);
-      }
-      else
-      {
-         Map<String, URDFJoint> childToParentJoint = urdfJoints.stream()
-                                                               .collect(Collectors.toMap(urdfJoint -> urdfJoint.getChild().getLink(), Function.identity()));
-
-         String rootBodyName = urdfJoints.iterator().next().getParent().getLink();
-         URDFJoint parentJoint = childToParentJoint.get(rootBodyName);
-
-         while (parentJoint != null)
-         {
-            rootBodyName = parentJoint.getParent().getLink();
-            parentJoint = childToParentJoint.get(rootBodyName);
-         }
-
-         return rigidBodyDefinitionMap.get(rootBodyName);
-      }
-   }
-
    public static PinJointDescription toRevoluteJointDefinition(URDFJoint urdfJoint, boolean ignorePositionLimits)
    {
       PinJointDescription definition = new PinJointDescription(urdfJoint.getName());
       definition.getTransformToParentJoint().set(parseRigidBodyTransform(urdfJoint.getOrigin()));
       definition.getAxis().set(parseAxis(urdfJoint.getAxis()));
       parseLimit(urdfJoint.getLimit(), definition, ignorePositionLimits);
+      parseDynamics(urdfJoint.getDynamics(), definition);
       return definition;
    }
 
@@ -322,6 +348,7 @@ public class URDFTools
       definition.getTransformToParentJoint().set(parseRigidBodyTransform(urdfJoint.getOrigin()));
       definition.getAxis().set(parseAxis(urdfJoint.getAxis()));
       parseLimit(urdfJoint.getLimit(), definition, false);
+      parseDynamics(urdfJoint.getDynamics(), definition);
       return definition;
    }
 
@@ -400,7 +427,7 @@ public class URDFTools
       if (urdfGeometry.getMesh() != null)
       {
          ModelFileGeometryDescription modelFileGeometryDefinition = new ModelFileGeometryDescription();
-         modelFileGeometryDefinition.getResourceDirectories().addAll(resourceDirectories);
+         modelFileGeometryDefinition.setResourceDirectories(resourceDirectories);
          modelFileGeometryDefinition.setFileName(urdfGeometry.getMesh().getFilename());
          modelFileGeometryDefinition.setScale(parseVector3D(urdfGeometry.getMesh().getScale(), new Vector3D(1, 1, 1)));
          return modelFileGeometryDefinition;
@@ -516,6 +543,21 @@ public class URDFTools
       jointDefinitionToParseLimitInto.setPositionLimits(lowerLimit, upperLimit);
       jointDefinitionToParseLimitInto.setEffortLimits(effortLimit);
       jointDefinitionToParseLimitInto.setVelocityLimits(velocityLimit);
+   }
+
+   public static void parseDynamics(URDFDynamics urdfDynamics, OneDoFJointDescription jointDescriptionToParseDynamicsInto)
+   {
+      double damping = 0.0;
+      double stiction = 0.0;
+
+      if (urdfDynamics != null)
+      {
+         damping = parseDouble(urdfDynamics.getDamping(), 0.0);
+         stiction = parseDouble(urdfDynamics.getFriction(), 0.0);
+      }
+
+      jointDescriptionToParseDynamicsInto.setDamping(damping);
+      jointDescriptionToParseDynamicsInto.setStiction(stiction);
    }
 
    public static Vector3D parseAxis(URDFAxis axis)

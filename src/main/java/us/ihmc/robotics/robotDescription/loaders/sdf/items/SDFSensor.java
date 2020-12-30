@@ -13,9 +13,9 @@ public class SDFSensor implements SDFItem
    private String type;
    private String updateRate;
    private String pose;
-   private List<Camera> camera;
-   private Ray ray;
-   private IMU imu;
+   private List<SDFCamera> camera;
+   private SDFRay ray;
+   private SDFIMU imu;
 
    public String getName()
    {
@@ -61,35 +61,35 @@ public class SDFSensor implements SDFItem
       this.pose = pose;
    }
 
-   public List<Camera> getCamera()
+   public List<SDFCamera> getCamera()
    {
       return camera;
    }
 
    @XmlElement(name = "camera")
-   public void setCamera(List<Camera> camera)
+   public void setCamera(List<SDFCamera> camera)
    {
       this.camera = camera;
    }
 
    @XmlElement(name = "ray")
-   public void setRay(Ray ray)
+   public void setRay(SDFRay ray)
    {
       this.ray = ray;
    }
 
-   public Ray getRay()
+   public SDFRay getRay()
    {
       return ray;
    }
 
-   public IMU getImu()
+   public SDFIMU getImu()
    {
       return imu;
    }
 
    @XmlElement(name = "imu")
-   public void setImu(IMU imu)
+   public void setImu(SDFIMU imu)
    {
       this.imu = imu;
    }
@@ -112,12 +112,12 @@ public class SDFSensor implements SDFItem
       return itemToString();
    }
 
-   public static class Ray implements SDFItem
+   public static class SDFRay implements SDFItem
    {
       private String pose;
-      private Range range;
-      private Scan scan;
-      private Noise noise;
+      private SDFRange range;
+      private SDFScan scan;
+      private SDFNoise noise;
 
       @XmlElement(name = "pose")
       public void setPose(String pose)
@@ -126,13 +126,13 @@ public class SDFSensor implements SDFItem
       }
 
       @XmlElement(name = "range")
-      public void setRange(Range range)
+      public void setRange(SDFRange range)
       {
          this.range = range;
       }
 
       @XmlElement(name = "scan")
-      public void setScan(Scan scan)
+      public void setScan(SDFScan scan)
       {
          this.scan = scan;
       }
@@ -142,23 +142,23 @@ public class SDFSensor implements SDFItem
          return pose;
       }
 
-      public Range getRange()
+      public SDFRange getRange()
       {
          return range;
       }
 
-      public Scan getScan()
+      public SDFScan getScan()
       {
          return scan;
       }
 
-      public Noise getNoise()
+      public SDFNoise getNoise()
       {
          return noise;
       }
 
       @XmlElement(name = "noise")
-      public void setNoise(Noise noise)
+      public void setNoise(SDFNoise noise)
       {
          this.noise = noise;
       }
@@ -181,7 +181,7 @@ public class SDFSensor implements SDFItem
          return itemToString();
       }
 
-      public static class Range implements SDFItem
+      public static class SDFRange implements SDFItem
       {
          private String min;
          private String max;
@@ -239,29 +239,29 @@ public class SDFSensor implements SDFItem
          }
       }
 
-      public static class Scan implements SDFItem
+      public static class SDFScan implements SDFItem
       {
-         private HorizontalScan horizontal;
-         private VerticalScan vertical;
+         private SDFHorizontalScan horizontal;
+         private SDFVerticalScan vertical;
 
          @XmlElement(name = "horizontal")
-         public void setHorizontal(HorizontalScan horizontal)
+         public void setHorizontal(SDFHorizontalScan horizontal)
          {
             this.horizontal = horizontal;
          }
 
-         public HorizontalScan getHorizontal()
+         public SDFHorizontalScan getHorizontal()
          {
             return horizontal;
          }
 
          @XmlElement(name = "vertical")
-         public VerticalScan getVertical()
+         public SDFVerticalScan getVertical()
          {
             return vertical;
          }
 
-         public void setVertical(VerticalScan vertical)
+         public void setVertical(SDFVerticalScan vertical)
          {
             this.vertical = vertical;
          }
@@ -284,7 +284,7 @@ public class SDFSensor implements SDFItem
             return itemToString();
          }
 
-         public static class HorizontalScan implements SDFItem
+         public static class SDFHorizontalScan implements SDFItem
          {
             private String samples;
             private String resolution;
@@ -354,7 +354,7 @@ public class SDFSensor implements SDFItem
             }
          }
 
-         public static class VerticalScan implements SDFItem
+         public static class SDFVerticalScan implements SDFItem
          {
             private String samples;
             private String resolution;
@@ -425,7 +425,7 @@ public class SDFSensor implements SDFItem
          }
       }
 
-      public static class Noise implements SDFItem
+      public static class SDFNoise implements SDFItem
       {
          private String type;
          private String mean;
@@ -484,13 +484,13 @@ public class SDFSensor implements SDFItem
       }
    }
 
-   public static class Camera implements SDFItem
+   public static class SDFCamera implements SDFItem
    {
       private String name;
       private String pose;
       private String horizontalFov;
-      private SensorImage image;
-      private Clip clip;
+      private SDFSensorImage image;
+      private SDFClip clip;
 
       public String getPose()
       {
@@ -514,24 +514,24 @@ public class SDFSensor implements SDFItem
          this.horizontalFov = horizontalFov;
       }
 
-      public SensorImage getImage()
+      public SDFSensorImage getImage()
       {
          return image;
       }
 
       @XmlElement(name = "image")
-      public void setImage(SensorImage image)
+      public void setImage(SDFSensorImage image)
       {
          this.image = image;
       }
 
-      public Clip getClip()
+      public SDFClip getClip()
       {
          return clip;
       }
 
       @XmlElement(name = "clip")
-      public void setClip(Clip clip)
+      public void setClip(SDFClip clip)
       {
          this.clip = clip;
       }
@@ -565,7 +565,7 @@ public class SDFSensor implements SDFItem
          return itemToString();
       }
 
-      public static class SensorImage implements SDFItem
+      public static class SDFSensorImage implements SDFItem
       {
          private String width;
          private String height;
@@ -623,7 +623,7 @@ public class SDFSensor implements SDFItem
          }
       }
 
-      public static class Clip implements SDFItem
+      public static class SDFClip implements SDFItem
       {
          private String near;
          private String far;
@@ -670,17 +670,17 @@ public class SDFSensor implements SDFItem
       }
    }
 
-   public static class IMU implements SDFItem
+   public static class SDFIMU implements SDFItem
    {
-      private IMUNoise noise;
+      private SDFIMUNoise noise;
 
-      public IMUNoise getNoise()
+      public SDFIMUNoise getNoise()
       {
          return noise;
       }
 
       @XmlElement(name = "noise")
-      public void setNoise(IMUNoise noise)
+      public void setNoise(SDFIMUNoise noise)
       {
          this.noise = noise;
       }
@@ -703,23 +703,23 @@ public class SDFSensor implements SDFItem
          return itemToString();
       }
 
-      public static class IMUNoise implements SDFItem
+      public static class SDFIMUNoise implements SDFItem
       {
          private String type;
-         private NoiseParameters rate;
-         private NoiseParameters accel;
+         private SDFNoiseParameters rate;
+         private SDFNoiseParameters accel;
 
          public String getType()
          {
             return type;
          }
 
-         public NoiseParameters getRate()
+         public SDFNoiseParameters getRate()
          {
             return rate;
          }
 
-         public NoiseParameters getAccel()
+         public SDFNoiseParameters getAccel()
          {
             return accel;
          }
@@ -731,13 +731,13 @@ public class SDFSensor implements SDFItem
          }
 
          @XmlElement(name = "rate")
-         public void setRate(NoiseParameters rate)
+         public void setRate(SDFNoiseParameters rate)
          {
             this.rate = rate;
          }
 
          @XmlElement(name = "accel")
-         public void setAccel(NoiseParameters accel)
+         public void setAccel(SDFNoiseParameters accel)
          {
             this.accel = accel;
          }
@@ -760,7 +760,7 @@ public class SDFSensor implements SDFItem
             return itemToString();
          }
 
-         public static class NoiseParameters implements SDFItem
+         public static class SDFNoiseParameters implements SDFItem
          {
             private String mean;
             private String stddev;

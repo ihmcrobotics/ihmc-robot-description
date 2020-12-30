@@ -27,11 +27,17 @@ import us.ihmc.robotics.robotDescription.joints.PinJointDescription;
 import us.ihmc.robotics.robotDescription.links.LinkDescription;
 import us.ihmc.robotics.robotDescription.loaders.sdf.SDFTools;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFRoot;
+import us.ihmc.robotics.robotDescription.loaders.urdf.URDFTools;
+import us.ihmc.robotics.robotDescription.loaders.urdf.items.URDFModel;
 import us.ihmc.robotics.robotDescription.sensors.CameraSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.IMUSensorDescription;
+import us.ihmc.robotics.robotDescription.sensors.LidarSensorDescription;
 import us.ihmc.robotics.robotDescription.sensors.SensorDescription;
 
 public class ValkyrieModelLoadingTest
 {
+   private static final double EPSILON = 1.0e-5;
+
    private static final String LeftHipYawName = "leftHipYaw";
    private static final String LeftHipRollName = "leftHipRoll";
    private static final String LeftHipPitchName = "leftHipPitch";
@@ -189,7 +195,21 @@ public class ValkyrieModelLoadingTest
       InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/valkyrie/sdf/valkyrie_sim.sdf");
       SDFRoot sdfRoot = SDFTools.loadSDFRoot(resourceAsStream, resourceDirectories);
       RobotDescription robotDescription = SDFTools.toFloatingRootJointRobotDescription(sdfRoot.getModels().get(0));
+      performAssertionsOnRobotDescription(robotDescription);
+   }
 
+   @Test
+   public void testURDFTools() throws Exception
+   {
+      List<String> resourceDirectories = Arrays.asList("models/", "models/gazebo/", "models/val_description/", "models/val_description/urdf/");
+      InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/valkyrie/urdf/valkyrie_sim.urdf");
+      URDFModel urdfModel = URDFTools.loadURDFModel(resourceAsStream, resourceDirectories);
+      RobotDescription robotDescription = URDFTools.toFloatingRootJointRobotDescription(urdfModel);
+      performAssertionsOnRobotDescription(robotDescription);
+   }
+
+   private void performAssertionsOnRobotDescription(RobotDescription robotDescription)
+   {
       for (String jointName : AllJointNames)
       {
          assertNotNull(robotDescription.getJointDescription(jointName));
@@ -221,7 +241,7 @@ public class ValkyrieModelLoadingTest
       assertKinematicsContinuity(robotDescription.getJointDescription(RightWristPitchName), RightThumbJointNames, robotDescription);
 
       assertPhysicalProperties(robotDescription);
-      assertSensorProperties(robotDescription);
+      assertSensorsProperties(robotDescription);
    }
 
    public static void assertPhysicalProperties(RobotDescription robotDescription)
@@ -230,37 +250,48 @@ public class ValkyrieModelLoadingTest
 
       for (String jointName : AllJointNames)
       {
+         if (jointName.contains("hokuyo"))
+            continue;
          Map<String, Object> jointProperties = robotProperties.get(jointName);
          JointDescription jointDescription = robotDescription.getJointDescription(jointName);
-         EuclidCoreTestTools.assertTuple3DEquals((Tuple3DReadOnly) jointProperties.get("offsetFromParentJoint"),
+         String messagePrefix = "Joint: " + jointName;
+         EuclidCoreTestTools.assertTuple3DEquals(messagePrefix,
+                                                 (Tuple3DReadOnly) jointProperties.get("offsetFromParentJoint"),
                                                  jointDescription.getTransformToParentJoint().getTranslation(),
-                                                 0);
+                                                 EPSILON);
          if (jointDescription instanceof OneDoFJointDescription)
          {
             OneDoFJointDescription oneDoFJointDescription = (OneDoFJointDescription) jointDescription;
-            assertEquals((double) jointProperties.get("positionLowerLimit"), oneDoFJointDescription.getPositionLowerLimit());
-            assertEquals((double) jointProperties.get("positionUpperLimit"), oneDoFJointDescription.getPositionUpperLimit());
-            assertEquals((double) jointProperties.get("velocityLowerLimit"), oneDoFJointDescription.getVelocityLowerLimit());
-            assertEquals((double) jointProperties.get("velocityUpperLimit"), oneDoFJointDescription.getVelocityUpperLimit());
-            assertEquals((double) jointProperties.get("effortLowerLimit"), oneDoFJointDescription.getEffortLowerLimit());
-            assertEquals((double) jointProperties.get("effortUpperLimit"), oneDoFJointDescription.getEffortUpperLimit());
-            EuclidCoreTestTools.assertTuple3DEquals((Tuple3DReadOnly) jointProperties.get("axis"), oneDoFJointDescription.getAxis(), 0);
-            assertEquals((double) jointProperties.get("damping"), oneDoFJointDescription.getDamping());
-            assertEquals((double) jointProperties.get("stiction"), oneDoFJointDescription.getStiction());
+            assertEquals((double) jointProperties.get("positionLowerLimit"), oneDoFJointDescription.getPositionLowerLimit(), messagePrefix);
+            assertEquals((double) jointProperties.get("positionUpperLimit"), oneDoFJointDescription.getPositionUpperLimit(), messagePrefix);
+            assertEquals((double) jointProperties.get("velocityLowerLimit"), oneDoFJointDescription.getVelocityLowerLimit(), messagePrefix);
+            assertEquals((double) jointProperties.get("velocityUpperLimit"), oneDoFJointDescription.getVelocityUpperLimit(), messagePrefix);
+            assertEquals((double) jointProperties.get("effortLowerLimit"), oneDoFJointDescription.getEffortLowerLimit(), messagePrefix);
+            assertEquals((double) jointProperties.get("effortUpperLimit"), oneDoFJointDescription.getEffortUpperLimit(), messagePrefix);
+            EuclidCoreTestTools.assertTuple3DEquals(messagePrefix, (Tuple3DReadOnly) jointProperties.get("axis"), oneDoFJointDescription.getAxis(), EPSILON);
+            assertEquals((double) jointProperties.get("damping"), oneDoFJointDescription.getDamping(), messagePrefix);
+            assertEquals((double) jointProperties.get("stiction"), oneDoFJointDescription.getStiction(), messagePrefix);
          }
       }
 
       for (String linkName : AllLinkNames)
       {
+         String messagePrefix = "Link: " + linkName;
          Map<String, Object> linkProperties = robotProperties.get(linkName);
          LinkDescription linkDescription = robotDescription.getLinkDescription(linkName);
-         assertEquals((double) linkProperties.get("mass"), linkDescription.getMass());
-         EuclidCoreTestTools.assertTuple3DEquals((Tuple3DReadOnly) linkProperties.get("centerOfMass"), linkDescription.getCenterOfMassOffset(), 0);
-         EuclidCoreTestTools.assertMatrix3DEquals((Matrix3DReadOnly) linkProperties.get("inertia"), linkDescription.getMomentOfInertia(), 0);
+         assertEquals((double) linkProperties.get("mass"), linkDescription.getMass(), messagePrefix);
+         EuclidCoreTestTools.assertTuple3DEquals(messagePrefix,
+                                                 (Tuple3DReadOnly) linkProperties.get("centerOfMass"),
+                                                 linkDescription.getCenterOfMassOffset(),
+                                                 EPSILON);
+         EuclidCoreTestTools.assertMatrix3DEquals(messagePrefix,
+                                                  (Matrix3DReadOnly) linkProperties.get("inertia"),
+                                                  linkDescription.getMomentOfInertia(),
+                                                  EPSILON);
       }
    }
 
-   public static void assertSensorProperties(RobotDescription robotDescription)
+   public static void assertSensorsProperties(RobotDescription robotDescription)
    {
       // TODO Add other sensors
       Map<String, Map<String, Object>> robotProperties = valkyrieSensorProperties();
@@ -276,16 +307,55 @@ public class ValkyrieModelLoadingTest
          for (SensorDescription sensorDescription : jointDescription.getSensors())
          {
             Map<String, Object> sensorProperties = robotProperties.get(sensorDescription.getName());
-            EuclidCoreTestTools.assertRigidBodyTransformEquals("Sensor: " + sensorDescription.getName(),
-                                                               (RigidBodyTransform) sensorProperties.get("transformToJoint"),
-                                                               sensorDescription.getTransformToJoint(),
-                                                               0);
+            assertSensorProperties(sensorDescription, sensorProperties);
          }
       }
 
       int expectedNumberOfCameras = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
                                                          .filter(entry -> entry.getKey().equals("imageWidth")).count();
       assertEquals(expectedNumberOfCameras, actualNumberOfCameras);
+   }
+
+   private static void assertSensorProperties(SensorDescription sensorDescription, Map<String, Object> sensorProperties)
+   {
+      EuclidCoreTestTools.assertRigidBodyTransformEquals("Sensor: " + sensorDescription.getName(),
+                                                         (RigidBodyTransform) sensorProperties.get("transformToJoint"),
+                                                         sensorDescription.getTransformToJoint(),
+                                                         0);
+
+      if (sensorDescription instanceof CameraSensorDescription)
+      {
+         CameraSensorDescription cameraSensorDescription = (CameraSensorDescription) sensorDescription;
+         assertEquals((double) sensorProperties.get("fieldOfView"), cameraSensorDescription.getFieldOfView());
+         assertEquals((double) sensorProperties.get("clipNear"), cameraSensorDescription.getClipNear());
+         assertEquals((double) sensorProperties.get("clipFar"), cameraSensorDescription.getClipFar());
+         assertEquals((int) sensorProperties.get("imageWidth"), cameraSensorDescription.getImageWidth());
+         assertEquals((int) sensorProperties.get("imageHeight"), cameraSensorDescription.getImageHeight());
+      }
+      else if (sensorDescription instanceof IMUSensorDescription)
+      {
+         IMUSensorDescription imuSensorDescription = (IMUSensorDescription) sensorDescription;
+         assertEquals((double) sensorProperties.get("accelerationNoiseMean"), imuSensorDescription.getAccelerationNoiseMean());
+         assertEquals((double) sensorProperties.get("accelerationNoiseStandardDeviation"), imuSensorDescription.getAccelerationNoiseStandardDeviation());
+         assertEquals((double) sensorProperties.get("accelerationBiasMean"), imuSensorDescription.getAccelerationBiasMean());
+         assertEquals((double) sensorProperties.get("accelerationBiasStandardDeviation"), imuSensorDescription.getAccelerationBiasStandardDeviation());
+         assertEquals((double) sensorProperties.get("angularVelocityNoiseMean"), imuSensorDescription.getAngularVelocityNoiseMean());
+         assertEquals((double) sensorProperties.get("angularVelocityNoiseStandardDeviation"), imuSensorDescription.getAngularVelocityNoiseStandardDeviation());
+         assertEquals((double) sensorProperties.get("angularVelocityBiasMean"), imuSensorDescription.getAngularVelocityBiasMean());
+         assertEquals((double) sensorProperties.get("angularVelocityBiasStandardDeviation"), imuSensorDescription.getAngularVelocityBiasStandardDeviation());
+      }
+      else if (sensorDescription instanceof LidarSensorDescription)
+      {
+         LidarSensorDescription lidarSensorDescription = (LidarSensorDescription) sensorDescription;
+         assertEquals((double) sensorProperties.get("sweepYawMin"), lidarSensorDescription.getSweepYawMin());
+         assertEquals((double) sensorProperties.get("sweepYawMax"), lidarSensorDescription.getSweepYawMax());
+         assertEquals((double) sensorProperties.get("heightPitchMin"), lidarSensorDescription.getHeightPitchMin());
+         assertEquals((double) sensorProperties.get("heightPitchMax"), lidarSensorDescription.getHeightPitchMax());
+         assertEquals((double) sensorProperties.get("minRange"), lidarSensorDescription.getMinRange());
+         assertEquals((double) sensorProperties.get("maxRange"), lidarSensorDescription.getMaxRange());
+         assertEquals((int) sensorProperties.get("pointsPerSweep"), lidarSensorDescription.getPointsPerSweep());
+         assertEquals((int) sensorProperties.get("scanHeight"), lidarSensorDescription.getScanHeight());
+      }
    }
 
    public static void assertKinematicsContinuity(JointDescription expectedParentJoint, String[] jointNames, RobotDescription robotDescription)
@@ -1611,50 +1681,50 @@ public class ValkyrieModelLoadingTest
    public static Map<String, Map<String, Object>> valkyrieSensorProperties()
    {
       Map<String, Map<String, Object>> sensorProperties = new HashMap<>();
-      sensorProperties.put("pelvis_pelvisMiddleImu", new HashMap<>());
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("transformToJoint",
-                                                         new RigidBodyTransform(1.0,
-                                                                                0.0,
-                                                                                0.0,
-                                                                                0.0,
-                                                                                0.0,
-                                                                                -0.9999999999964793,
-                                                                                -2.65358979335273E-6,
-                                                                                0.0,
-                                                                                0.0,
-                                                                                2.65358979335273E-6,
-                                                                                -0.9999999999964793,
-                                                                                -0.108196));
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("accelerationNoiseMean", 0.0);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("accelerationNoiseStandardDeviation", 0.017);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("accelerationBiasMean", 0.1);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("accelerationBiasStandardDeviation", 0.001);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("angularVelocityNoiseMean", 7.5E-6);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("angularVelocityBiasMean", 0.0);
-      sensorProperties.get("pelvis_pelvisMiddleImu").put("angularVelocityBiasStandardDeviation", 0.0);
-      sensorProperties.put("pelvis_pelvisRearImu", new HashMap<>());
-      sensorProperties.get("pelvis_pelvisRearImu").put("transformToJoint",
-                                                       new RigidBodyTransform(-0.8886208494403026,
-                                                                              -1.4365406117855013E-6,
-                                                                              0.4586425470210231,
-                                                                              -0.0758449,
-                                                                              -2.358035216243522E-6,
-                                                                              0.999999999996188,
-                                                                              -1.4365406117855013E-6,
-                                                                              0.0,
-                                                                              -0.4586425470172111,
-                                                                              -2.358035216243522E-6,
-                                                                              -0.8886208494403026,
-                                                                              -0.111056));
-      sensorProperties.get("pelvis_pelvisRearImu").put("accelerationNoiseMean", 0.0);
-      sensorProperties.get("pelvis_pelvisRearImu").put("accelerationNoiseStandardDeviation", 0.017);
-      sensorProperties.get("pelvis_pelvisRearImu").put("accelerationBiasMean", 0.1);
-      sensorProperties.get("pelvis_pelvisRearImu").put("accelerationBiasStandardDeviation", 0.001);
-      sensorProperties.get("pelvis_pelvisRearImu").put("angularVelocityNoiseMean", 7.5E-6);
-      sensorProperties.get("pelvis_pelvisRearImu").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
-      sensorProperties.get("pelvis_pelvisRearImu").put("angularVelocityBiasMean", 0.0);
-      sensorProperties.get("pelvis_pelvisRearImu").put("angularVelocityBiasStandardDeviation", 0.0);
+      sensorProperties.put("pelvisMiddleImu", new HashMap<>());
+      sensorProperties.get("pelvisMiddleImu").put("transformToJoint",
+                                                  new RigidBodyTransform(1.0,
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0,
+                                                                         -0.9999999999964793,
+                                                                         -2.65358979335273E-6,
+                                                                         0.0,
+                                                                         0.0,
+                                                                         2.65358979335273E-6,
+                                                                         -0.9999999999964793,
+                                                                         -0.108196));
+      sensorProperties.get("pelvisMiddleImu").put("accelerationNoiseMean", 0.0);
+      sensorProperties.get("pelvisMiddleImu").put("accelerationNoiseStandardDeviation", 0.017);
+      sensorProperties.get("pelvisMiddleImu").put("accelerationBiasMean", 0.1);
+      sensorProperties.get("pelvisMiddleImu").put("accelerationBiasStandardDeviation", 0.001);
+      sensorProperties.get("pelvisMiddleImu").put("angularVelocityNoiseMean", 7.5E-6);
+      sensorProperties.get("pelvisMiddleImu").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
+      sensorProperties.get("pelvisMiddleImu").put("angularVelocityBiasMean", 0.0);
+      sensorProperties.get("pelvisMiddleImu").put("angularVelocityBiasStandardDeviation", 0.0);
+      sensorProperties.put("pelvisRearImu", new HashMap<>());
+      sensorProperties.get("pelvisRearImu").put("transformToJoint",
+                                                new RigidBodyTransform(-0.8886208494403026,
+                                                                       -1.4365406117855013E-6,
+                                                                       0.4586425470210231,
+                                                                       -0.0758449,
+                                                                       -2.358035216243522E-6,
+                                                                       0.999999999996188,
+                                                                       -1.4365406117855013E-6,
+                                                                       0.0,
+                                                                       -0.4586425470172111,
+                                                                       -2.358035216243522E-6,
+                                                                       -0.8886208494403026,
+                                                                       -0.111056));
+      sensorProperties.get("pelvisRearImu").put("accelerationNoiseMean", 0.0);
+      sensorProperties.get("pelvisRearImu").put("accelerationNoiseStandardDeviation", 0.017);
+      sensorProperties.get("pelvisRearImu").put("accelerationBiasMean", 0.1);
+      sensorProperties.get("pelvisRearImu").put("accelerationBiasStandardDeviation", 0.001);
+      sensorProperties.get("pelvisRearImu").put("angularVelocityNoiseMean", 7.5E-6);
+      sensorProperties.get("pelvisRearImu").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
+      sensorProperties.get("pelvisRearImu").put("angularVelocityBiasMean", 0.0);
+      sensorProperties.get("pelvisRearImu").put("angularVelocityBiasStandardDeviation", 0.0);
       sensorProperties.put("leftHazardCamera___default__", new HashMap<>());
       sensorProperties.get("leftHazardCamera___default__").put("transformToJoint",
                                                                new RigidBodyTransform(7.963267107332633E-4,
@@ -1693,28 +1763,28 @@ public class ValkyrieModelLoadingTest
       sensorProperties.get("rightHazardCamera___default__").put("clipFar", 100.0);
       sensorProperties.get("rightHazardCamera___default__").put("imageWidth", 1280);
       sensorProperties.get("rightHazardCamera___default__").put("imageHeight", 1024);
-      sensorProperties.put("torso_leftTorsoImu", new HashMap<>());
-      sensorProperties.get("torso_leftTorsoImu").put("transformToJoint",
-                                                     new RigidBodyTransform(1.0,
-                                                                            -0.0,
-                                                                            0.0,
-                                                                            -0.0627634,
-                                                                            0.0,
-                                                                            9.632679474766714E-5,
-                                                                            0.9999999953605743,
-                                                                            0.134239,
-                                                                            -0.0,
-                                                                            -0.9999999953605743,
-                                                                            9.632679474766714E-5,
-                                                                            0.363068));
-      sensorProperties.get("torso_leftTorsoImu").put("accelerationNoiseMean", 0.0);
-      sensorProperties.get("torso_leftTorsoImu").put("accelerationNoiseStandardDeviation", 0.017);
-      sensorProperties.get("torso_leftTorsoImu").put("accelerationBiasMean", 0.1);
-      sensorProperties.get("torso_leftTorsoImu").put("accelerationBiasStandardDeviation", 0.001);
-      sensorProperties.get("torso_leftTorsoImu").put("angularVelocityNoiseMean", 7.5E-6);
-      sensorProperties.get("torso_leftTorsoImu").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
-      sensorProperties.get("torso_leftTorsoImu").put("angularVelocityBiasMean", 0.0);
-      sensorProperties.get("torso_leftTorsoImu").put("angularVelocityBiasStandardDeviation", 0.0);
+      sensorProperties.put("leftTorsoImu", new HashMap<>());
+      sensorProperties.get("leftTorsoImu").put("transformToJoint",
+                                               new RigidBodyTransform(1.0,
+                                                                      -0.0,
+                                                                      0.0,
+                                                                      -0.0627634,
+                                                                      0.0,
+                                                                      9.632679474766714E-5,
+                                                                      0.9999999953605743,
+                                                                      0.134239,
+                                                                      -0.0,
+                                                                      -0.9999999953605743,
+                                                                      9.632679474766714E-5,
+                                                                      0.363068));
+      sensorProperties.get("leftTorsoImu").put("accelerationNoiseMean", 0.0);
+      sensorProperties.get("leftTorsoImu").put("accelerationNoiseStandardDeviation", 0.017);
+      sensorProperties.get("leftTorsoImu").put("accelerationBiasMean", 0.1);
+      sensorProperties.get("leftTorsoImu").put("accelerationBiasStandardDeviation", 0.001);
+      sensorProperties.get("leftTorsoImu").put("angularVelocityNoiseMean", 7.5E-6);
+      sensorProperties.get("leftTorsoImu").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
+      sensorProperties.get("leftTorsoImu").put("angularVelocityBiasMean", 0.0);
+      sensorProperties.get("leftTorsoImu").put("angularVelocityBiasStandardDeviation", 0.0);
       sensorProperties.put("stereo_camera_left", new HashMap<>());
       sensorProperties.get("stereo_camera_left").put("transformToJoint",
                                                      new RigidBodyTransform(0.991444821419641,
@@ -1753,33 +1823,42 @@ public class ValkyrieModelLoadingTest
       sensorProperties.get("stereo_camera_right").put("clipFar", 300.0);
       sensorProperties.get("stereo_camera_right").put("imageWidth", 1024);
       sensorProperties.get("stereo_camera_right").put("imageHeight", 544);
-      sensorProperties.put("upperNeckPitchLink_head_imu_sensor", new HashMap<>());
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("transformToJoint",
-                                                                     new RigidBodyTransform(0.991444821419641,
-                                                                                            -3.46363776756234E-7,
-                                                                                            -0.13052649570127964,
-                                                                                            0.136492,
-                                                                                            5.293958426245172E-23,
-                                                                                            -0.9999999999964793,
-                                                                                            2.65358979335273E-6,
-                                                                                            -0.035,
-                                                                                            -0.1305264957017392,
-                                                                                            -2.6308878587915793E-6,
-                                                                                            -0.9914448214161503,
-                                                                                            0.0815537));
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("accelerationNoiseMean", 0.0);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("accelerationNoiseStandardDeviation", 0.017);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("accelerationBiasMean", 0.1);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("accelerationBiasStandardDeviation", 0.001);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("angularVelocityNoiseMean", 7.5E-6);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("angularVelocityBiasMean", 0.0);
-      sensorProperties.get("upperNeckPitchLink_head_imu_sensor").put("angularVelocityBiasStandardDeviation", 0.0);
+      sensorProperties.put("head_imu_sensor", new HashMap<>());
+      sensorProperties.get("head_imu_sensor").put("transformToJoint",
+                                                  new RigidBodyTransform(0.991444821419641,
+                                                                         -3.46363776756234E-7,
+                                                                         -0.13052649570127964,
+                                                                         0.136492,
+                                                                         5.293958426245172E-23,
+                                                                         -0.9999999999964793,
+                                                                         2.65358979335273E-6,
+                                                                         -0.035,
+                                                                         -0.1305264957017392,
+                                                                         -2.6308878587915793E-6,
+                                                                         -0.9914448214161503,
+                                                                         0.0815537));
+      sensorProperties.get("head_imu_sensor").put("accelerationNoiseMean", 0.0);
+      sensorProperties.get("head_imu_sensor").put("accelerationNoiseStandardDeviation", 0.017);
+      sensorProperties.get("head_imu_sensor").put("accelerationBiasMean", 0.1);
+      sensorProperties.get("head_imu_sensor").put("accelerationBiasStandardDeviation", 0.001);
+      sensorProperties.get("head_imu_sensor").put("angularVelocityNoiseMean", 7.5E-6);
+      sensorProperties.get("head_imu_sensor").put("angularVelocityNoiseStandardDeviation", 8.0E-7);
+      sensorProperties.get("head_imu_sensor").put("angularVelocityBiasMean", 0.0);
+      sensorProperties.get("head_imu_sensor").put("angularVelocityBiasStandardDeviation", 0.0);
       sensorProperties.put("head_hokuyo_sensor", new HashMap<>());
       sensorProperties.get("head_hokuyo_sensor").put("transformToJoint",
-                                                     new RigidBodyTransform(0.991444821419641      , -3.46363776756234E-7  , -0.13052649570127964  , 0.027785447207070033,
-                                                                            5.293958426245172E-23  , -0.9999999999964793   , 2.65358979335273E-6   , 3.9803846900290945E-8,
-                                                                            -0.1305264957017392    , -2.6308878587915793E-6, -0.9914448214161503   , -0.01878746719229443));
+                                                     new RigidBodyTransform(0.991444821419641,
+                                                                            -3.46363776756234E-7,
+                                                                            -0.13052649570127964,
+                                                                            0.027785447207070033,
+                                                                            5.293958426245172E-23,
+                                                                            -0.9999999999964793,
+                                                                            2.65358979335273E-6,
+                                                                            3.9803846900290945E-8,
+                                                                            -0.1305264957017392,
+                                                                            -2.6308878587915793E-6,
+                                                                            -0.9914448214161503,
+                                                                            -0.01878746719229443));
       sensorProperties.get("head_hokuyo_sensor").put("sweepYawMin", -2.35619);
       sensorProperties.get("head_hokuyo_sensor").put("sweepYawMax", 2.35619);
       sensorProperties.get("head_hokuyo_sensor").put("heightPitchMin", 0.0);

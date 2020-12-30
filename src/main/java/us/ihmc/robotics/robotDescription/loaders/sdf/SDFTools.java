@@ -27,7 +27,6 @@ import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple3D.UnitVector3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.UnitVector3DReadOnly;
-import us.ihmc.euclid.tuple3D.interfaces.Vector3DBasics;
 import us.ihmc.euclid.yawPitchRoll.YawPitchRoll;
 import us.ihmc.graphicsDescription.VisualDescription;
 import us.ihmc.graphicsDescription.appearance.MaterialDescription;
@@ -60,15 +59,15 @@ import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFLink.SDFInertial;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFModel;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFRoot;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Camera;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.IMU;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.IMU.IMUNoise;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.IMU.IMUNoise.NoiseParameters;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Noise;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Range;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Scan.HorizontalScan;
-import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.Ray.Scan.VerticalScan;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFCamera;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFIMU;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFIMU.SDFIMUNoise;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFIMU.SDFIMUNoise.SDFNoiseParameters;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFRay;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFRay.SDFNoise;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFRay.SDFRange;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFRay.SDFScan.SDFHorizontalScan;
+import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFSensor.SDFRay.SDFScan.SDFVerticalScan;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFURIHolder;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual;
 import us.ihmc.robotics.robotDescription.loaders.sdf.items.SDFVisual.SDFMaterial;
@@ -206,7 +205,7 @@ public class SDFTools
       List<JointDescription> jointDefinitions = toJointDefinitions(sdfJoints);
       List<LinkDescription> rigidBodyDefinitions = toRigidBodyDefinition(sdfLinks);
 
-      connectKinematics(sdfJoints, sdfLinks, rootJoint, jointDefinitions, rigidBodyDefinitions);
+      connectKinematics(sdfJoints, rootJoint, jointDefinitions, rigidBodyDefinitions);
       addSensors(sdfLinks, rigidBodyDefinitions);
       correctTransforms(sdfJoints, sdfLinks, jointDefinitions);
 
@@ -237,13 +236,12 @@ public class SDFTools
       }
    }
 
-   public static void connectKinematics(List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks, JointDescription rootJoint, List<JointDescription> jointDefinitions,
+   public static void connectKinematics(List<SDFJoint> sdfJoints, JointDescription rootJoint, List<JointDescription> jointDefinitions,
                                         List<LinkDescription> rigidBodyDefinitions)
    {
       if (sdfJoints == null)
          return;
 
-      Map<String, SDFLink> sdfLinkMap = sdfLinks.stream().collect(Collectors.toMap(SDFLink::getName, Function.identity()));
       Map<String, LinkDescription> rigidBodyDefinitionMap = rigidBodyDefinitions.stream()
                                                                                 .collect(Collectors.toMap(LinkDescription::getName, Function.identity()));
       Map<String, JointDescription> jointDefinitionMap = jointDefinitions.stream().collect(Collectors.toMap(JointDescription::getName, Function.identity()));
@@ -251,9 +249,6 @@ public class SDFTools
       Map<String, JointDescription> parentJointDefinitionMap = sdfJoints.stream()
                                                                         .collect(Collectors.toMap(SDFJoint::getChild,
                                                                                                   sdfJoint -> jointDefinitionMap.get(sdfJoint.getName())));
-
-      assert sdfJoints.stream().map(SDFJoint::getParent).distinct().filter(parentLinkName -> !parentJointDefinitionMap.containsKey(parentLinkName))
-                      .count() == 1;
 
       for (SDFJoint sdfJoint : sdfJoints)
       {
@@ -263,7 +258,10 @@ public class SDFTools
             continue;
 
          // The parent link has no parent joint => it is the root link, we attach it to the given rootJoint.
-         rootJoint.setLink(rigidBodyDefinitionMap.get(parent));
+         LinkDescription rootRigidBody = rigidBodyDefinitionMap.get(parent);
+         rootJoint.setLink(rootRigidBody);
+         if (rootJoint.getName() == null)
+            rootJoint.setName(rootRigidBody.getName());
          parentJointDefinitionMap.put(parent, rootJoint);
          break;
       }
@@ -275,25 +273,10 @@ public class SDFTools
          JointDescription parentJointDescription = parentJointDefinitionMap.get(parent);
          JointDescription jointDefinition = jointDefinitionMap.get(sdfJoint.getName());
          LinkDescription childLinkDescription = rigidBodyDefinitionMap.get(child);
-         jointDefinition.getTransformToParentJoint().set(parsePose(sdfLinkMap.get(sdfJoint.getParent()).getPose()));
 
          jointDefinition.setLink(childLinkDescription);
          parentJointDescription.addJoint(jointDefinition);
       }
-
-      Map<String, SDFJoint> childToParentJoint = sdfJoints.stream().collect(Collectors.toMap(SDFJoint::getChild, Function.identity()));
-
-      String rootLinkName = sdfJoints.get(0).getParent();
-      SDFJoint parentJoint = childToParentJoint.get(rootLinkName);
-
-      while (parentJoint != null)
-      {
-         rootLinkName = parentJoint.getParent();
-         parentJoint = childToParentJoint.get(rootLinkName);
-      }
-
-      if (rootJoint.getName() == null)
-         rootJoint.setName(rigidBodyDefinitionMap.get(rootLinkName).getName());
    }
 
    private static void correctTransforms(List<SDFJoint> sdfJoints, List<SDFLink> sdfLinks, List<JointDescription> jointDefinitions)
@@ -330,10 +313,8 @@ public class SDFTools
 
          // Correct link inertia pose
          RigidBodyTransform inertiaPose = childDefinition.getInertiaPose();
-         Vector3DBasics comOffset = childDefinition.getInertiaPose().getTranslation();
-         childLinkPose.transform(comOffset);
+         inertiaPose.prependOrientation(childLinkPose.getRotation());
          inertiaPose.transform(childDefinition.getMomentOfInertia());
-         childLinkPose.transform(childDefinition.getMomentOfInertia());
          inertiaPose.getRotation().setToZero();
 
          // Correct visual transform
@@ -345,7 +326,6 @@ public class SDFTools
 
          for (SensorDescription sensorDescription : jointDefinition.getSensors())
          {
-//            childLinkPose.transform(sensorDescription.getTransformToJoint());
             sensorDescription.getTransformToJoint().prependOrientation(childLinkPose.getRotation());
          }
       }
@@ -514,12 +494,12 @@ public class SDFTools
       return descriptions;
    }
 
-   public static List<CameraSensorDescription> toCameraSensorDescription(List<Camera> sdfCameras)
+   public static List<CameraSensorDescription> toCameraSensorDescription(List<SDFCamera> sdfCameras)
    {
       return sdfCameras.stream().map(SDFTools::toCameraSensorDescription).collect(Collectors.toList());
    }
 
-   public static CameraSensorDescription toCameraSensorDescription(Camera sdfCamera)
+   public static CameraSensorDescription toCameraSensorDescription(SDFCamera sdfCamera)
    {
       CameraSensorDescription description = new CameraSensorDescription();
       description.setName(sdfCamera.getName());
@@ -532,17 +512,17 @@ public class SDFTools
       return description;
    }
 
-   public static LidarSensorDescription toLidarSensorDescription(Ray sdfRay)
+   public static LidarSensorDescription toLidarSensorDescription(SDFRay sdfRay)
    {
       LidarSensorDescription description = new LidarSensorDescription();
 
-      Range sdfRange = sdfRay.getRange();
+      SDFRange sdfRange = sdfRay.getRange();
       double sdfRangeMax = parseDouble(sdfRange.getMax(), Double.NaN);
       double sdfRangeMin = parseDouble(sdfRange.getMin(), Double.NaN);
       double sdfRangeResolution = parseDouble(sdfRange.getResolution(), Double.NaN);
 
-      HorizontalScan sdfHorizontalScan = sdfRay.getScan().getHorizontal();
-      VerticalScan sdfVerticalScan = sdfRay.getScan().getVertical();
+      SDFHorizontalScan sdfHorizontalScan = sdfRay.getScan().getHorizontal();
+      SDFVerticalScan sdfVerticalScan = sdfRay.getScan().getVertical();
       double sdfMaxSweepAngle = parseDouble(sdfHorizontalScan.getMaxAngle(), 0.0);
       double sdfMinSweepAngle = parseDouble(sdfHorizontalScan.getMinAngle(), 0.0);
       double sdfMaxHeightAngle = sdfVerticalScan == null ? 0.0 : parseDouble(sdfVerticalScan.getMaxAngle(), 0.0);
@@ -551,7 +531,7 @@ public class SDFTools
       int sdfSamples = parseInteger(sdfHorizontalScan.getSamples(), -1) / 3 * 3;
       int sdfScanHeight = sdfVerticalScan == null ? 1 : parseInteger(sdfVerticalScan.getSamples(), 1);
 
-      Noise sdfNoise = sdfRay.getNoise();
+      SDFNoise sdfNoise = sdfRay.getNoise();
       if (sdfNoise != null)
       {
          if ("gaussian".equals(sdfNoise.getType()))
@@ -575,17 +555,17 @@ public class SDFTools
       return description;
    }
 
-   public static IMUSensorDescription toIMUSensorDescription(IMU sdfIMU)
+   public static IMUSensorDescription toIMUSensorDescription(SDFIMU sdfIMU)
    {
       IMUSensorDescription description = new IMUSensorDescription();
 
-      IMUNoise sdfNoise = sdfIMU.getNoise();
+      SDFIMUNoise sdfNoise = sdfIMU.getNoise();
       if (sdfNoise != null)
       {
          if ("gaussian".equals(sdfNoise.getType()))
          {
-            NoiseParameters accelerationNoise = sdfNoise.getAccel();
-            NoiseParameters angularVelocityNoise = sdfNoise.getRate();
+            SDFNoiseParameters accelerationNoise = sdfNoise.getAccel();
+            SDFNoiseParameters angularVelocityNoise = sdfNoise.getRate();
 
             description.setAccelerationNoiseParameters(parseDouble(accelerationNoise.getMean(), 0.0), parseDouble(accelerationNoise.getStddev(), 0.0));
             description.setAccelerationBiasParameters(parseDouble(accelerationNoise.getBias_mean(), 0.0), parseDouble(accelerationNoise.getBias_stddev(), 0.0));
