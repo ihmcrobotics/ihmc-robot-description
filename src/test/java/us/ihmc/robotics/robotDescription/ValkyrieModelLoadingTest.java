@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -241,21 +243,20 @@ public class ValkyrieModelLoadingTest
       assertKinematicsContinuity(robotDescription.getJointDescription(RightWristPitchName), RightPinkyJointNames, robotDescription);
       assertKinematicsContinuity(robotDescription.getJointDescription(RightWristPitchName), RightThumbJointNames, robotDescription);
 
-      assertPhysicalProperties(robotDescription);
-      assertSensorsProperties(robotDescription);
+      assertPhysicalProperties(robotDescription, valkyrieProperties(), subtract(AllJointNames, HokuyoJointName), AllLinkNames);
+      assertSensorsProperties(robotDescription, valkyrieSensorProperties(), AllJointNames);
    }
 
-   public static void assertPhysicalProperties(RobotDescription robotDescription)
+   public static void assertPhysicalProperties(RobotDescription robotDescription, Map<String, Map<String, Object>> robotProperties, String[] allJointNames,
+                                               String[] allLinkNames)
    {
-      Map<String, Map<String, Object>> robotProperties = valkyrieProperties();
-
-      for (String jointName : AllJointNames)
+      for (String jointName : allJointNames)
       {
-         if (jointName.contains("hokuyo"))
-            continue;
+         System.out.println("Validating joint: " + jointName);
          Map<String, Object> jointProperties = robotProperties.get(jointName);
          JointDescription jointDescription = robotDescription.getJointDescription(jointName);
          String messagePrefix = "Joint: " + jointName;
+         assertTrue(jointDescription.getTransformToParentJoint().getRotation().isIdentity(EPSILON), "Expected zero rotation, was: " + jointDescription.getTransformToParentJoint().getRotation());
          EuclidCoreTestTools.assertTuple3DEquals(messagePrefix,
                                                  (Tuple3DReadOnly) jointProperties.get("offsetFromParentJoint"),
                                                  jointDescription.getTransformToParentJoint().getTranslation(),
@@ -275,7 +276,7 @@ public class ValkyrieModelLoadingTest
          }
       }
 
-      for (String linkName : AllLinkNames)
+      for (String linkName : allLinkNames)
       {
          String messagePrefix = "Link: " + linkName;
          Map<String, Object> linkProperties = robotProperties.get(linkName);
@@ -292,15 +293,13 @@ public class ValkyrieModelLoadingTest
       }
    }
 
-   public static void assertSensorsProperties(RobotDescription robotDescription)
+   public static void assertSensorsProperties(RobotDescription robotDescription, Map<String, Map<String, Object>> robotSensorProperties, String[] allJointNames)
    {
-      Map<String, Map<String, Object>> robotProperties = valkyrieSensorProperties();
-
       int actualNumberOfCameras = 0;
       int actualNumberOfIMUs = 0;
       int actualNumberOfLidars = 0;
 
-      for (String jointName : AllJointNames)
+      for (String jointName : allJointNames)
       {
          JointDescription jointDescription = robotDescription.getJointDescription(jointName);
 
@@ -310,23 +309,23 @@ public class ValkyrieModelLoadingTest
 
          for (SensorDescription sensorDescription : jointDescription.getSensors())
          {
-            Map<String, Object> sensorProperties = robotProperties.get(sensorDescription.getName());
+            Map<String, Object> sensorProperties = robotSensorProperties.get(sensorDescription.getName());
             assertSensorProperties(sensorDescription, sensorProperties);
          }
       }
 
-      int expectedNumberOfCameras = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
-                                                         .filter(entry -> entry.getKey().equals("imageWidth")).count();
-      int expectedNumberOfIMUs = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
-                                                      .filter(entry -> entry.getKey().equals("accelerationNoiseMean")).count();
-      int expectedNumberOfLidars = (int) robotProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
-                                                        .filter(entry -> entry.getKey().equals("sweepYawMin")).count();
+      int expectedNumberOfCameras = (int) robotSensorProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
+                                                               .filter(entry -> entry.getKey().equals("imageWidth")).count();
+      int expectedNumberOfIMUs = (int) robotSensorProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
+                                                            .filter(entry -> entry.getKey().equals("accelerationNoiseMean")).count();
+      int expectedNumberOfLidars = (int) robotSensorProperties.values().stream().flatMap(sensorProperties -> sensorProperties.entrySet().stream())
+                                                              .filter(entry -> entry.getKey().equals("sweepYawMin")).count();
       assertEquals(expectedNumberOfCameras, actualNumberOfCameras);
       assertEquals(expectedNumberOfIMUs, actualNumberOfIMUs);
       assertEquals(expectedNumberOfLidars, actualNumberOfLidars);
    }
 
-   private static void assertSensorProperties(SensorDescription sensorDescription, Map<String, Object> sensorProperties)
+   public static void assertSensorProperties(SensorDescription sensorDescription, Map<String, Object> sensorProperties)
    {
       if (sensorProperties == null)
          return;
@@ -384,7 +383,7 @@ public class ValkyrieModelLoadingTest
    }
 
    @SuppressWarnings({"unchecked"})
-   private static <T> T[] concatenate(T[]... arrays)
+   public static <T> T[] concatenate(T[]... arrays)
    {
       int length = Stream.of(arrays).mapToInt(array -> array.length).sum();
       T[] ret = (T[]) Array.newInstance(arrays[0].getClass().getComponentType(), length);
@@ -399,6 +398,18 @@ public class ValkyrieModelLoadingTest
          }
       }
       return ret;
+   }
+
+   @SuppressWarnings("unchecked")
+   @SafeVarargs
+   public static <T> T[] subtract(T[] source, T... elementsToSubtract)
+   {
+      HashSet<T> sourceSet = new LinkedHashSet<>(Arrays.asList(source));
+      for (T elementToSubtract : elementsToSubtract)
+      {
+         sourceSet.remove(elementToSubtract);
+      }
+      return sourceSet.toArray((T[]) Array.newInstance(source.getClass().getComponentType(), sourceSet.size()));
    }
 
    private static final double Infinity = Double.POSITIVE_INFINITY;

@@ -231,7 +231,8 @@ public class SDFTools
          for (SDFSensor sdfSensor : sdfLink.getSensors())
          {
             List<SensorDescription> sensorDescriptions = toSensorDescription(sdfSensor);
-            sensorDescriptions.forEach(parentJoint::addSensor);
+            if (sensorDescriptions != null)
+               sensorDescriptions.forEach(parentJoint::addSensor);
          }
       }
    }
@@ -283,7 +284,6 @@ public class SDFTools
    {
       Map<String, SDFLink> sdfLinkMap = sdfLinks.stream().collect(Collectors.toMap(SDFLink::getName, Function.identity()));
       Map<String, JointDescription> jointDefinitionMap = jointDefinitions.stream().collect(Collectors.toMap(JointDescription::getName, Function.identity()));
-      Map<String, SDFJoint> childToParentJoint = sdfJoints.stream().collect(Collectors.toMap(SDFJoint::getChild, Function.identity()));
 
       for (SDFJoint sdfJoint : sdfJoints)
       {
@@ -293,21 +293,16 @@ public class SDFTools
 
          String parentLinkName = sdfJoint.getParent();
          String childLinkName = sdfJoint.getChild();
-         SDFJoint parentSDFJoint = childToParentJoint.get(parentLinkName);
          SDFLink parentSDFLink = sdfLinkMap.get(parentLinkName);
          SDFLink childSDFLink = sdfLinkMap.get(childLinkName);
 
          RigidBodyTransform parentLinkPose = parsePose(parentSDFLink.getPose());
          RigidBodyTransform childLinkPose = parsePose(childSDFLink.getPose());
-         RigidBodyTransform parentJointParsedPose = parsePose(parentSDFJoint != null ? parentSDFJoint.getPose() : null);
-         RigidBodyTransform jointParsedPose = parsePose(sdfJoint.getPose());
 
          // Correct joint transform
          RigidBodyTransform transformToParentJoint = jointDefinition.getTransformToParentJoint();
-         transformToParentJoint.setAndInvert(parentJointParsedPose);
-         transformToParentJoint.multiplyInvertOther(parentLinkPose);
+         transformToParentJoint.setAndInvert(parentLinkPose);
          transformToParentJoint.multiply(childLinkPose);
-         transformToParentJoint.multiply(jointParsedPose);
          transformToParentJoint.getRotation().setToZero();
          parentLinkPose.transform(transformToParentJoint.getTranslation());
 
@@ -476,7 +471,8 @@ public class SDFTools
             descriptions.add(toLidarSensorDescription(sdfSensor.getRay()));
             break;
          default:
-            throw new UnsupportedOperationException("Unsupport sensor type: " + sdfSensor.getType());
+            LogTools.error("Unsupport sensor type: " + sdfSensor.getType());
+            return null;
       }
 
       int updatePeriod = sdfSensor.getUpdateRate() == null ? -1 : (int) (1000.0 / parseDouble(sdfSensor.getUpdateRate(), 1000.0));
@@ -704,34 +700,26 @@ public class SDFTools
 
    public static void parseLimit(SDFLimit sdfLimit, OneDoFJointDescription jointDescriptionToParseLimitInto, boolean ignorePositionLimits)
    {
-      double lowerLimit, upperLimit, effortLimit, velocityLimit;
+      jointDescriptionToParseLimitInto.setPositionLimits(DEFAULT_LOWER_LIMIT, DEFAULT_UPPER_LIMIT);
+      jointDescriptionToParseLimitInto.setEffortLimits(DEFAULT_EFFORT_LIMIT);
+      jointDescriptionToParseLimitInto.setVelocityLimits(DEFAULT_VELOCITY_LIMIT);
 
       if (sdfLimit != null)
       {
-         if (ignorePositionLimits)
+         if (!ignorePositionLimits)
          {
-            lowerLimit = DEFAULT_LOWER_LIMIT;
-            upperLimit = DEFAULT_UPPER_LIMIT;
+            double positionLowerLimit = parseDouble(sdfLimit.getLower(), DEFAULT_LOWER_LIMIT);
+            double positionUpperLimit = parseDouble(sdfLimit.getUpper(), DEFAULT_UPPER_LIMIT);
+            if (positionLowerLimit < positionUpperLimit)
+               jointDescriptionToParseLimitInto.setPositionLimits(positionLowerLimit, positionUpperLimit);
          }
-         else
-         {
-            lowerLimit = parseDouble(sdfLimit.getLower(), DEFAULT_LOWER_LIMIT);
-            upperLimit = parseDouble(sdfLimit.getUpper(), DEFAULT_UPPER_LIMIT);
-         }
-         effortLimit = parseDouble(sdfLimit.getEffort(), DEFAULT_EFFORT_LIMIT);
-         velocityLimit = parseDouble(sdfLimit.getVelocity(), DEFAULT_VELOCITY_LIMIT);
+         double effortLimit = parseDouble(sdfLimit.getEffort(), DEFAULT_EFFORT_LIMIT);
+         if (Double.isFinite(effortLimit) && effortLimit >= 0)
+            jointDescriptionToParseLimitInto.setEffortLimits(effortLimit);
+         double velocityLimit = parseDouble(sdfLimit.getVelocity(), DEFAULT_VELOCITY_LIMIT);
+         if (Double.isFinite(velocityLimit) && velocityLimit >= 0)
+            jointDescriptionToParseLimitInto.setVelocityLimits(velocityLimit);
       }
-      else
-      {
-         lowerLimit = DEFAULT_LOWER_LIMIT;
-         upperLimit = DEFAULT_UPPER_LIMIT;
-         effortLimit = DEFAULT_EFFORT_LIMIT;
-         velocityLimit = DEFAULT_VELOCITY_LIMIT;
-      }
-
-      jointDescriptionToParseLimitInto.setPositionLimits(lowerLimit, upperLimit);
-      jointDescriptionToParseLimitInto.setEffortLimits(effortLimit);
-      jointDescriptionToParseLimitInto.setVelocityLimits(velocityLimit);
    }
 
    public static void parseDynamics(SDFDynamics sdfDynamics, OneDoFJointDescription jointDescriptionToParseDynamicsInto)

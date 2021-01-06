@@ -243,7 +243,14 @@ public class URDFTools
          if (jointDescription == null)
             jointDescription = linkNameToJointDefinitionMap.get(urdfGazebo.getReference());
 
-         sensorDescriptions.forEach(jointDescription::addSensor);
+         if (jointDescription == null)
+         {
+            LogTools.error("Could not find reference: " + urdfGazebo.getReference());
+            continue;
+         }
+
+         if (sensorDescriptions != null)
+            sensorDescriptions.forEach(jointDescription::addSensor);
       }
    }
 
@@ -582,7 +589,8 @@ public class URDFTools
             descriptions.add(new ForceSensorDescription());
             break;
          default:
-            throw new UnsupportedOperationException("Unsupport sensor type: " + urdfSensor.getType());
+            LogTools.error("Unsupport sensor type: " + urdfSensor.getType());
+            return null;
       }
 
       int updatePeriod = urdfSensor.getUpdateRate() == null ? -1 : (int) (1000.0 / parseDouble(urdfSensor.getUpdateRate(), 1000.0));
@@ -831,36 +839,28 @@ public class URDFTools
       return parseDouble(urdfMass.getValue(), DEFAULT_MASS);
    }
 
-   public static void parseLimit(URDFLimit urdfLimit, OneDoFJointDescription jointDefinitionToParseLimitInto, boolean ignorePositionLimits)
+   public static void parseLimit(URDFLimit urdfLimit, OneDoFJointDescription jointDescriptionToParseLimitInto, boolean ignorePositionLimits)
    {
-      double lowerLimit, upperLimit, effortLimit, velocityLimit;
+      jointDescriptionToParseLimitInto.setPositionLimits(DEFAULT_LOWER_LIMIT, DEFAULT_UPPER_LIMIT);
+      jointDescriptionToParseLimitInto.setEffortLimits(DEFAULT_EFFORT_LIMIT);
+      jointDescriptionToParseLimitInto.setVelocityLimits(DEFAULT_VELOCITY_LIMIT);
 
       if (urdfLimit != null)
       {
-         if (ignorePositionLimits)
+         if (!ignorePositionLimits)
          {
-            lowerLimit = DEFAULT_LOWER_LIMIT;
-            upperLimit = DEFAULT_UPPER_LIMIT;
+            double positionLowerLimit = parseDouble(urdfLimit.getLower(), DEFAULT_LOWER_LIMIT);
+            double positionUpperLimit = parseDouble(urdfLimit.getUpper(), DEFAULT_UPPER_LIMIT);
+            if (positionLowerLimit < positionUpperLimit)
+               jointDescriptionToParseLimitInto.setPositionLimits(positionLowerLimit, positionUpperLimit);
          }
-         else
-         {
-            lowerLimit = parseDouble(urdfLimit.getLower(), DEFAULT_LOWER_LIMIT);
-            upperLimit = parseDouble(urdfLimit.getUpper(), DEFAULT_UPPER_LIMIT);
-         }
-         effortLimit = parseDouble(urdfLimit.getEffort(), DEFAULT_EFFORT_LIMIT);
-         velocityLimit = parseDouble(urdfLimit.getVelocity(), DEFAULT_VELOCITY_LIMIT);
+         double effortLimit = parseDouble(urdfLimit.getEffort(), DEFAULT_EFFORT_LIMIT);
+         if (Double.isFinite(effortLimit) && effortLimit >= 0)
+            jointDescriptionToParseLimitInto.setEffortLimits(effortLimit);
+         double velocityLimit = parseDouble(urdfLimit.getVelocity(), DEFAULT_VELOCITY_LIMIT);
+         if (Double.isFinite(velocityLimit) && velocityLimit >= 0)
+            jointDescriptionToParseLimitInto.setVelocityLimits(velocityLimit);
       }
-      else
-      {
-         lowerLimit = DEFAULT_LOWER_LIMIT;
-         upperLimit = DEFAULT_UPPER_LIMIT;
-         effortLimit = DEFAULT_EFFORT_LIMIT;
-         velocityLimit = DEFAULT_VELOCITY_LIMIT;
-      }
-
-      jointDefinitionToParseLimitInto.setPositionLimits(lowerLimit, upperLimit);
-      jointDefinitionToParseLimitInto.setEffortLimits(effortLimit);
-      jointDefinitionToParseLimitInto.setVelocityLimits(velocityLimit);
    }
 
    public static void parseDynamics(URDFDynamics urdfDynamics, OneDoFJointDescription jointDescriptionToParseDynamicsInto)
