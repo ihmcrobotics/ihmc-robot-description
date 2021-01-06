@@ -8,9 +8,8 @@ import static us.ihmc.robotics.robotDescription.ValkyrieModelLoadingTest.assertS
 import static us.ihmc.robotics.robotDescription.ValkyrieModelLoadingTest.subtract;
 
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -174,9 +173,8 @@ public class AtlasModelLoadingTest
    @Test
    public void testSDFTools() throws Exception
    {
-      List<String> resourceDirectories = Arrays.asList("models/atlas/");
       InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/atlas/atlas_unplugged_v5_dual_robotiq.sdf");
-      SDFRoot sdfRoot = SDFTools.loadSDFRoot(resourceAsStream, resourceDirectories);
+      SDFRoot sdfRoot = SDFTools.loadSDFRoot(resourceAsStream, Collections.emptyList());
       RobotDescription robotDescription = SDFTools.toFloatingRootJointRobotDescription(sdfRoot.getModels().get(0));
       performAssertionsOnRobotDescription(robotDescription);
    }
@@ -184,9 +182,8 @@ public class AtlasModelLoadingTest
    @Test
    public void testURDFTools() throws Exception
    {
-      List<String> resourceDirectories = Arrays.asList("models/atlas/");
       InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/atlas/atlas_unplugged_v5_dual_robotiq_with_head.urdf");
-      URDFModel urdfModel = URDFTools.loadURDFModel(resourceAsStream, resourceDirectories);
+      URDFModel urdfModel = URDFTools.loadURDFModel(resourceAsStream, Collections.emptyList());
       RobotDescription robotDescription = URDFTools.toFloatingRootJointRobotDescription(urdfModel);
       performAssertionsOnRobotDescription(robotDescription);
    }

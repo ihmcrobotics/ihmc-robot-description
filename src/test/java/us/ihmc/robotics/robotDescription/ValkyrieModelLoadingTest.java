@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -193,9 +193,8 @@ public class ValkyrieModelLoadingTest
    @Test
    public void testSDFTools() throws Exception
    {
-      List<String> resourceDirectories = Arrays.asList("models/", "models/gazebo/", "models/val_description/", "models/val_description/sdf/");
-      InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/valkyrie/sdf/valkyrie_sim.sdf");
-      SDFRoot sdfRoot = SDFTools.loadSDFRoot(resourceAsStream, resourceDirectories);
+      InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/valkyrie/valkyrie_sim.sdf");
+      SDFRoot sdfRoot = SDFTools.loadSDFRoot(resourceAsStream, Collections.emptyList());
       RobotDescription robotDescription = SDFTools.toFloatingRootJointRobotDescription(sdfRoot.getModels().get(0));
       performAssertionsOnRobotDescription(robotDescription);
    }
@@ -203,9 +202,8 @@ public class ValkyrieModelLoadingTest
    @Test
    public void testURDFTools() throws Exception
    {
-      List<String> resourceDirectories = Arrays.asList("models/", "models/gazebo/", "models/val_description/", "models/val_description/urdf/");
-      InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/valkyrie/urdf/valkyrie_sim.urdf");
-      URDFModel urdfModel = URDFTools.loadURDFModel(resourceAsStream, resourceDirectories);
+      InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("models/valkyrie/valkyrie_sim.urdf");
+      URDFModel urdfModel = URDFTools.loadURDFModel(resourceAsStream, Collections.emptyList());
       RobotDescription robotDescription = URDFTools.toFloatingRootJointRobotDescription(urdfModel);
       performAssertionsOnRobotDescription(robotDescription);
    }
@@ -252,7 +250,6 @@ public class ValkyrieModelLoadingTest
    {
       for (String jointName : allJointNames)
       {
-         System.out.println("Validating joint: " + jointName);
          Map<String, Object> jointProperties = robotProperties.get(jointName);
          JointDescription jointDescription = robotDescription.getJointDescription(jointName);
          String messagePrefix = "Joint: " + jointName;
