@@ -15,7 +15,7 @@ ihmc {
 }
 
 mainDependencies {
-   api("us.ihmc:euclid:0.16.1")
+   api("us.ihmc:euclid:0.16.2")
    api("us.ihmc:ihmc-graphics-description:0.19.3")
 }
 
