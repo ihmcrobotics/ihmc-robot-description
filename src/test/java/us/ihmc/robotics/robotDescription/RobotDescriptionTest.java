@@ -242,14 +242,9 @@ public class RobotDescriptionTest
 
       assertNull(robotDescription.getJointDescription("noSuchJoint"));
       assertNull(robotDescription.getGraphicsObject("noSuchJoint"));
-      assertNull(robotDescription.getCollisionObjects("noSuchJoint"));
 
       Graphics3DObject linkGraphicsCheck = robotDescription.getGraphicsObject("childJointThree");
       assertTrue(linkGraphicsCheck == childGraphicsThree);
-
-      List<CollisionMeshDescription> collisionMeshCheck = robotDescription.getCollisionObjects("childJointThree");
-      assertTrue(collisionMeshCheck.get(0) == childMeshThree);
-
    }
 
    @Test
