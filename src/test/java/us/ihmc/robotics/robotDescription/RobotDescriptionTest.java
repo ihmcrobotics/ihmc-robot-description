@@ -53,8 +53,8 @@ public class RobotDescriptionTest
 
       Vector3D comOffsetCheck = new Vector3D();
       rootLinkOne.getCenterOfMassOffset(comOffsetCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 2.0, 3.0), comOffsetCheck, 1e-7);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 2.0, 3.0), rootLinkOne.getCenterOfMassOffset(), 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(1.0, 2.0, 3.0), comOffsetCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(1.0, 2.0, 3.0), rootLinkOne.getCenterOfMassOffset(), 1e-7);
 
       Matrix3D momentOfInertiaCopy = rootLinkOne.getMomentOfInertiaCopy();
       assertEquals(0.1, momentOfInertiaCopy.getM00(), 1e-7);
@@ -79,7 +79,7 @@ public class RobotDescriptionTest
       PinJointDescription rootJointTwo = new PinJointDescription("rootJointTwo", new Vector3D(-0.1, -0.2, -0.3), Axis3D.Y);
       Vector3D jointAxisCheck = new Vector3D();
       rootJointTwo.getJointAxis(jointAxisCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(0.0, 1.0, 0.0), jointAxisCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(0.0, 1.0, 0.0), jointAxisCheck, 1e-7);
 
       LinkDescription rootLinkTwo = new LinkDescription("rootLinkTwo");
       assertEquals("rootLinkTwo", rootLinkTwo.getName());
@@ -100,7 +100,7 @@ public class RobotDescriptionTest
 
       Vector3D jointOffsetCheck = new Vector3D();
       childJointOne.getOffsetFromParentJoint(jointOffsetCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.2, 1.3, 7.7), jointOffsetCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(1.2, 1.3, 7.7), jointOffsetCheck, 1e-7);
 
       LinkDescription childLinkOne = new LinkDescription("childLinkOne");
       childLinkOne.setMass(3.3);
@@ -128,7 +128,7 @@ public class RobotDescriptionTest
 
       childJointOne.setOffsetFromParentJoint(new Vector3D(-0.4, -0.5, -0.6));
       childJointOne.getOffsetFromParentJoint(jointOffsetCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(-0.4, -0.5, -0.6), jointOffsetCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(-0.4, -0.5, -0.6), jointOffsetCheck, 1e-7);
 
       assertFalse(childJointOne.containsLimitStops());
 
@@ -164,7 +164,7 @@ public class RobotDescriptionTest
       assertTrue(childJointOne.containsLimitStops());
 
       childJointOne.getJointAxis(jointAxisCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(0.0, 0.0, 1.0), jointAxisCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(0.0, 0.0, 1.0), jointAxisCheck, 1e-7);
 
       //TODO: Do Axis vectors need to be normalized???
       SliderJointDescription childJointTwo = new SliderJointDescription("childJointTwo", new Vector3D(0.5, 0.7, 0.9), new Vector3D(1.1, 2.2, 3.3));
@@ -185,13 +185,13 @@ public class RobotDescriptionTest
       assertEquals(0.0, childJointTwo.getStiction(), 1e-7);
 
       childJointTwo.getJointAxis(jointAxisCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.1, 2.2, 3.3), jointAxisCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(1.1, 2.2, 3.3), jointAxisCheck, 1e-7);
 
       LinkDescription childLinkTwo = new LinkDescription("childLinkTwo");
       childLinkTwo.setMass(9.9);
       childLinkTwo.setMomentOfInertia(1.9, 2.2, 0.4);
 
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(), childLinkTwo.getCenterOfMassOffset(), 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(), childLinkTwo.getCenterOfMassOffset(), 1e-7);
       childJointTwo.setLink(childLinkTwo);
 
       rootJointOne.addJoint(childJointTwo);
@@ -203,9 +203,9 @@ public class RobotDescriptionTest
 
       PinJointDescription childJointThree = new PinJointDescription("childJointThree", new Vector3D(9.9, 0.0, -0.5), Axis3D.X);
       childJointThree.getOffsetFromParentJoint(jointOffsetCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(9.9, 0.0, -0.5), jointOffsetCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(9.9, 0.0, -0.5), jointOffsetCheck, 1e-7);
       childJointThree.getJointAxis(jointAxisCheck);
-      EuclidCoreTestTools.assertTuple3DEquals("", new Vector3D(1.0, 0.0, 0.0), jointAxisCheck, 1e-7);
+      EuclidCoreTestTools.assertEquals("", new Vector3D(1.0, 0.0, 0.0), jointAxisCheck, 1e-7);
 
       LinkDescription childLinkThree = new LinkDescription("childLinkThree");
       childLinkThree.setMass(1.9);
