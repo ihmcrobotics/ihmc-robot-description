@@ -6,7 +6,7 @@ plugins {
 
 ihmc {
    group = "us.ihmc"
-   version = "0.21.5"
+   version = "0.21.6"
    vcsUrl = "https://github.com/ihmcrobotics/ihmc-robot-description"
    openSource = true
 
