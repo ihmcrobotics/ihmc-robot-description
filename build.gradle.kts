@@ -6,7 +6,7 @@ plugins {
 
 ihmc {
    group = "us.ihmc"
-   version = "0.21.9"
+   version = "0.21.10"
    vcsUrl = "https://github.com/ihmcrobotics/ihmc-robot-description"
    openSource = true
 
@@ -16,7 +16,7 @@ ihmc {
 
 mainDependencies {
    api("us.ihmc:euclid:0.20.0")
-   api("us.ihmc:ihmc-graphics-description:0.20.2")
+   api("us.ihmc:ihmc-graphics-description:0.20.3")
 }
 
 testDependencies {
